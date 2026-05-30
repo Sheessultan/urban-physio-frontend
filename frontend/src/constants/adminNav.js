@@ -1,0 +1,17 @@
+export const ADMIN_NAV = [
+  { to: '/admin', label: 'Dashboard', icon: 'fa-chart-line' },
+  { to: '/admin/locations', label: 'States & Cities', icon: 'fa-map-location-dot' },
+  { to: '/admin/users', label: 'Users', icon: 'fa-users' },
+  { to: '/admin/clinics', label: 'Clinics', icon: 'fa-hospital' },
+  { to: '/admin/conditions', label: 'Conditions', icon: 'fa-notes-medical' },
+  { to: '/admin/treatments', label: 'Treatments', icon: 'fa-hand-holding-medical' },
+  { to: '/admin/pain-selection', label: 'Pain map', icon: 'fa-bullseye' },
+  { to: '/admin/appointments', label: 'Appointments', icon: 'fa-calendar-check' },
+  { to: '/admin/emergency', label: 'Emergency', icon: 'fa-truck-medical' },
+  { to: '/admin/booking-settings', label: 'Booking', icon: 'fa-puzzle-piece' },
+  { to: '/admin/notifications', label: 'Notifications', icon: 'fa-bell', notifyKey: true },
+  { to: '/admin/contact', label: 'Contact & footer', icon: 'fa-envelope' },
+  { to: '/admin/invoice-settings', label: 'Invoice', icon: 'fa-file-invoice' },
+  { to: '/admin/logs', label: 'Audit Logs', icon: 'fa-clipboard-list' },
+  { to: '/admin/profile', label: 'Profile', icon: 'fa-user-gear' },
+];
