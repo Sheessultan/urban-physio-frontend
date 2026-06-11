@@ -230,11 +230,13 @@ export default function LocationSelector() {
           )}
         </section>
 
-        {canDismiss && !city && (
-          <button type="button" onClick={handleClose} className="w-full btn-outline text-sm py-2.5">
-            Skip for now
-          </button>
-        )}
+        <button
+  type="button"
+  onClick={() => setShowSelector(false)}
+  className="w-full btn-outline text-sm py-2.5"
+>
+  Skip for now
+</button>
       </div>
     </GlassModal>
   );
