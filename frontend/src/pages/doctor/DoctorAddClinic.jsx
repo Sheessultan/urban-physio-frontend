@@ -4,6 +4,7 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import LocationMapModal from '../../components/LocationMapModal';
 import FaIcon from '../../components/FaIcon';
 import SearchableLocationSelect from '../../components/SearchableLocationSelect';
+import ClinicLogoUpload from '../../components/ClinicLogoUpload';
 import { doctors, location } from '../../services/api';
 import { DOCTOR_NAV } from '../../constants/doctorNav';
 import toast from 'react-hot-toast';
@@ -15,6 +16,7 @@ const empty = () => ({
   pincode: '',
   phone: '',
   email: '',
+  logo: '',
   latitude: null,
   longitude: null,
   image_urls: [],
@@ -60,6 +62,7 @@ export default function DoctorAddClinic() {
           city_id: found.city_id ? String(found.city_id) : '',
           phone: found.phone || '',
           email: found.email || '',
+          logo: found.logo || '',
           latitude: found.latitude != null ? parseFloat(found.latitude) : null,
           longitude: found.longitude != null ? parseFloat(found.longitude) : null,
         }));
@@ -112,6 +115,12 @@ export default function DoctorAddClinic() {
       </div>
 
       <form onSubmit={submit} className="card max-w-2xl space-y-4">
+        <ClinicLogoUpload
+          logo={form.logo}
+          name={form.name}
+          clinicId={editId || null}
+          onUploaded={(url) => set('logo', url)}
+        />
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Clinic name</label>
           <input className="input-field" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Urban Physio Clinic" />

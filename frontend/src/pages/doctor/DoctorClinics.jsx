@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import FaIcon from '../../components/FaIcon';
+import ClinicLogo from '../../components/ClinicLogo';
 import { doctors } from '../../services/api';
 import { DOCTOR_NAV } from '../../constants/doctorNav';
 import toast from 'react-hot-toast';
@@ -100,7 +101,9 @@ export default function DoctorClinics() {
           {filtered.map((c) => (
             <div key={c.id} className="glass-card !p-4 md:!p-5 border border-white/80">
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
+                <div className="flex gap-3 min-w-0">
+                  <ClinicLogo clinic={c} size="lg" />
+                  <div className="min-w-0">
                   <p className="font-bold text-slate-900 truncate">{c.name}</p>
                   <p className="text-sm text-slate-600 mt-1 line-clamp-2">{c.address}</p>
                   <p className="text-xs text-slate-500 mt-2 flex flex-wrap gap-x-3 gap-y-1">
@@ -115,6 +118,7 @@ export default function DoctorClinics() {
                       </span>
                     )}
                   </p>
+                  </div>
                 </div>
                 <StatusBadge status={c.approval_status} />
               </div>

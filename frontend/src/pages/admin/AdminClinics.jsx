@@ -4,6 +4,8 @@ import FaIcon from '../../components/FaIcon';
 import GlassModal, { GlassModalHeader } from '../../components/GlassModal';
 import LocationMapModal from '../../components/LocationMapModal';
 import SearchableLocationSelect from '../../components/SearchableLocationSelect';
+import ClinicLogo from '../../components/ClinicLogo';
+import ClinicLogoUpload from '../../components/ClinicLogoUpload';
 import { admin, doctors as doctorsApi, location } from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -22,7 +24,9 @@ function ClinicRow({ clinic, onApprove, onReject, onEdit, onDelete, onManageDoct
   return (
     <div className="rounded-2xl border border-white/70 bg-white/50 hover:bg-white/70 transition p-4 md:p-5">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-        <div className="min-w-0">
+        <div className="flex gap-3 min-w-0">
+          <ClinicLogo clinic={clinic} size="lg" />
+          <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-bold text-slate-900 truncate">{clinic.name}</p>
             <StatusBadge status={clinic.approval_status} />
@@ -64,6 +68,7 @@ function ClinicRow({ clinic, onApprove, onReject, onEdit, onDelete, onManageDoct
             </p>
           )}
         </div>
+        </div>
 
         <div className="admin-table-scroll flex flex-nowrap md:flex-wrap gap-2 md:justify-end shrink-0 pb-1 md:pb-0">
           <button type="button" className="btn-outline text-sm" onClick={() => onManageDoctors(clinic)}>
@@ -102,6 +107,7 @@ function ClinicFormModal({ open, onClose, initial, onSave }) {
     city_id: '',
     phone: '',
     email: '',
+    logo: '',
     latitude: null,
     longitude: null,
     ...initial,
@@ -152,6 +158,12 @@ function ClinicFormModal({ open, onClose, initial, onSave }) {
         onClose={onClose}
       />
       <form onSubmit={submit} className="p-5 md:p-6 space-y-4">
+        <ClinicLogoUpload
+          logo={form.logo}
+          name={form.name}
+          clinicId={initial?.id || null}
+          onUploaded={(url) => set('logo', url)}
+        />
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Clinic name</label>

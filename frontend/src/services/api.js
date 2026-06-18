@@ -165,6 +165,19 @@ export const uploadAvatar = (file) => {
   }).then((res) => res.data);
 };
 
+export const uploadClinicLogo = (file, clinicId) => {
+  const form = new FormData();
+  form.append('logo', file);
+  if (clinicId) form.append('clinic_id', String(clinicId));
+  const token = localStorage.getItem('token');
+  return axios.post(`${API_BASE}/upload/clinic-logo`, form, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  }).then((res) => res.data);
+};
+
 export const payments = {
   createOrder: (appointmentId) => api.post('/payments/order', { appointment_id: appointmentId }),
   verify: (data) => api.post('/payments/verify', data),
