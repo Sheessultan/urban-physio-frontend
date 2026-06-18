@@ -1,9 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import FaIcon from '../components/FaIcon';
-import { doctors, packageBookings, treatmentPackages } from '../services/api';
+import BookingStepProgress from '../components/booking/BookingStepProgress';
+import LocationDoctorsBanner from '../components/booking/LocationDoctorsBanner';
+import DoctorSelectCards from '../components/booking/DoctorSelectCards';
+import { packageBookings, treatmentPackages } from '../services/api';
+import { useLocationDoctors } from '../hooks/useLocationDoctors';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import {
@@ -27,9 +31,9 @@ export default function PackageBookingWizard() {
   const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [pkg, setPkg] = useState(null);
-  const [doctorList, setDoctorList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
+  const { doctorList, loading: doctorsLoading, city, hasLocation, setShowSelector } = useLocationDoctors();
   const [form, setForm] = useState({
     doctor_id: '',
     start_date: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
@@ -42,37 +46,46 @@ export default function PackageBookingWizard() {
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([
-      treatmentPackages.get(slug).then((res) => res.data ?? res).catch(() => FALLBACK_PACKAGES[slug] || null),
-      doctors.list().then((res) => res.data ?? res ?? []).catch(() => []),
-    ])
-      .then(([p, docs]) => {
-        if (!p) {
+    treatmentPackages
+      .get(slug)
+      .then((res) => res.data ?? res)
+      .then((p) => {
+        if (!p) throw new Error('not found');
+        setPkg(p);
+      })
+      .catch(() => {
+        const fallback = FALLBACK_PACKAGES[slug];
+        if (fallback) setPkg(fallback);
+        else {
           toast.error('Package not found');
           navigate('/packages', { replace: true });
-          return;
         }
-        setPkg(p);
-        setDoctorList(Array.isArray(docs) ? docs : []);
       })
       .finally(() => setLoading(false));
   }, [slug, navigate]);
+
+  useEffect(() => {
+    if (form.doctor_id && !doctorList.some((d) => String(d.id) === String(form.doctor_id))) {
+      patch({ doctor_id: '' });
+    }
+  }, [doctorList, form.doctor_id]);
 
   const selectedDoctor = useMemo(
     () => doctorList.find((d) => String(d.id) === String(form.doctor_id)),
     [doctorList, form.doctor_id]
   );
 
-  const canNext = useCallback(() => {
-    if (step === 1) return !!form.doctor_id;
-    if (step === 2) return !!form.start_date;
-    return true;
-  }, [step, form]);
-
   const next = () => {
-    if (step === 1 && !form.doctor_id) {
-      toast.error('Please select a physiotherapist');
-      return;
+    if (step === 1) {
+      if (!hasLocation) {
+        toast.error('Please select your location first');
+        setShowSelector(true);
+        return;
+      }
+      if (!form.doctor_id) {
+        toast.error('Please select a physiotherapist in your area');
+        return;
+      }
     }
     if (step === 2 && !form.start_date) {
       toast.error('Please choose a start date');
@@ -129,31 +142,7 @@ export default function PackageBookingWizard() {
           <FaIcon icon="fa-arrow-left" /> Back to packages
         </Link>
 
-        {/* Progress */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between gap-2 mb-3">
-            {STEPS.map((label, i) => (
-              <div key={label} className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition ${
-                    i <= step ? 'bg-orange-600 text-white' : 'bg-slate-200 text-slate-500'
-                  }`}
-                >
-                  {i < step ? <FaIcon icon="fa-check" /> : i + 1}
-                </div>
-                <span className={`text-[10px] sm:text-xs font-medium truncate ${i <= step ? 'text-orange-700' : 'text-slate-400'}`}>
-                  {label}
-                </span>
-              </div>
-            ))}
-          </div>
-          <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-orange-500 to-amber-500 transition-all duration-300"
-              style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
-            />
-          </div>
-        </div>
+        <BookingStepProgress steps={STEPS} currentStep={step} accent="orange" />
 
         <div className="glass-strong rounded-2xl md:rounded-3xl p-5 sm:p-8">
           {/* Step 0: Package */}
@@ -189,41 +178,36 @@ export default function PackageBookingWizard() {
           {step === 1 && (
             <div className="space-y-4">
               <h2 className="text-xl font-bold text-slate-800">Choose your physiotherapist</h2>
-              <p className="text-sm text-slate-600">Your assigned doctor will guide all {pkg.total_sessions} sessions.</p>
-              <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
-                {doctorList.length === 0 ? (
-                  <p className="text-slate-500 text-sm">No doctors available right now.</p>
-                ) : (
-                  doctorList.map((d) => {
-                    const selected = String(form.doctor_id) === String(d.id);
-                    return (
-                      <button
-                        key={d.id}
-                        type="button"
-                        onClick={() => patch({ doctor_id: String(d.id) })}
-                        className={`w-full text-left p-4 rounded-xl border transition flex items-center gap-3 ${
-                          selected ? 'border-orange-500 bg-orange-50 ring-2 ring-orange-200' : 'border-slate-200 hover:border-orange-200'
-                        }`}
-                      >
-                        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-teal-500 to-primary-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
-                          {d.first_name?.[0]}{d.last_name?.[0]}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-slate-800">Dr. {d.first_name} {d.last_name}</p>
-                          <p className="text-xs text-slate-500 truncate">{d.specialization || 'Physiotherapist'}</p>
-                          {d.rating_avg > 0 && (
-                            <p className="text-xs text-amber-600 mt-0.5">
-                              <FaIcon icon="fa-star" className="mr-0.5" />
-                              {Number(d.rating_avg).toFixed(1)} ({d.rating_count || 0})
-                            </p>
-                          )}
-                        </div>
-                        {selected && <FaIcon icon="fa-circle-check" className="text-orange-600 text-lg shrink-0" />}
-                      </button>
-                    );
-                  })
-                )}
-              </div>
+              <p className="text-sm text-slate-600">
+                Only doctors available in your selected city are shown.
+              </p>
+
+              <LocationDoctorsBanner
+                city={city}
+                hasLocation={hasLocation}
+                onSelectLocation={() => setShowSelector(true)}
+                accent="orange"
+              />
+
+              {doctorsLoading ? (
+                <div className="flex items-center justify-center gap-2 py-12 text-slate-500 text-sm">
+                  <span className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                  Loading doctors near you…
+                </div>
+              ) : (
+                <DoctorSelectCards
+                  doctors={doctorList}
+                  selectedId={form.doctor_id}
+                  onSelect={(id) => patch({ doctor_id: id })}
+                  disabled={!hasLocation}
+                  accent="orange"
+                  emptyMessage={
+                    hasLocation
+                      ? `No physiotherapists found in ${city?.name || 'your area'}. Try another city.`
+                      : 'Select your city to see available doctors.'
+                  }
+                />
+              )}
             </div>
           )}
 
@@ -344,7 +328,12 @@ export default function PackageBookingWizard() {
               <div className="hidden sm:block sm:flex-1" />
             )}
             {step < STEPS.length - 1 ? (
-              <button type="button" onClick={next} disabled={!canNext()} className="btn-primary w-full sm:w-auto sm:min-w-[140px] sm:ml-auto">
+              <button
+                type="button"
+                onClick={next}
+                disabled={step === 1 && (!hasLocation || doctorsLoading)}
+                className="btn-primary w-full sm:w-auto sm:min-w-[140px] sm:ml-auto disabled:opacity-50"
+              >
                 Continue
               </button>
             ) : (

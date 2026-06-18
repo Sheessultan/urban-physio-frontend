@@ -78,17 +78,20 @@ export default function Navbar({ beforeLogo = null, headerSpacerClass = '' }) {
         }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
-          <div className="flex items-center justify-between gap-2 h-14 sm:h-16">
+          <div className="flex items-center h-14 sm:h-16 w-full">
             {/* Logo + optional admin sidebar toggle */}
-            <div className="flex items-center gap-2 min-w-0 shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               {beforeLogo}
               <Link to="/" className="flex items-center shrink-0" onClick={() => setMobileOpen(false)}>
                 <Logo className="h-8 md:h-9 w-auto max-w-[120px] md:max-w-[150px] object-contain" showText={false} />
               </Link>
             </div>
 
-            {/* Desktop navigation */}
-            <nav className="hidden lg:flex items-center justify-center gap-0.5 flex-1 px-2 xl:px-4 min-w-0" aria-label="Main">
+            {/* Desktop navigation — spaced from logo */}
+            <nav
+              className="hidden lg:flex items-center gap-0.5 ml-6 xl:ml-10 2xl:ml-12 shrink-0"
+              aria-label="Main"
+            >
               {NAV_LINKS.map((link) => (
                 <Link key={link.to} to={link.to} className={linkClass(link.to)}>
                   {link.label}
@@ -96,12 +99,12 @@ export default function Navbar({ beforeLogo = null, headerSpacerClass = '' }) {
               ))}
             </nav>
 
-            <div className="hidden xl:flex flex-1 max-w-[280px] min-w-0 justify-center px-2">
+            <div className="hidden xl:flex flex-1 max-w-[280px] min-w-0 justify-center px-4 lg:px-6 mx-auto">
               <GlobalSearch variant="header" onNavigate={() => setMobileOpen(false)} />
             </div>
 
             {/* Right actions */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
               <button
                 type="button"
                 onClick={() => setMobileOpen(true)}

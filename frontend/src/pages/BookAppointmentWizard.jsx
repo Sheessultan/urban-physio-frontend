@@ -25,6 +25,9 @@ import BookingPolicyAcceptance, {
   allPoliciesAccepted,
   emptyPolicyAcceptance,
 } from '../components/booking/BookingPolicyAcceptance';
+import BookingStepProgress from '../components/booking/BookingStepProgress';
+import LocationDoctorsBanner from '../components/booking/LocationDoctorsBanner';
+import DoctorSelectCards from '../components/booking/DoctorSelectCards';
 import { POLICY_LAST_UPDATED } from '../constants/policyPages';
 import { matchPainTypeLabel, matchHomeConditionLabel } from '../utils/bookUrl';
 
@@ -684,12 +687,10 @@ export default function BookAppointmentWizard() {
     }
   };
 
-  const progress = ((step + 1) / STEPS.length) * 100;
-
   return (
-    <div className="min-h-screen pb-16">
+    <div className="page-enter min-h-screen bg-gradient-to-b from-primary-50/30 via-white to-slate-50 pb-16">
       <Navbar />
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-3xl mx-auto px-4 pt-6 pb-8">
         <button
           type="button"
           onClick={() => (step > 0 ? back() : navigate(-1))}
@@ -698,63 +699,49 @@ export default function BookAppointmentWizard() {
           <FaIcon icon="fa-arrow-left" />
           Back
         </button>
-        <div className="mb-8">
+
+        <div className="mb-2">
           <h1 className="text-2xl md:text-3xl font-bold text-slate-800">Book Appointment</h1>
-          <p className="text-slate-600 mt-1">Step {step + 1} of {STEPS.length}: {STEPS[step]}</p>
-          <div className="mt-4 h-2 rounded-full bg-white/50 overflow-hidden">
-            <div
-              className="h-full bg-primary-600 transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <div className="flex flex-wrap gap-1 mt-3">
-            {STEPS.map((label, i) => (
-              <span
-                key={label}
-                className={`text-xs px-2 py-0.5 rounded-full ${
-                  i === step
-                    ? 'bg-primary-600 text-white'
-                    : i < step
-                      ? 'bg-primary-100 text-primary-800'
-                      : 'bg-white/50 text-slate-500'
-                }`}
-              >
-                {i + 1}. {label}
-              </span>
-            ))}
-          </div>
-          {prefillLabel && (
-            <div className="mt-4 flex items-start gap-2 rounded-xl bg-emerald-50 border border-emerald-200/70 px-3 py-2.5 text-sm text-emerald-900">
-              <FaIcon icon="fa-circle-check" className="text-emerald-600 mt-0.5 shrink-0" />
-              <p>
-                Pre-selected: <strong>{prefillLabel}</strong>
-                {' — '}
-                <span className="text-emerald-800/90">Complete the remaining steps to confirm your booking.</span>
-              </p>
-            </div>
-          )}
+          <p className="text-slate-600 text-sm mt-1">{STEPS[step]}</p>
         </div>
 
-        <div className="card">
+        <BookingStepProgress steps={STEPS} currentStep={step} accent="primary" />
+
+        {prefillLabel && (
+          <div className="mb-6 flex items-start gap-2 rounded-xl bg-emerald-50 border border-emerald-200/70 px-3 py-2.5 text-sm text-emerald-900">
+            <FaIcon icon="fa-circle-check" className="text-emerald-600 mt-0.5 shrink-0" />
+            <p>
+              Pre-selected: <strong>{prefillLabel}</strong>
+              {' — '}
+              <span className="text-emerald-800/90">Complete the remaining steps to confirm.</span>
+            </p>
+          </div>
+        )}
+
+        <div className="glass-strong rounded-2xl md:rounded-3xl p-5 sm:p-8">
           {step === 0 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold">Select Service Type</h2>
+              <h2 className="text-xl font-bold text-slate-800">How would you like to consult?</h2>
               <div className="grid gap-3">
                 {serviceTypesForBooking.map((s) => (
                   <button
                     key={s.id}
                     type="button"
                     onClick={() => patch({ consultation_type: s.id })}
-                    className={`flex items-start gap-4 p-4 rounded-xl border-2 text-left transition ${
+                    className={`flex items-start gap-4 p-4 sm:p-5 rounded-xl border-2 text-left transition ${
                       form.consultation_type === s.id
-                        ? 'border-primary-500 bg-primary-50/80'
-                        : 'border-white/60 bg-white/30 hover:bg-white/50'
+                        ? 'border-primary-500 bg-primary-50/90 ring-1 ring-primary-200'
+                        : 'border-slate-200 bg-white/80 hover:border-primary-200 hover:bg-white'
                     }`}
                   >
-                    <FaIcon icon={s.icon} className="text-2xl text-primary-600 mt-1" />
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                      form.consultation_type === s.id ? 'bg-primary-600 text-white' : 'bg-primary-100 text-primary-600'
+                    }`}>
+                      <FaIcon icon={s.icon} className="text-lg" />
+                    </div>
                     <div>
-                      <p className="font-semibold">{s.label}</p>
-                      <p className="text-sm text-slate-600">{s.desc}</p>
+                      <p className="font-semibold text-slate-800">{s.label}</p>
+                      <p className="text-sm text-slate-600 mt-0.5">{s.desc}</p>
                     </div>
                   </button>
                 ))}
@@ -764,7 +751,7 @@ export default function BookAppointmentWizard() {
 
           {step === 1 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold">Problem / Pain Type</h2>
+              <h2 className="text-xl font-bold text-slate-800">Tell us about your problem</h2>
               <label className="block text-sm font-medium text-slate-700">Pain type</label>
               <select
                 className="input-field"
@@ -802,37 +789,15 @@ export default function BookAppointmentWizard() {
 
           {step === 2 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold">
-                {form.consultation_type === 'clinic' ? 'Clinic & Doctor' : 'Select Doctor'}
+              <h2 className="text-xl font-bold text-slate-800">
+                {form.consultation_type === 'clinic' ? 'Clinic & doctor' : 'Choose your doctor'}
               </h2>
 
-              {city ? (
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-primary-50/80 border border-primary-200/50 px-3 py-2.5 text-sm">
-                  <span className="text-slate-700 inline-flex items-center gap-1.5">
-                    <FaIcon icon="fa-location-dot" className="text-primary-600" />
-                    Showing providers near <strong className="text-slate-800">{city.name}</strong>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setShowSelector(true)}
-                    className="text-primary-600 font-semibold text-xs hover:underline"
-                  >
-                    Change location
-                  </button>
-                </div>
-              ) : (
-                <div className="rounded-xl bg-amber-50 border border-amber-200/60 px-3 py-3 text-sm text-amber-900">
-                  <p className="font-medium">Location required</p>
-                  <p className="text-xs mt-1 text-amber-800/90">Select your city to see nearby doctors.</p>
-                  <button
-                    type="button"
-                    onClick={() => setShowSelector(true)}
-                    className="btn-primary text-xs mt-2 py-2 px-3"
-                  >
-                    Select location
-                  </button>
-                </div>
-              )}
+              <LocationDoctorsBanner
+                city={city}
+                hasLocation={!!city || !!coords}
+                onSelectLocation={() => setShowSelector(true)}
+              />
 
               {form.consultation_type === 'clinic' && (
                 <>
@@ -934,15 +899,13 @@ export default function BookAppointmentWizard() {
                     </a>
                   )}
                 </div>
-              ) : (
+              ) : form.consultation_type === 'clinic' ? (
                 <>
-                  <label className="block text-sm font-medium">
-                    {form.consultation_type === 'clinic' ? 'Select doctor (optional)' : 'Select doctor'}
-                  </label>
+                  <label className="block text-sm font-medium text-slate-700">Select doctor (optional)</label>
                   {doctorsLoading || locLoading ? (
                     <div className="input-field flex items-center gap-2 text-slate-500 text-sm">
                       <span className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-                      Loading doctors near you...
+                      Loading doctors…
                     </div>
                   ) : (
                     <select
@@ -952,32 +915,45 @@ export default function BookAppointmentWizard() {
                       onChange={(e) => {
                         const id = e.target.value;
                         patch({ doctor_id: id });
-                        const list =
-                          form.consultation_type === 'clinic' && form.clinic_id
-                            ? clinicDoctors
-                            : doctorsForType;
-                        const doc = list.find((d) => String(d.id) === id);
+                        const doc = clinicDoctors.find((d) => String(d.id) === id);
                         if (doc) setSelectedDoctor(doc);
                       }}
                     >
                       <option value="">
-                        {form.consultation_type === 'clinic' && !form.clinic_id
-                          ? 'Select a clinic first...'
-                          : form.consultation_type === 'clinic'
-                            ? 'Auto assign from clinic availability'
-                            : 'Choose doctor...'}
+                        {!form.clinic_id
+                          ? 'Select a clinic first…'
+                          : 'Auto assign from clinic availability'}
                       </option>
-                      {(form.consultation_type === 'clinic' && form.clinic_id
-                        ? clinicDoctors
-                        : doctorsForType
-                      ).map((d) => (
+                      {clinicDoctors.map((d) => (
                         <option key={d.id} value={d.id}>
                           Dr. {d.first_name} {d.last_name} — {d.specialization}
-                          {d.distance_km != null ? ` (${d.distance_km} km)` : ''}
-                          {d.city_name ? ` · ${d.city_name}` : ''}
                         </option>
                       ))}
                     </select>
+                  )}
+                </>
+              ) : (
+                <>
+                  {doctorsLoading || locLoading ? (
+                    <div className="flex items-center justify-center gap-2 py-10 text-slate-500 text-sm">
+                      <span className="w-5 h-5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+                      Loading doctors in {city?.name || 'your area'}…
+                    </div>
+                  ) : (
+                    <DoctorSelectCards
+                      doctors={doctorsForType}
+                      selectedId={form.doctor_id}
+                      onSelect={(id, doc) => {
+                        patch({ doctor_id: id });
+                        setSelectedDoctor(doc);
+                      }}
+                      disabled={!city && !coords}
+                      emptyMessage={
+                        city
+                          ? `No doctors found in ${city.name}. Try another city.`
+                          : 'Select your city to see available doctors.'
+                      }
+                    />
                   )}
                 </>
               )}
@@ -1417,14 +1393,14 @@ export default function BookAppointmentWizard() {
             </div>
           )}
 
-          <div className="flex gap-3 mt-8 pt-6 border-t border-white/40">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 mt-8 pt-6 border-t border-slate-100">
             {step > 0 && (
-              <button type="button" onClick={back} className="btn-outline flex-1">
+              <button type="button" onClick={back} className="btn-outline w-full sm:w-auto sm:min-w-[120px]">
                 Back
               </button>
             )}
             {step < STEPS.length - 1 ? (
-              <button type="button" onClick={next} className="btn-primary flex-1">
+              <button type="button" onClick={next} className="btn-primary w-full sm:w-auto sm:min-w-[140px] sm:ml-auto">
                 Continue
               </button>
             ) : (
@@ -1432,7 +1408,7 @@ export default function BookAppointmentWizard() {
                 type="button"
                 onClick={handleBookAndPay}
                 disabled={submitting || !policiesOk}
-                className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary w-full sm:w-auto sm:min-w-[180px] sm:ml-auto disabled:opacity-50 disabled:cursor-not-allowed"
                 title={!policiesOk ? 'Accept all policies first' : undefined}
               >
                 {submitting
