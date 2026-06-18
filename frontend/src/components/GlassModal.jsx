@@ -54,10 +54,10 @@ export default function GlassModal({
         onClick={() => closeOnBackdrop && !preventClose && onClose()}
       />
 
-      <div className="fixed inset-0 overflow-y-auto overscroll-contain pointer-events-none py-4 sm:py-6 md:py-8">
-        <div className={`flex min-h-full items-start sm:items-center justify-center px-4 sm:px-6 md:px-8 ${className}`}>
+      <div className="fixed inset-0 overflow-y-auto overscroll-contain pointer-events-none p-4 sm:p-6 md:p-8">
+        <div className={`flex min-h-full w-full items-start justify-center sm:items-center ${className}`}>
           <div
-            className={`glass-modal-panel relative w-full max-h-[min(calc(100dvh-2rem),920px)] ${SIZES[size] || SIZES.md} pointer-events-auto flex flex-col ${panelClassName}`}
+            className={`glass-modal-panel relative w-full my-auto sm:my-4 max-h-[calc(100dvh-2rem)] sm:max-h-[min(calc(100dvh-4rem),920px)] ${SIZES[size] || SIZES.md} pointer-events-auto flex flex-col ${panelClassName}`}
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
           >

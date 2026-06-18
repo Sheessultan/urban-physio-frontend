@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import AdminDashboardLayout from '../../layouts/AdminDashboardLayout';
+import GlassModal, { GlassModalBody, GlassModalFooter, GlassModalHeader } from '../../components/GlassModal';
 import FaIcon from '../../components/FaIcon';
 import { admin } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -168,39 +169,45 @@ export default function AdminExercises() {
         </div>
       )}
 
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40">
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
-            <h2 className="text-lg font-bold mb-4">{editingId ? 'Edit exercise' : 'New exercise'}</h2>
-            <div className="space-y-3">
-              <input className="input-field" placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-              <div className="grid grid-cols-2 gap-3">
-                <input className="input-field" placeholder="Body area" value={form.body_area} onChange={(e) => setForm({ ...form, body_area: e.target.value })} />
-                <select className="input-field" value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })}>
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                <input className="input-field" type="number" placeholder="Sets" value={form.default_sets} onChange={(e) => setForm({ ...form, default_sets: e.target.value })} />
-                <input className="input-field" placeholder="Reps" value={form.default_reps} onChange={(e) => setForm({ ...form, default_reps: e.target.value })} />
-                <input className="input-field" type="number" placeholder="Hold (s)" value={form.default_hold_seconds} onChange={(e) => setForm({ ...form, default_hold_seconds: e.target.value })} />
-              </div>
-              <input className="input-field" placeholder="Equipment" value={form.equipment} onChange={(e) => setForm({ ...form, equipment: e.target.value })} />
-              <textarea className="input-field min-h-[100px]" placeholder="Instructions" value={form.instructions} onChange={(e) => setForm({ ...form, instructions: e.target.value })} required />
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked ? 1 : 0 })} />
-                Active
-              </label>
+      <GlassModal open={modalOpen} onClose={() => !saving && setModalOpen(false)} size="lg" titleId="exercise-form" preventClose={saving}>
+        <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
+          <GlassModalHeader
+            titleId="exercise-form"
+            title={editingId ? 'Edit exercise' : 'Add exercise'}
+            subtitle="Sets, reps, body area and instructions for the exercise library"
+            icon="fa-dumbbell"
+            accent="cyan"
+            onClose={() => !saving && setModalOpen(false)}
+            disabledClose={saving}
+          />
+          <GlassModalBody className="space-y-3">
+            <input className="input-field" placeholder="Exercise name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+            <div className="grid grid-cols-2 gap-3">
+              <input className="input-field" placeholder="Body area" value={form.body_area} onChange={(e) => setForm({ ...form, body_area: e.target.value })} />
+              <select className="input-field" value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })}>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
             </div>
-            <div className="flex gap-3 mt-6">
-              <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? 'Saving…' : 'Save'}</button>
-              <button type="button" onClick={() => setModalOpen(false)} className="btn-outline flex-1">Cancel</button>
+            <div className="grid grid-cols-3 gap-2">
+              <input className="input-field" type="number" placeholder="Sets" value={form.default_sets} onChange={(e) => setForm({ ...form, default_sets: e.target.value })} />
+              <input className="input-field" placeholder="Reps" value={form.default_reps} onChange={(e) => setForm({ ...form, default_reps: e.target.value })} />
+              <input className="input-field" type="number" placeholder="Hold (s)" value={form.default_hold_seconds} onChange={(e) => setForm({ ...form, default_hold_seconds: e.target.value })} />
             </div>
-          </form>
-        </div>
-      )}
+            <input className="input-field" placeholder="Equipment (optional)" value={form.equipment} onChange={(e) => setForm({ ...form, equipment: e.target.value })} />
+            <textarea className="input-field min-h-[100px]" placeholder="Step-by-step instructions" value={form.instructions} onChange={(e) => setForm({ ...form, instructions: e.target.value })} required />
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked ? 1 : 0 })} />
+              Active on website
+            </label>
+          </GlassModalBody>
+          <GlassModalFooter>
+            <button type="button" onClick={() => setModalOpen(false)} className="btn-outline" disabled={saving}>Cancel</button>
+            <button type="submit" disabled={saving} className="btn-primary ml-auto">{saving ? 'Saving…' : 'Save exercise'}</button>
+          </GlassModalFooter>
+        </form>
+      </GlassModal>
     </AdminDashboardLayout>
   );
 }

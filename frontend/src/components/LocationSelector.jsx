@@ -3,7 +3,7 @@ import FaIcon from './FaIcon';
 import SearchableLocationSelect from './SearchableLocationSelect';
 import { location } from '../services/api';
 import { useLocation } from '../contexts/LocationContext';
-import GlassModal, { GlassModalHeader } from './GlassModal';
+import GlassModal, { GlassModalBody, GlassModalHeader } from './GlassModal';
 
 export default function LocationSelector() {
   const {
@@ -101,7 +101,6 @@ export default function LocationSelector() {
       closeOnBackdrop={canDismiss}
       preventClose={!canDismiss}
       panelClassName="overflow-visible-panel location-selector-modal"
-      className="items-end sm:items-center p-0 sm:p-4"
     >
       <GlassModalHeader
         titleId="location-selector-title"
@@ -112,7 +111,7 @@ export default function LocationSelector() {
         onClose={canDismiss ? handleClose : undefined}
       />
 
-      <div className="location-selector-body p-5 md:p-6 space-y-5 max-h-[min(78vh,640px)] overflow-y-auto overflow-x-hidden">
+      <GlassModalBody className="location-selector-body space-y-5 !max-h-[min(60vh,640px)]">
         {city && (
           <div className="location-selector-current flex items-center gap-3 rounded-2xl border border-primary-200/60 bg-primary-50/70 px-4 py-3">
             <div className="w-10 h-10 rounded-xl bg-primary-600 text-white flex items-center justify-center shrink-0">
@@ -231,13 +230,13 @@ export default function LocationSelector() {
         </section>
 
         <button
-  type="button"
-  onClick={() => setShowSelector(false)}
-  className="w-full btn-outline text-sm py-2.5"
->
-  Skip for now
-</button>
-      </div>
+          type="button"
+          onClick={() => setShowSelector(false)}
+          className="w-full btn-outline text-sm py-2.5"
+        >
+          Skip for now
+        </button>
+      </GlassModalBody>
     </GlassModal>
   );
 }

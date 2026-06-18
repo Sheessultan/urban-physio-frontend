@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import AdminDashboardLayout from '../../layouts/AdminDashboardLayout';
+import GlassModal, { GlassModalBody, GlassModalFooter, GlassModalHeader } from '../../components/GlassModal';
 import FaIcon from '../../components/FaIcon';
 import { admin } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -85,16 +86,28 @@ export default function AdminPhysioFeed() {
         </div>
       )}
 
-      {modal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40">
-          <form onSubmit={save} className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-3">
-            <h2 className="font-bold text-lg">{editId ? 'Edit post' : 'New post'}</h2>
+      <GlassModal open={modal} onClose={() => !saving && setModal(false)} size="xl" titleId="physio-feed-form" preventClose={saving}>
+        <form onSubmit={save} className="flex flex-col min-h-0 flex-1">
+          <GlassModalHeader
+            titleId="physio-feed-form"
+            title={editId ? 'Edit post' : 'New post'}
+            subtitle="Blog, condition or podcast — SEO fields and scheduling"
+            icon="fa-rss"
+            accent="violet"
+            onClose={() => !saving && setModal(false)}
+            disabledClose={saving}
+          />
+          <GlassModalBody className="space-y-3">
             <div className="grid sm:grid-cols-2 gap-3">
               <select className="input-field" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
-                <option value="blog">Blog</option><option value="condition">Condition</option><option value="podcast">Podcast</option>
+                <option value="blog">Blog</option>
+                <option value="condition">Condition</option>
+                <option value="podcast">Podcast</option>
               </select>
               <select className="input-field" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-                <option value="draft">Draft</option><option value="scheduled">Scheduled</option><option value="published">Published</option>
+                <option value="draft">Draft</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="published">Published</option>
               </select>
             </div>
             <input className="input-field" placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
@@ -104,13 +117,13 @@ export default function AdminPhysioFeed() {
             <input className="input-field" placeholder="SEO description" value={form.seo_description} onChange={(e) => setForm({ ...form, seo_description: e.target.value })} />
             <input className="input-field" placeholder="Scheduled at (YYYY-MM-DD HH:MM:SS)" value={form.scheduled_at || ''} onChange={(e) => setForm({ ...form, scheduled_at: e.target.value })} />
             <input className="input-field" placeholder="Audio URL (podcast)" value={form.audio_url || ''} onChange={(e) => setForm({ ...form, audio_url: e.target.value })} />
-            <div className="flex gap-3 pt-2">
-              <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? 'Saving…' : 'Save'}</button>
-              <button type="button" onClick={() => setModal(false)} className="btn-outline flex-1">Cancel</button>
-            </div>
-          </form>
-        </div>
-      )}
+          </GlassModalBody>
+          <GlassModalFooter>
+            <button type="button" onClick={() => setModal(false)} className="btn-outline" disabled={saving}>Cancel</button>
+            <button type="submit" disabled={saving} className="btn-primary ml-auto">{saving ? 'Saving…' : 'Save post'}</button>
+          </GlassModalFooter>
+        </form>
+      </GlassModal>
     </AdminDashboardLayout>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import GlassModal, { GlassModalBody } from '../components/GlassModal';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import FaIcon from '../components/FaIcon';
@@ -48,71 +49,59 @@ const FALLBACK = [
 ];
 
 function ExerciseModal({ exercise, onClose }) {
-  if (!exercise) return null;
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/50 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-        className="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full sm:max-w-lg max-h-[92vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className={`p-6 bg-gradient-to-br ${AREA_GRADIENT[exercise.body_area] || AREA_GRADIENT.general} rounded-t-3xl sm:rounded-t-3xl`}>
-          <div className="flex justify-between items-start gap-3">
+    <GlassModal open={!!exercise} onClose={onClose} size="md" titleId="exercise-detail">
+      {exercise && (
+        <>
+          <div className={`shrink-0 p-5 md:p-6 bg-gradient-to-br ${AREA_GRADIENT[exercise.body_area] || AREA_GRADIENT.general}`}>
+            <div className="flex justify-between items-start gap-3">
+              <div className="min-w-0">
+                <span className="text-xs font-bold uppercase tracking-wider text-teal-700 capitalize">{exercise.body_area}</span>
+                <h2 id="exercise-detail" className="text-xl md:text-2xl font-bold text-slate-800 mt-1">{exercise.name}</h2>
+              </div>
+              <button type="button" onClick={onClose} className="glass-modal-close shrink-0" aria-label="Close">
+                <FaIcon icon="fa-xmark" />
+              </button>
+            </div>
+            <span className={`inline-block mt-3 text-xs font-bold px-2.5 py-1 rounded-full border capitalize ${DIFFICULTY_STYLES[exercise.difficulty]}`}>
+              {exercise.difficulty}
+            </span>
+          </div>
+          <GlassModalBody className="space-y-4">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="text-center p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <p className="text-lg font-bold text-slate-800">{exercise.default_sets}</p>
+                <p className="text-[10px] uppercase text-slate-500 font-semibold">Sets</p>
+              </div>
+              <div className="text-center p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <p className="text-lg font-bold text-slate-800">{exercise.default_reps}</p>
+                <p className="text-[10px] uppercase text-slate-500 font-semibold">Reps</p>
+              </div>
+              <div className="text-center p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <p className="text-lg font-bold text-slate-800">{exercise.default_hold_seconds || '—'}</p>
+                <p className="text-[10px] uppercase text-slate-500 font-semibold">Hold (s)</p>
+              </div>
+            </div>
+            {exercise.equipment && (
+              <p className="text-sm text-slate-600 flex items-center gap-2">
+                <FaIcon icon="fa-toolbox" className="text-teal-600" />
+                Equipment: <span className="font-semibold text-slate-800">{exercise.equipment}</span>
+              </p>
+            )}
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-700 capitalize">{exercise.body_area}</span>
-              <h2 className="text-xl md:text-2xl font-bold text-slate-800 mt-1">{exercise.name}</h2>
+              <h3 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
+                <FaIcon icon="fa-list-ol" className="text-teal-600" />
+                Instructions
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{exercise.instructions}</p>
             </div>
-            <button type="button" onClick={onClose} className="w-9 h-9 rounded-full bg-white/80 flex items-center justify-center text-slate-500 hover:text-slate-800">
-              <FaIcon icon="fa-xmark" />
-            </button>
-          </div>
-          <span className={`inline-block mt-3 text-xs font-bold px-2.5 py-1 rounded-full border capitalize ${DIFFICULTY_STYLES[exercise.difficulty]}`}>
-            {exercise.difficulty}
-          </span>
-        </div>
-        <div className="p-6 space-y-4">
-          <div className="grid grid-cols-3 gap-2">
-            <div className="text-center p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <p className="text-lg font-bold text-slate-800">{exercise.default_sets}</p>
-              <p className="text-[10px] uppercase text-slate-500 font-semibold">Sets</p>
-            </div>
-            <div className="text-center p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <p className="text-lg font-bold text-slate-800">{exercise.default_reps}</p>
-              <p className="text-[10px] uppercase text-slate-500 font-semibold">Reps</p>
-            </div>
-            <div className="text-center p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <p className="text-lg font-bold text-slate-800">{exercise.default_hold_seconds || '—'}</p>
-              <p className="text-[10px] uppercase text-slate-500 font-semibold">Hold (s)</p>
-            </div>
-          </div>
-          {exercise.equipment && (
-            <p className="text-sm text-slate-600 flex items-center gap-2">
-              <FaIcon icon="fa-toolbox" className="text-teal-600" />
-              Equipment: <span className="font-semibold text-slate-800">{exercise.equipment}</span>
-            </p>
-          )}
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
-              <FaIcon icon="fa-list-ol" className="text-teal-600" />
-              Instructions
-            </h3>
-            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{exercise.instructions}</p>
-          </div>
-          <Link to={bookExerciseUrl(exercise)} className="btn-primary w-full block text-center mt-2">
-            Book a physiotherapist
-          </Link>
-        </div>
-      </motion.div>
-    </motion.div>
+            <Link to={bookExerciseUrl(exercise)} className="btn-primary w-full block text-center">
+              Book a physiotherapist
+            </Link>
+          </GlassModalBody>
+        </>
+      )}
+    </GlassModal>
   );
 }
 
@@ -286,9 +275,7 @@ export default function ExerciseLibrary() {
         </section>
       </main>
 
-      <AnimatePresence>
-        {selected && <ExerciseModal exercise={selected} onClose={() => setSelected(null)} />}
-      </AnimatePresence>
+      {selected && <ExerciseModal exercise={selected} onClose={() => setSelected(null)} />}
 
       <Footer />
     </div>

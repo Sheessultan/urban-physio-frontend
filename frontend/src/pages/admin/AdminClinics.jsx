@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import AdminDashboardLayout from '../../layouts/AdminDashboardLayout';
 import FaIcon from '../../components/FaIcon';
-import GlassModal, { GlassModalHeader } from '../../components/GlassModal';
+import GlassModal, { GlassModalBody, GlassModalFooter, GlassModalHeader } from '../../components/GlassModal';
 import LocationMapModal from '../../components/LocationMapModal';
 import SearchableLocationSelect from '../../components/SearchableLocationSelect';
 import ClinicLogo from '../../components/ClinicLogo';
@@ -149,82 +149,83 @@ function ClinicFormModal({ open, onClose, initial, onSave }) {
 
   return (
     <GlassModal open={open} onClose={onClose} size="lg" titleId="admin-clinic-form">
-      <GlassModalHeader
-        titleId="admin-clinic-form"
-        title={initial?.id ? 'Edit clinic' : 'Create clinic'}
-        subtitle="Admin can create, edit, approve and manage doctors for any clinic."
-        icon="fa-hospital"
-        accent="primary"
-        onClose={onClose}
-      />
-      <form onSubmit={submit} className="p-5 md:p-6 space-y-4">
-        <ClinicLogoUpload
-          logo={form.logo}
-          name={form.name}
-          clinicId={initial?.id || null}
-          onUploaded={(url) => set('logo', url)}
+      <form onSubmit={submit} className="flex flex-col min-h-0 flex-1">
+        <GlassModalHeader
+          titleId="admin-clinic-form"
+          title={initial?.id ? 'Edit clinic' : 'Create clinic'}
+          subtitle="Admin can create, edit, approve and manage doctors for any clinic."
+          icon="fa-hospital"
+          accent="primary"
+          onClose={onClose}
         />
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Clinic name</label>
-            <input className="input-field" value={form.name} onChange={(e) => set('name', e.target.value)} required />
+        <GlassModalBody className="space-y-4">
+          <ClinicLogoUpload
+            logo={form.logo}
+            name={form.name}
+            clinicId={initial?.id || null}
+            onUploaded={(url) => set('logo', url)}
+          />
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Clinic name</label>
+              <input className="input-field" value={form.name} onChange={(e) => set('name', e.target.value)} required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+              <input className="input-field" value={form.phone} onChange={(e) => set('phone', e.target.value)} required />
+            </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
-            <input className="input-field" value={form.phone} onChange={(e) => set('phone', e.target.value)} required />
+            <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
+            <textarea className="input-field" rows={3} value={form.address} onChange={(e) => set('address', e.target.value)} required />
           </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
-          <textarea className="input-field" rows={3} value={form.address} onChange={(e) => set('address', e.target.value)} required />
-        </div>
-        <div className="grid sm:grid-cols-2 gap-4">
-          <SearchableLocationSelect
-            label="State"
-            placeholder="Select state"
-            options={states}
-            value={stateId}
-            onChange={(id) => {
-              setStateId(id);
-              set('city_id', '');
-            }}
-          />
-          <SearchableLocationSelect
-            label="City"
-            placeholder={stateId ? 'Select city' : 'Select state first'}
-            options={cities}
-            value={form.city_id || ''}
-            onChange={(id) => set('city_id', id)}
-            disabled={!stateId}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Email (optional)</label>
-          <input type="email" className="input-field" value={form.email || ''} onChange={(e) => set('email', e.target.value)} />
-        </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <SearchableLocationSelect
+              label="State"
+              placeholder="Select state"
+              options={states}
+              value={stateId}
+              onChange={(id) => {
+                setStateId(id);
+                set('city_id', '');
+              }}
+            />
+            <SearchableLocationSelect
+              label="City"
+              placeholder={stateId ? 'Select city' : 'Select state first'}
+              options={cities}
+              value={form.city_id || ''}
+              onChange={(id) => set('city_id', id)}
+              disabled={!stateId}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Email (optional)</label>
+            <input type="email" className="input-field" value={form.email || ''} onChange={(e) => set('email', e.target.value)} />
+          </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <p className="font-semibold text-slate-800 text-sm flex items-center gap-2">
-            <FaIcon icon="fa-map-location-dot" className="text-primary-600" /> Map location
-          </p>
-          <button type="button" className="btn-outline text-sm mt-3 w-full" onClick={() => setMapOpen(true)}>
-            Pick on map
-          </button>
-          {form.latitude != null && (
-            <p className="text-xs text-slate-600 mt-2">
-              Pin: {Number(form.latitude).toFixed(5)}, {Number(form.longitude).toFixed(5)}
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="font-semibold text-slate-800 text-sm flex items-center gap-2">
+              <FaIcon icon="fa-map-location-dot" className="text-primary-600" /> Map location
             </p>
-          )}
-        </div>
-
-        <div className="glass-modal-footer flex gap-2 justify-end">
+            <button type="button" className="btn-outline text-sm mt-3 w-full" onClick={() => setMapOpen(true)}>
+              Pick on map
+            </button>
+            {form.latitude != null && (
+              <p className="text-xs text-slate-600 mt-2">
+                Pin: {Number(form.latitude).toFixed(5)}, {Number(form.longitude).toFixed(5)}
+              </p>
+            )}
+          </div>
+        </GlassModalBody>
+        <GlassModalFooter>
           <button type="button" className="btn-outline text-sm" onClick={onClose}>
             Cancel
           </button>
-          <button type="submit" className="btn-primary text-sm">
+          <button type="submit" className="btn-primary text-sm ml-auto">
             Save
           </button>
-        </div>
+        </GlassModalFooter>
       </form>
 
       <LocationMapModal
@@ -299,7 +300,7 @@ function ClinicDoctorsModal({ open, onClose, clinic }) {
         accent="primary"
         onClose={onClose}
       />
-      <div className="p-5 md:p-6 space-y-4">
+      <GlassModalBody className="space-y-4">
         <div className="rounded-xl border border-slate-200 bg-white/60 p-4">
           <p className="font-semibold text-slate-800 text-sm mb-2">Attach doctor</p>
           <div className="flex flex-col sm:flex-row gap-2">
@@ -338,7 +339,7 @@ function ClinicDoctorsModal({ open, onClose, clinic }) {
             ))}
           </div>
         )}
-      </div>
+      </GlassModalBody>
     </GlassModal>
   );
 }
@@ -551,17 +552,17 @@ export default function AdminClinics() {
           accent="primary"
           onClose={() => setRejectOpen(false)}
         />
-        <div className="p-5 md:p-6 space-y-3">
+        <GlassModalBody className="space-y-3">
           <textarea className="input-field" rows={3} value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} placeholder="Reason for rejection..." />
-          <div className="flex gap-2">
-            <button type="button" className="btn-outline flex-1" onClick={() => setRejectOpen(false)}>
-              Cancel
-            </button>
-            <button type="button" className="btn-primary flex-1 bg-red-600 hover:bg-red-700" onClick={confirmReject}>
-              Reject
-            </button>
-          </div>
-        </div>
+        </GlassModalBody>
+        <GlassModalFooter>
+          <button type="button" className="btn-outline" onClick={() => setRejectOpen(false)}>
+            Cancel
+          </button>
+          <button type="button" className="btn-primary ml-auto bg-red-600 hover:bg-red-700" onClick={confirmReject}>
+            Reject
+          </button>
+        </GlassModalFooter>
       </GlassModal>
 
       <ClinicDoctorsModal open={doctorsOpen} onClose={() => setDoctorsOpen(false)} clinic={doctorsClinic} />

@@ -64,7 +64,7 @@ export default function InvoiceModal({ appointmentId, open, onClose }) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[10050] flex flex-col bg-slate-900/60 backdrop-blur-sm p-2 sm:p-4"
+      className="fixed inset-0 z-[10050] flex flex-col bg-slate-900/60 backdrop-blur-sm p-4 sm:p-6 md:p-8"
       role="dialog"
       aria-modal="true"
       aria-label="Invoice"
@@ -93,7 +93,7 @@ export default function InvoiceModal({ appointmentId, open, onClose }) {
           </button>
         </div>
       </div>
-      <div className="flex-1 min-h-0 max-w-4xl w-full mx-auto bg-white rounded-xl overflow-hidden shadow-2xl">
+      <div className="flex-1 min-h-0 max-w-4xl w-full mx-auto my-auto bg-white rounded-xl overflow-hidden shadow-2xl max-h-[calc(100dvh-6rem)]">
         {loading ? (
           <div className="h-full flex items-center justify-center text-slate-500">
             <FaIcon icon="fa-spinner" className="fa-spin text-2xl text-primary-600 mr-2" />

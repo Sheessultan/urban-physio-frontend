@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
+import GlassModal, { GlassModalBody, GlassModalFooter, GlassModalHeader } from '../../components/GlassModal';
 import FaIcon from '../../components/FaIcon';
 import PackageProgressPanel from '../../components/PackageProgressPanel';
 import { doctors, patientPackages, treatmentPackages } from '../../services/api';
@@ -109,37 +110,43 @@ export default function DoctorPackages() {
         </div>
       )}
 
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40">
-          <form onSubmit={enroll} className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-            <h2 className="text-lg font-bold mb-4">Enroll in package</h2>
-            <div className="space-y-3">
-              <select className="input-field" value={form.patient_id} onChange={(e) => setForm({ ...form, patient_id: e.target.value })} required>
-                <option value="">Select patient</option>
-                {patients.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.first_name} {p.last_name}
-                  </option>
-                ))}
-              </select>
-              <select className="input-field" value={form.package_id} onChange={(e) => setForm({ ...form, package_id: e.target.value })} required>
-                <option value="">Select package</option>
-                {packages.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.duration_days} days)
-                  </option>
-                ))}
-              </select>
-              <input className="input-field" type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
-              <textarea className="input-field min-h-[60px]" placeholder="Notes (optional)" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-            </div>
-            <div className="flex gap-3 mt-6">
-              <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? 'Enrolling…' : 'Enroll'}</button>
-              <button type="button" onClick={() => setModalOpen(false)} className="btn-outline flex-1">Cancel</button>
-            </div>
-          </form>
-        </div>
-      )}
+      <GlassModal open={modalOpen} onClose={() => !saving && setModalOpen(false)} size="md" titleId="enroll-package" preventClose={saving}>
+        <form onSubmit={enroll} className="flex flex-col min-h-0 flex-1">
+          <GlassModalHeader
+            titleId="enroll-package"
+            title="Enroll in package"
+            subtitle="Assign a treatment package to a patient"
+            icon="fa-box-open"
+            accent="primary"
+            onClose={() => !saving && setModalOpen(false)}
+            disabledClose={saving}
+          />
+          <GlassModalBody className="space-y-3">
+            <select className="input-field" value={form.patient_id} onChange={(e) => setForm({ ...form, patient_id: e.target.value })} required>
+              <option value="">Select patient</option>
+              {patients.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.first_name} {p.last_name}
+                </option>
+              ))}
+            </select>
+            <select className="input-field" value={form.package_id} onChange={(e) => setForm({ ...form, package_id: e.target.value })} required>
+              <option value="">Select package</option>
+              {packages.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} ({p.duration_days} days)
+                </option>
+              ))}
+            </select>
+            <input className="input-field" type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
+            <textarea className="input-field min-h-[60px]" placeholder="Notes (optional)" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+          </GlassModalBody>
+          <GlassModalFooter>
+            <button type="button" onClick={() => setModalOpen(false)} className="btn-outline" disabled={saving}>Cancel</button>
+            <button type="submit" disabled={saving} className="btn-primary ml-auto">{saving ? 'Enrolling…' : 'Enroll'}</button>
+          </GlassModalFooter>
+        </form>
+      </GlassModal>
     </DashboardLayout>
   );
 }
