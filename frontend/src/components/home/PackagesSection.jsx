@@ -3,16 +3,14 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import FaIcon from '../FaIcon';
 import { treatmentPackages } from '../../services/api';
+import { bookPackageUrl } from '../../utils/bookUrl';
+import { formatPackagePrice } from '../../utils/packageHelpers';
 
 const FALLBACK = [
   { id: 1, name: '10-Day Recovery', slug: '10-day-recovery', duration_days: 10, total_sessions: 10, short_description: 'Intensive 10-day recovery program', price: 4999 },
   { id: 2, name: '15-Day Rehab', slug: '15-day-rehab', duration_days: 15, total_sessions: 15, short_description: 'Complete 15-day rehabilitation', price: 7499 },
   { id: 3, name: '30-Day Complete Care', slug: '30-day-complete-care', duration_days: 30, total_sessions: 30, short_description: 'Full 30-day comprehensive care', price: 12999 },
 ];
-
-function formatPrice(n) {
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
-}
 
 export default function PackagesSection() {
   const [list, setList] = useState([]);
@@ -64,21 +62,27 @@ export default function PackagesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.06 }}
-                className={`mobile-scroll-item glass-card p-5 border transition-all hover:shadow-lg hover:-translate-y-0.5 ${
+                className={`mobile-scroll-item glass-card p-5 border transition-all hover:shadow-lg hover:-translate-y-0.5 flex flex-col ${
                   pkg.duration_days === 15 ? 'border-orange-300 ring-1 ring-orange-200' : 'border-white/60'
                 }`}
               >
                 {pkg.duration_days === 15 && (
-                  <span className="text-[10px] font-bold uppercase text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">Popular</span>
+                  <span className="text-[10px] font-bold uppercase text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full w-fit">Popular</span>
                 )}
                 <p className="text-xs font-bold text-orange-600 uppercase mt-2">{pkg.duration_days}-Day Program</p>
                 <h3 className="font-bold text-lg text-slate-800 mt-1">{pkg.name}</h3>
-                <p className="text-xs text-slate-600 mt-2 line-clamp-2">{pkg.short_description}</p>
+                <p className="text-xs text-slate-600 mt-2 line-clamp-2 flex-1">{pkg.short_description}</p>
                 <ul className="text-xs text-slate-500 mt-3 space-y-1">
                   <li><FaIcon icon="fa-check" className="text-emerald-500 mr-1" />{pkg.total_sessions} sessions</li>
                   <li><FaIcon icon="fa-chart-line" className="text-sky-500 mr-1" />Progress tracking</li>
                 </ul>
-                <p className="text-xl font-bold text-slate-800 mt-3">{formatPrice(pkg.price)}</p>
+                <p className="text-xl font-bold text-slate-800 mt-3">{formatPackagePrice(pkg.price)}</p>
+                <Link
+                  to={bookPackageUrl(pkg.slug)}
+                  className="mt-3 block text-center text-xs font-bold py-2.5 rounded-lg bg-orange-600 text-white hover:bg-orange-700 transition"
+                >
+                  Book package
+                </Link>
               </motion.article>
             ))}
           </div>

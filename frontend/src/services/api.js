@@ -380,6 +380,11 @@ export const treatmentPackages = {
   get: (slug) => api.get(`/treatment-packages/${slug}`),
 };
 
+export const packageBookings = {
+  createOrder: (data) => api.post('/package-bookings/create-order', data),
+  verify: (data) => api.post('/package-bookings/verify', data),
+};
+
 export const patientPackages = {
   list: (params) => api.get('/patient-packages', { params }),
   get: (id) => api.get(`/patient-packages/${id}`),

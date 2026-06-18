@@ -324,8 +324,12 @@ export default function BookAppointmentWizard() {
 
   useEffect(() => {
     const painTypeParam = searchParams.get('pain_type');
+    const painDescParam = searchParams.get('pain_description');
     if (painTypeParam) {
-      patch({ pain_type: painTypeParam });
+      patch({
+        pain_type: painTypeParam,
+        ...(painDescParam ? { pain_description: painDescParam } : {}),
+      });
       setPrefillLabel((prev) => prev || painTypeParam);
     }
     const conditionTitleParam = searchParams.get('condition_title');

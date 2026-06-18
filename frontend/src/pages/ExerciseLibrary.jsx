@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import FaIcon from '../components/FaIcon';
 import { exercises } from '../services/api';
+import { bookExerciseUrl } from '../utils/bookUrl';
 
 const BODY_AREAS = [
   { id: '', label: 'All', icon: 'fa-table-cells' },
@@ -106,7 +107,7 @@ function ExerciseModal({ exercise, onClose }) {
             </h3>
             <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{exercise.instructions}</p>
           </div>
-          <Link to="/book" className="btn-primary w-full block text-center">
+          <Link to={bookExerciseUrl(exercise)} className="btn-primary w-full block text-center mt-2">
             Book a physiotherapist
           </Link>
         </div>

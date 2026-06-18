@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import FaIcon from '../../components/FaIcon';
+import GlassModal, { GlassModalFooter, GlassModalHeader } from '../../components/GlassModal';
 import { admin, doctors, exercisePrescriptions, exercises } from '../../services/api';
 import { DOCTOR_NAV } from '../../constants/doctorNav';
 import toast from 'react-hot-toast';
@@ -153,12 +154,29 @@ export default function DoctorPrescriptions() {
         </div>
       )}
 
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40">
-          <form onSubmit={submit} className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
-            <h2 className="text-lg font-bold mb-4">New exercise prescription</h2>
-            <div className="space-y-3">
-              <select className="input-field" value={form.patient_id} onChange={(e) => setForm({ ...form, patient_id: e.target.value })} required>
+      <GlassModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        preventClose={saving}
+        size="lg"
+        titleId="prescription-modal-title"
+        panelClassName="flex flex-col max-h-[min(720px,calc(100vh-2rem))]"
+      >
+        <form onSubmit={submit} className="flex flex-col min-h-0 flex-1">
+          <GlassModalHeader
+            titleId="prescription-modal-title"
+            title="New exercise prescription"
+            subtitle="Assign rehab exercises to a patient"
+            icon="fa-file-prescription"
+            accent="primary"
+            onClose={() => setModalOpen(false)}
+            disabledClose={saving}
+          />
+
+          <div className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-6 py-5 sm:py-6 space-y-4">
+            <div>
+              <label className="text-sm font-medium text-slate-700 mb-1.5 block">Patient *</label>
+              <select className="input-field w-full" value={form.patient_id} onChange={(e) => setForm({ ...form, patient_id: e.target.value })} required>
                 <option value="">Select patient</option>
                 {patients.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -166,47 +184,68 @@ export default function DoctorPrescriptions() {
                   </option>
                 ))}
               </select>
-              <input className="input-field" placeholder="Plan title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
-              <textarea className="input-field min-h-[60px]" placeholder="Diagnosis / notes" value={form.diagnosis_notes} onChange={(e) => setForm({ ...form, diagnosis_notes: e.target.value })} />
-              <div className="grid grid-cols-2 gap-3">
-                <input className="input-field" type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
-                <input className="input-field" type="date" placeholder="End date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-700 mb-1.5 block">Plan title *</label>
+              <input className="input-field w-full" placeholder="e.g. 2-week knee strengthening" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-700 mb-1.5 block">Diagnosis / notes</label>
+              <textarea className="input-field w-full min-h-[72px]" placeholder="Clinical notes for the patient" value={form.diagnosis_notes} onChange={(e) => setForm({ ...form, diagnosis_notes: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium text-slate-700 mb-1.5 block">Start date</label>
+                <input className="input-field w-full" type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
               </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700 mb-1.5 block">End date (optional)</label>
+                <input className="input-field w-full" type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} />
+              </div>
+            </div>
 
-              <div className="border-t border-slate-100 pt-3">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold text-slate-800">Exercises</h3>
-                  <button type="button" onClick={addExercise} className="text-sm text-primary-600 font-semibold">
-                    + Add
-                  </button>
-                </div>
+            <div className="border-t border-slate-100 pt-4">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-semibold text-slate-800">Exercises</h3>
+                <button type="button" onClick={addExercise} className="text-sm text-primary-600 font-semibold hover:text-primary-700">
+                  + Add exercise
+                </button>
+              </div>
+              <div className="space-y-3">
                 {form.exercises.map((item, idx) => (
-                  <div key={idx} className="p-3 mb-2 rounded-lg bg-slate-50 border border-slate-100 space-y-2">
-                    <select className="input-field" value={item.exercise_id} onChange={(e) => updateExercise(idx, 'exercise_id', e.target.value)}>
+                  <div key={idx} className="p-4 rounded-xl bg-slate-50/90 border border-slate-100 space-y-3">
+                    <select className="input-field w-full" value={item.exercise_id} onChange={(e) => updateExercise(idx, 'exercise_id', e.target.value)}>
                       <option value="">Select exercise</option>
                       {exerciseList.map((ex) => (
                         <option key={ex.id} value={ex.id}>{ex.name}</option>
                       ))}
                     </select>
-                    <div className="grid grid-cols-3 gap-2">
-                      <input className="input-field" type="number" placeholder="Sets" value={item.sets} onChange={(e) => updateExercise(idx, 'sets', e.target.value)} />
-                      <input className="input-field" placeholder="Reps" value={item.reps} onChange={(e) => updateExercise(idx, 'reps', e.target.value)} />
-                      <input className="input-field" placeholder="Frequency" value={item.frequency} onChange={(e) => updateExercise(idx, 'frequency', e.target.value)} />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      <input className="input-field w-full" type="number" min={1} placeholder="Sets" value={item.sets} onChange={(e) => updateExercise(idx, 'sets', e.target.value)} />
+                      <input className="input-field w-full" placeholder="Reps" value={item.reps} onChange={(e) => updateExercise(idx, 'reps', e.target.value)} />
+                      <input className="input-field w-full" placeholder="Frequency" value={item.frequency} onChange={(e) => updateExercise(idx, 'frequency', e.target.value)} />
                     </div>
                     {form.exercises.length > 1 && (
-                      <button type="button" onClick={() => removeExercise(idx)} className="text-xs text-red-600">Remove</button>
+                      <button type="button" onClick={() => removeExercise(idx)} className="text-xs text-red-600 font-semibold">Remove exercise</button>
                     )}
                   </div>
                 ))}
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
-              <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? 'Saving…' : 'Create'}</button>
-              <button type="button" onClick={() => setModalOpen(false)} className="btn-outline flex-1">Cancel</button>
+          </div>
+
+          <GlassModalFooter>
+            <div className="flex flex-col-reverse sm:flex-row gap-3 w-full sm:justify-end sm:ml-auto">
+              <button type="button" onClick={() => setModalOpen(false)} disabled={saving} className="btn-outline w-full sm:w-auto sm:min-w-[120px]">
+                Cancel
+              </button>
+              <button type="submit" disabled={saving} className="btn-primary w-full sm:w-auto sm:min-w-[140px]">
+                {saving ? 'Saving…' : 'Create prescription'}
+              </button>
             </div>
-          </form>
-        </div>
-      )}
+          </GlassModalFooter>
+        </form>
+      </GlassModal>
     </DashboardLayout>
   );
 }

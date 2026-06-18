@@ -31,6 +31,32 @@ export function bookConditionUrl(condition) {
   return q ? `/book?${q}` : '/book';
 }
 
+/** Map exercise body_area to booking pain_type labels */
+const EXERCISE_BODY_PAIN = {
+  back: 'Back Pain',
+  neck: 'Neck Pain',
+  knee: 'Knee Pain',
+  shoulder: 'Shoulder Pain',
+  general: 'Other',
+};
+
+export function bookExerciseUrl(exercise) {
+  if (!exercise) return '/book';
+  const params = new URLSearchParams();
+  const pain = EXERCISE_BODY_PAIN[exercise.body_area] || 'Other';
+  params.set('pain_type', pain);
+  const desc = exercise.name
+    ? `Help with ${exercise.name} and related ${exercise.body_area || 'general'} exercises`
+    : pain;
+  params.set('pain_description', desc);
+  return `/book?${params.toString()}`;
+}
+
+export function bookPackageUrl(slug) {
+  if (!slug) return '/packages';
+  return `/packages/book/${encodeURIComponent(slug)}`;
+}
+
 /** Match treatment/condition title to admin pain-type labels */
 export function matchPainTypeLabel(title, painTypes = []) {
   if (!title) return '';

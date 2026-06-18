@@ -50,11 +50,11 @@ import SearchResultsPage from './pages/SearchResultsPage';
 import DoctorCustomSlots from './pages/doctor/DoctorCustomSlots';
 import AppointmentRequestsPage from './pages/AppointmentRequestsPage';
 import TreatmentPackages from './pages/TreatmentPackages';
+import PackageBookingWizard from './pages/PackageBookingWizard';
 import ExerciseLibrary from './pages/ExerciseLibrary';
 import AdminTreatmentPackages from './pages/admin/AdminTreatmentPackages';
 import AdminExercises from './pages/admin/AdminExercises';
 import PatientPackages from './pages/patient/PatientPackages';
-import PatientRehab from './pages/patient/PatientRehab';
 import DoctorPackages from './pages/doctor/DoctorPackages';
 import DoctorPrescriptions from './pages/doctor/DoctorPrescriptions';
 import PhysioFeed from './pages/PhysioFeed';
@@ -109,6 +109,14 @@ export default function App() {
       <Route path="/conditions/:slug" element={<ConditionDetail />} />
       <Route path="/search" element={<SearchResultsPage />} />
       <Route path="/packages" element={<TreatmentPackages />} />
+      <Route
+        path="/packages/book/:slug"
+        element={
+          <ProtectedRoute roles={['patient', 'admin', 'super_admin']}>
+            <PackageBookingWizard />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/exercises" element={<ExerciseLibrary />} />
       <Route path="/physiofeed" element={<PhysioFeed />} />
       <Route path="/physiofeed/:slug" element={<PhysioFeedDetail />} />
@@ -128,7 +136,6 @@ export default function App() {
       <Route path="/patient" element={<ProtectedRoute roles={['patient']}><PatientDashboard /></ProtectedRoute>} />
       <Route path="/patient/appointments" element={<ProtectedRoute roles={['patient']}><PatientAppointments /></ProtectedRoute>} />
       <Route path="/patient/packages" element={<ProtectedRoute roles={['patient']}><PatientPackages /></ProtectedRoute>} />
-      <Route path="/patient/rehab" element={<ProtectedRoute roles={['patient']}><PatientRehab /></ProtectedRoute>} />
       <Route path="/patient/reports" element={<ProtectedRoute roles={['patient']}><PatientReports /></ProtectedRoute>} />
       <Route path="/patient/profile" element={<ProtectedRoute roles={['patient']}><PatientProfile /></ProtectedRoute>} />
       <Route path="/patient/notifications" element={<ProtectedRoute roles={['patient']}><NotificationsPage /></ProtectedRoute>} />
