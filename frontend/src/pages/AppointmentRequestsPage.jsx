@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../layouts/DashboardLayout';
+import AdminDashboardLayout from '../layouts/AdminDashboardLayout';
 import { appointmentRequests } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -30,7 +31,8 @@ export default function AppointmentRequestsPage({ navItems, title = 'Appointment
     try {
       const params = filter ? { status: filter } : {};
       const res = await appointmentRequests.list(params);
-      setRequests(res?.data ?? res ?? []);
+      const payload = res?.data ?? res;
+      setRequests(Array.isArray(payload) ? payload : []);
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -55,9 +57,13 @@ export default function AppointmentRequestsPage({ navItems, title = 'Appointment
     }
   };
 
+  const Layout = isAdmin ? AdminDashboardLayout : DashboardLayout;
+  const layoutProps = isAdmin ? {} : { links: navItems, variant: 'doctor' };
+
   return (
-    <DashboardLayout title={title} navItems={navItems}>
+    <Layout {...layoutProps}>
       <div className="max-w-4xl space-y-6">
+        <h1 className="text-2xl font-bold text-slate-800">{title}</h1>
         <div className="flex flex-wrap gap-2">
           {['pending', 'approved', 'rejected', ''].map((s) => (
             <button
@@ -140,6 +146,6 @@ export default function AppointmentRequestsPage({ navItems, title = 'Appointment
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </Layout>
   );
 }

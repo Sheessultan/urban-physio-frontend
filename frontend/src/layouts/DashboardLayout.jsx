@@ -36,7 +36,7 @@ function NavLink({ link, pathname, unreadCount, compact = false }) {
   );
 }
 
-export default function DashboardLayout({ children, links, variant }) {
+export default function DashboardLayout({ children, links = [], variant }) {
   const { pathname } = useLocation();
   const { user } = useAuth();
   const isAdmin = variant === 'admin';

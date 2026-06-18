@@ -71,7 +71,7 @@ export default function DoctorCustomSlots() {
   };
 
   return (
-    <DashboardLayout title="Custom Slots" navItems={DOCTOR_NAV}>
+    <DashboardLayout links={DOCTOR_NAV} variant="doctor">
       <div className="max-w-4xl space-y-8">
         <div className="glass-card p-6">
           <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
