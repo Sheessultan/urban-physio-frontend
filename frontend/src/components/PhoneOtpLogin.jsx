@@ -8,21 +8,10 @@ import { navigateAfterAuth } from '../utils/authRedirect';
 
 const RESEND_COOLDOWN = 60;
 
-function deliveryHint(channel, phoneMasked, emailMasked) {
-  if (channel === 'sms') {
-    return `OTP sent via SMS to ${phoneMasked || 'your mobile'}`;
-  }
-  if (channel === 'whatsapp') {
-    return `OTP sent via WhatsApp to ${phoneMasked || 'your mobile'}`;
-  }
-  return `OTP sent to ${emailMasked || 'your registered email'}`;
-}
-
 export default function PhoneOtpLogin({ redirectTo, defaultRole = 'patient', fixedRole = null }) {
   const [step, setStep] = useState('phone');
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState(fixedRole || defaultRole);
-  const [emailMasked, setEmailMasked] = useState('');
   const [phoneMasked, setPhoneMasked] = useState('');
   const [deliveryChannel, setDeliveryChannel] = useState('sms');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -38,6 +27,13 @@ export default function PhoneOtpLogin({ redirectTo, defaultRole = 'patient', fix
   }, [fixedRole]);
 
   useEffect(() => {
+    setStep('phone');
+    setPhone('');
+    setOtp(['', '', '', '', '', '']);
+    setCooldown(0);
+  }, [role]);
+
+  useEffect(() => {
     if (cooldown <= 0) return undefined;
     const t = setInterval(() => setCooldown((c) => c - 1), 1000);
     return () => clearInterval(t);
@@ -45,11 +41,8 @@ export default function PhoneOtpLogin({ redirectTo, defaultRole = 'patient', fix
 
   const applyDeliveryMeta = (res) => {
     const data = res?.data ?? res ?? {};
-    const channel = data.delivery_channel || 'sms';
-    setDeliveryChannel(channel);
+    setDeliveryChannel(data.delivery_channel || 'sms');
     if (data.phone_masked) setPhoneMasked(data.phone_masked);
-    if (data.email_masked) setEmailMasked(data.email_masked);
-    return deliveryHint(channel, data.phone_masked, data.email_masked);
   };
 
   const sendOtp = async (e) => {
@@ -57,8 +50,8 @@ export default function PhoneOtpLogin({ redirectTo, defaultRole = 'patient', fix
     setLoading(true);
     try {
       const res = await auth.phoneSendOtp({ phone, role });
-      const hint = applyDeliveryMeta(res);
-      toast.success(res?.message || hint);
+      applyDeliveryMeta(res);
+      toast.success(res?.message || 'OTP sent to your mobile');
       setStep('otp');
       setCooldown(RESEND_COOLDOWN);
       setTimeout(() => inputRefs.current[0]?.focus(), 100);
@@ -93,8 +86,8 @@ export default function PhoneOtpLogin({ redirectTo, defaultRole = 'patient', fix
     setLoading(true);
     try {
       const res = await auth.phoneResendOtp({ phone, role });
-      const hint = applyDeliveryMeta(res);
-      toast.success(res?.message || hint);
+      applyDeliveryMeta(res);
+      toast.success(res?.message || 'OTP resent');
       setCooldown(RESEND_COOLDOWN);
     } catch (err) {
       toast.error(err.message);
@@ -121,28 +114,44 @@ export default function PhoneOtpLogin({ redirectTo, defaultRole = 'patient', fix
   };
 
   const otpDestination = phoneMasked || `+91 ${phone.replace(/\D/g, '').slice(-10)}`;
+  const channelLabel = deliveryChannel === 'whatsapp' ? 'WhatsApp' : 'SMS';
 
   if (step === 'otp') {
     return (
-      <form onSubmit={verifyOtp} className="space-y-4">
-        <p className="text-sm text-slate-600">
-          OTP sent to your mobile <strong>{otpDestination}</strong>
-          {deliveryChannel === 'whatsapp' && (
-            <span className="block text-xs text-slate-500 mt-1">Delivered via WhatsApp</span>
-          )}
-          <button type="button" className="mt-2 text-primary-600 text-xs font-medium" onClick={() => setStep('phone')}>
+      <form onSubmit={verifyOtp} className="space-y-5">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary-50 text-primary-600 mb-3">
+            <FaIcon icon={deliveryChannel === 'whatsapp' ? 'fa-whatsapp' : 'fa-comment-sms'} brand={deliveryChannel === 'whatsapp'} />
+          </div>
+          <p className="text-sm text-slate-600">
+            Enter the 6-digit code sent to
+            <br />
+            <strong className="text-slate-900">{otpDestination}</strong>
+            <span className="block text-xs text-slate-400 mt-1">via {channelLabel}</span>
+          </p>
+          <button
+            type="button"
+            className="mt-2 text-xs text-primary-600 font-medium hover:underline"
+            onClick={() => {
+              setStep('phone');
+              setOtp(['', '', '', '', '', '']);
+            }}
+          >
             Change number
           </button>
-        </p>
+        </div>
+
         <div className="flex gap-2 justify-center" onPaste={handleOtpPaste}>
           {otp.map((d, i) => (
             <input
               key={i}
-              ref={(el) => { inputRefs.current[i] = el; }}
+              ref={(el) => {
+                inputRefs.current[i] = el;
+              }}
               type="text"
               inputMode="numeric"
               maxLength={1}
-              className="w-11 h-12 text-center text-lg font-bold input-field !py-2"
+              className="w-11 h-12 text-center text-lg font-bold rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition"
               value={d}
               onChange={(e) => handleOtpChange(i, e.target.value)}
               onKeyDown={(e) => {
@@ -151,14 +160,16 @@ export default function PhoneOtpLogin({ redirectTo, defaultRole = 'patient', fix
             />
           ))}
         </div>
+
         <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? 'Verifying…' : 'Verify & Sign In'}
+          {loading ? 'Verifying…' : 'Verify & sign in'}
         </button>
+
         <p className="text-center text-sm text-slate-500">
           {cooldown > 0 ? (
-            <>Resend in {cooldown}s</>
+            <span>Resend OTP in {cooldown}s</span>
           ) : (
-            <button type="button" className="text-primary-600 font-medium" onClick={resend} disabled={loading}>
+            <button type="button" className="text-primary-600 font-medium hover:underline" onClick={resend} disabled={loading}>
               Resend OTP
             </button>
           )}
@@ -169,52 +180,43 @@ export default function PhoneOtpLogin({ redirectTo, defaultRole = 'patient', fix
 
   return (
     <form onSubmit={sendOtp} className="space-y-4">
-      {!fixedRole && (
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">I am a</label>
-          <div className="grid grid-cols-2 gap-2">
-            {['patient', 'doctor'].map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRole(r)}
-                className={`py-2.5 rounded-xl text-sm font-semibold border transition capitalize ${
-                  role === r
-                    ? 'bg-primary-600 text-white border-primary-600'
-                    : 'bg-white text-slate-700 border-slate-200 hover:border-primary-300'
-                }`}
-              >
-                <FaIcon icon={r === 'doctor' ? 'fa-user-doctor' : 'fa-user'} className="mr-1.5" />
-                {r}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Mobile number</label>
-        <div className="flex">
-          <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 text-slate-600 text-sm">
+        <label className="block text-sm font-medium text-slate-700 mb-1.5">Mobile number</label>
+        <div className="flex rounded-xl overflow-hidden border border-slate-200 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 transition">
+          <span className="inline-flex items-center px-3.5 bg-slate-50 text-slate-600 text-sm font-medium border-r border-slate-200">
             +91
           </span>
           <input
             type="tel"
-            className="input-field rounded-l-none flex-1"
-            placeholder="10-digit mobile"
+            className="flex-1 px-3 py-3 text-base outline-none bg-white placeholder:text-slate-400"
+            placeholder="10-digit mobile number"
             value={phone}
             onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
             required
             maxLength={10}
-            pattern="[0-9]{10}"
+            inputMode="numeric"
+            autoComplete="tel"
           />
         </div>
       </div>
-      <button type="submit" disabled={loading || phone.replace(/\D/g, '').length !== 10} className="btn-primary w-full">
-        {loading ? 'Sending OTP…' : 'Send OTP to mobile'}
+
+      <button
+        type="submit"
+        disabled={loading || phone.replace(/\D/g, '').length !== 10}
+        className="btn-primary w-full py-3 text-base"
+      >
+        {loading ? (
+          <span className="inline-flex items-center gap-2">
+            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            Sending OTP…
+          </span>
+        ) : (
+          <>
+            <FaIcon icon="fa-paper-plane" className="mr-2" />
+            Send OTP
+          </>
+        )}
       </button>
-      <p className="text-xs text-slate-500 text-center">
-        A 6-digit OTP is sent only to your registered mobile number (SMS or WhatsApp).
-      </p>
     </form>
   );
 }

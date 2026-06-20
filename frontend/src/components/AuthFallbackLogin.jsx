@@ -2,19 +2,16 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
-import GoogleSignInButton, { hasGoogleAuth } from './GoogleSignInButton';
 import PasswordInput from './PasswordInput';
 import { navigateAfterAuth } from '../utils/authRedirect';
 
-/**
- * Google + email/password sign-in for accounts without a registered mobile number.
- */
-export default function AuthFallbackLogin({ role = 'patient', redirectTo, forgotPasswordRole }) {
+/** Email & password sign-in when mobile OTP is not available. */
+export default function AuthFallbackLogin({ redirectTo, forgotPasswordRole }) {
+  const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const { login, googleLogin } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -38,46 +35,23 @@ export default function AuthFallbackLogin({ role = 'patient', redirectTo, forgot
     }
   };
 
-  const handleGoogle = async (credential) => {
-    setGoogleLoading(true);
-    try {
-      const user = await googleLogin(credential, role);
-      toast.success('Welcome back!');
-      navigateAfterAuth(navigate, user, redirectTo);
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="mt-6 w-full text-center text-sm text-slate-500 hover:text-primary-600 transition"
+      >
+        Sign in with email &amp; password instead
+      </button>
+    );
+  }
 
   return (
-    <div className="mt-6 pt-6 border-t border-slate-200">
-      <p className="text-sm text-slate-600 text-center mb-4">
-        No mobile number on your account? Sign in with Google or email &amp; password
+    <div className="mt-6 pt-6 border-t border-slate-100">
+      <p className="text-xs text-slate-500 text-center mb-4">
+        Use this if your mobile is not registered on your account
       </p>
-
-      {hasGoogleAuth() && (
-        <>
-          <GoogleSignInButton
-            onSuccess={handleGoogle}
-            onError={(err) => toast.error(err.message)}
-            text="continue_with"
-          />
-          {googleLoading && (
-            <p className="text-center text-xs text-slate-500 mt-2">Signing in with Google…</p>
-          )}
-          <div className="relative my-5">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="px-2 bg-white text-slate-400 uppercase tracking-wide">or use email</span>
-            </div>
-          </div>
-        </>
-      )}
-
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
@@ -88,6 +62,7 @@ export default function AuthFallbackLogin({ role = 'patient', redirectTo, forgot
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
+            placeholder="you@example.com"
           />
         </div>
         <PasswordInput
@@ -107,9 +82,16 @@ export default function AuthFallbackLogin({ role = 'patient', redirectTo, forgot
           autoComplete="current-password"
         />
         <button type="submit" disabled={loading} className="btn-outline w-full text-sm">
-          {loading ? 'Signing in…' : 'Sign in with email'}
+          {loading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
+      <button
+        type="button"
+        onClick={() => setOpen(false)}
+        className="mt-3 w-full text-xs text-slate-400 hover:text-slate-600"
+      >
+        Back to mobile OTP
+      </button>
     </div>
   );
 }

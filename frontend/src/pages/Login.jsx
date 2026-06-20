@@ -6,138 +6,126 @@ import PhoneOtpLogin from '../components/PhoneOtpLogin';
 import AuthFallbackLogin from '../components/AuthFallbackLogin';
 import FaIcon from '../components/FaIcon';
 
-const PATIENT_ACCOUNT_LINKS = [
-  { to: '/patient/profile', label: 'Profile', icon: 'fa-user' },
-  { to: '/patient/appointments', label: 'Appointments', icon: 'fa-calendar-check' },
-  { to: '/patient/packages', label: 'Orders', icon: 'fa-box-open' },
+const TABS = [
+  {
+    id: 'patient',
+    label: 'Patient',
+    icon: 'fa-user',
+    role: 'patient',
+    subtitle: 'Book appointments, view reports & packages',
+    registerLabel: 'Create patient account',
+    registerTo: '/register?role=patient',
+  },
+  {
+    id: 'doctor',
+    label: 'Doctor / Provider',
+    icon: 'fa-user-doctor',
+    role: 'doctor',
+    subtitle: 'Manage clinics, appointments & patients',
+    registerLabel: 'Join as physiotherapist',
+    registerTo: '/register?role=doctor',
+  },
 ];
-
-function LoginSection({ id, title, subtitle, active, children, footer }) {
-  return (
-    <section
-      id={id}
-      className={`glass-strong rounded-3xl p-6 sm:p-8 shadow-xl transition-shadow ${
-        active ? 'ring-2 ring-primary-500/80 shadow-primary-100/50' : 'hover-glow'
-      }`}
-    >
-      <header className="mb-6">
-        <p className="text-xs font-bold uppercase tracking-wider text-primary-600 mb-1">{title}</p>
-        {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
-      </header>
-      {children}
-      {footer}
-    </section>
-  );
-}
 
 export default function Login() {
   const location = useLocation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const redirectTo = location.state?.from;
   const loginRequiredForBooking = redirectTo?.includes('/book');
-  const sectionRole = searchParams.get('role');
-  const focusProvider = sectionRole === 'doctor' || sectionRole === 'provider';
+  const urlRole = searchParams.get('role');
+  const activeTab = urlRole === 'doctor' || urlRole === 'provider' ? 'doctor' : 'patient';
+  const tab = TABS.find((t) => t.id === activeTab) || TABS[0];
   const { user, hasRole } = useAuth();
 
   useEffect(() => {
-    if (focusProvider) {
-      document.getElementById('provider-login')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (urlRole === 'provider') {
+      setSearchParams({ role: 'doctor' }, { replace: true });
     }
-  }, [focusProvider]);
+  }, [urlRole, setSearchParams]);
 
-  const providerDashboardTo = () => {
-    if (!user) return '/login?role=doctor';
-    if (hasRole('doctor')) return '/doctor';
-    if (hasRole('admin', 'super_admin')) return '/admin';
-    return '/login?role=doctor';
+  const setTab = (id) => {
+    setSearchParams(id === 'doctor' ? { role: 'doctor' } : {}, { replace: true });
   };
 
+  const dashboardTo =
+    user && hasRole('doctor')
+      ? '/doctor'
+      : user && hasRole('admin', 'super_admin')
+        ? '/admin'
+        : '/login?role=doctor';
+
   return (
-    <div className="min-h-screen relative bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50/30 to-white">
       <Navbar />
-      <div className="max-w-5xl mx-auto px-4 py-10 sm:py-14 relative">
-        <div className="text-center mb-8 sm:mb-10">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Sign in</h1>
-          <p className="text-sm text-slate-500 mt-2 max-w-lg mx-auto">
-            Patients and providers use separate sign-in — mobile OTP first, then Google or email if needed.
-          </p>
+
+      <div className="max-w-md mx-auto px-4 py-10 sm:py-14">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary-600 text-white shadow-lg shadow-primary-600/25 mb-4">
+            <FaIcon icon="fa-right-to-bracket" className="text-xl" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Welcome back</h1>
+          <p className="text-sm text-slate-500 mt-2">Sign in with your registered mobile number</p>
         </div>
 
         {loginRequiredForBooking && (
-          <p className="text-sm text-primary-800 bg-primary-50 border border-primary-200 rounded-xl px-4 py-3 mb-6 max-w-2xl mx-auto">
-            Please sign in to book an appointment. You&apos;ll return to booking after login.
-          </p>
+          <div className="mb-6 rounded-xl bg-primary-50 border border-primary-200 px-4 py-3 text-sm text-primary-800 flex gap-2 items-start">
+            <FaIcon icon="fa-calendar-check" className="mt-0.5 shrink-0 text-primary-600" />
+            <span>Sign in to continue booking. You&apos;ll return to your appointment after login.</span>
+          </div>
         )}
 
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
-          <LoginSection
-            id="patient-login"
-            title="Patient"
-            subtitle="My Account — Profile, Appointments, Orders"
-            active={!focusProvider}
-          >
-            <div className="flex flex-wrap gap-2 mb-5">
-              {PATIENT_ACCOUNT_LINKS.map((item) => (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  state={{ from: redirectTo }}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-primary-50 hover:text-primary-700 px-3 py-1.5 rounded-full transition"
-                >
-                  <FaIcon icon={item.icon} className="text-[10px] text-primary-500" />
-                  {item.label}
+        <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
+          {/* Tabs */}
+          <div className="grid grid-cols-2 border-b border-slate-100">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTab(t.id)}
+                className={`flex items-center justify-center gap-2 py-3.5 text-sm font-semibold transition ${
+                  activeTab === t.id
+                    ? 'text-primary-700 bg-primary-50/80 border-b-2 border-primary-600 -mb-px'
+                    : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <FaIcon icon={t.icon} className="text-xs" />
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="p-6 sm:p-8">
+            <p className="text-sm text-slate-600 mb-6 text-center">{tab.subtitle}</p>
+
+            <PhoneOtpLogin fixedRole={tab.role} redirectTo={redirectTo} />
+
+            <AuthFallbackLogin redirectTo={redirectTo} forgotPasswordRole={tab.role} />
+
+            <p className="mt-6 text-center text-sm text-slate-600">
+              New here?{' '}
+              <Link
+                to={tab.registerTo}
+                state={{ from: redirectTo }}
+                className="font-semibold text-primary-600 hover:underline"
+              >
+                {tab.registerLabel}
+              </Link>
+            </p>
+
+            {activeTab === 'doctor' && user && hasRole('doctor', 'admin', 'super_admin') && (
+              <p className="mt-3 text-center">
+                <Link to={dashboardTo} className="text-sm font-medium text-slate-600 hover:text-primary-600 inline-flex items-center gap-1.5">
+                  <FaIcon icon="fa-gauge-high" className="text-xs" />
+                  Go to dashboard
                 </Link>
-              ))}
-            </div>
-
-            <PhoneOtpLogin fixedRole="patient" redirectTo={redirectTo} />
-
-            <AuthFallbackLogin role="patient" redirectTo={redirectTo} forgotPasswordRole="patient" />
-
-            <p className="mt-5 text-center text-sm text-slate-600">
-              New patient?{' '}
-              <Link
-                to="/register?role=patient"
-                state={{ from: redirectTo }}
-                className="text-primary-600 font-semibold hover:underline"
-              >
-                Register
-              </Link>
-            </p>
-          </LoginSection>
-
-          <LoginSection
-            id="provider-login"
-            title="For providers"
-            subtitle="Doctors & clinic partners — Login, Register, Dashboard"
-            active={focusProvider}
-          >
-            <PhoneOtpLogin fixedRole="doctor" redirectTo={redirectTo} />
-
-            <AuthFallbackLogin role="doctor" redirectTo={redirectTo} forgotPasswordRole="doctor" />
-
-            <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
-              <Link
-                to="/register?role=doctor"
-                state={{ from: redirectTo }}
-                className="text-primary-600 font-semibold hover:underline"
-              >
-                Register as physiotherapist
-              </Link>
-              <span className="hidden sm:inline text-slate-300">|</span>
-              <Link
-                to={providerDashboardTo()}
-                className="text-slate-600 font-medium hover:text-primary-600 hover:underline inline-flex items-center gap-1.5"
-              >
-                <FaIcon icon="fa-gauge-high" className="text-xs" />
-                {user && hasRole('doctor', 'admin', 'super_admin') ? 'Go to dashboard' : 'Provider dashboard'}
-              </Link>
-            </div>
-            <p className="mt-3 text-center text-xs text-slate-500">
-              Admin accounts: use email &amp; password or Google in the section above.
-            </p>
-          </LoginSection>
+              </p>
+            )}
+          </div>
         </div>
+
+        <p className="mt-6 text-center text-xs text-slate-400">
+          OTP is sent via SMS or WhatsApp to your registered mobile only
+        </p>
       </div>
     </div>
   );
