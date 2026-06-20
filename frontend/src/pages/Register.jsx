@@ -73,20 +73,6 @@ export default function Register() {
       <div className="max-w-lg mx-auto px-4 py-12 relative">
         <div className="glass-strong rounded-3xl p-8 animate-scale-in shadow-xl hover-glow">
           <h1 className="text-2xl font-bold mb-6">Create Account</h1>
-          <div className="flex gap-2 mb-6">
-            {['patient', 'doctor'].map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setForm({ ...form, role: r })}
-                className={`flex-1 py-2 rounded-lg font-medium capitalize ${
-                  form.role === r ? 'bg-primary-600 text-white' : 'bg-slate-100 text-slate-600'
-                }`}
-              >
-                {r}
-              </button>
-            ))}
-          </div>
 
           {hasGoogleAuth() && (
             <>

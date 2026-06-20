@@ -149,12 +149,60 @@ export default function SearchResultsPage() {
                 </Link>
               )}
             />
+            <Section
+              title="Packages"
+              icon="fa-box-open"
+              items={results?.packages}
+              renderItem={(p) => (
+                <Link
+                  key={p.id}
+                  to={p.slug ? `/packages/book/${encodeURIComponent(p.slug)}` : '/packages'}
+                  className="glass-card p-4 hover:shadow-md transition block"
+                >
+                  <p className="font-semibold text-slate-900">{p.name}</p>
+                  <p className="text-sm text-slate-600 line-clamp-2">{p.short_description}</p>
+                </Link>
+              )}
+            />
+            <Section
+              title="Articles &amp; Podcasts"
+              icon="fa-newspaper"
+              items={results?.articles}
+              renderItem={(a) => (
+                <Link
+                  key={a.id}
+                  to={a.slug ? `/physiofeed/${a.slug}` : '/physiofeed'}
+                  className="glass-card p-4 hover:shadow-md transition block"
+                >
+                  <p className="font-semibold text-slate-900">{a.title}</p>
+                  <p className="text-sm text-slate-600 line-clamp-2">{a.excerpt}</p>
+                </Link>
+              )}
+            />
+            <Section
+              title="Exercises"
+              icon="fa-dumbbell"
+              items={results?.exercises}
+              renderItem={(e) => (
+                <Link
+                  key={e.id}
+                  to={e.slug ? `/exercises/${e.slug}` : '/exercises'}
+                  className="glass-card p-4 hover:shadow-md transition block"
+                >
+                  <p className="font-semibold text-slate-900">{e.name}</p>
+                  <p className="text-sm text-slate-600 line-clamp-2">{e.instructions}</p>
+                </Link>
+              )}
+            />
             {!results?.doctors?.length &&
               !results?.clinics?.length &&
               !results?.treatments?.length &&
               !results?.conditions?.length &&
               !results?.symptoms?.length &&
-              !results?.locations?.length && (
+              !results?.locations?.length &&
+              !results?.packages?.length &&
+              !results?.articles?.length &&
+              !results?.exercises?.length && (
                 <p className="text-slate-600">No results found. Try different keywords.</p>
               )}
           </>

@@ -87,5 +87,8 @@ export function mergeSearchResults(apiData, localData) {
     treatments,
     symptoms,
     locations: data.locations ?? [],
+    packages: data.packages ?? [],
+    articles: data.articles ?? [],
+    exercises: data.exercises ?? [],
   };
 }

@@ -19,6 +19,9 @@ const EMPTY_RESULTS = {
   treatments: [],
   symptoms: [],
   locations: [],
+  packages: [],
+  articles: [],
+  exercises: [],
 };
 
 function symptomSubtitle(s) {
@@ -46,6 +49,7 @@ export default function GlobalSearch({
   const menuRef = useRef(null);
   const [menuStyle, setMenuStyle] = useState(null);
   const debounceRef = useRef(null);
+  const lastErrorRef = useRef('');
 
   const isHero = variant === 'hero';
   const isHeader = variant === 'header';
@@ -119,6 +123,39 @@ export default function GlobalSearch({
         iconColor: 'text-rose-600 bg-rose-50',
       });
     });
+    results.packages.slice(0, 2).forEach((p) => {
+      items.push({
+        type: 'package',
+        key: `pkg-${p.id}`,
+        label: p.name,
+        sub: p.short_description || `${p.total_sessions || ''} sessions`.trim() || 'Care package',
+        to: p.slug ? `/packages/book/${encodeURIComponent(p.slug)}` : '/packages',
+        icon: 'fa-box-open',
+        iconColor: 'text-indigo-600 bg-indigo-50',
+      });
+    });
+    results.articles.slice(0, 2).forEach((a) => {
+      items.push({
+        type: 'article',
+        key: `art-${a.id}`,
+        label: a.title,
+        sub: a.excerpt || a.type || 'PhysioFeed',
+        to: a.slug ? `/physiofeed/${a.slug}` : '/physiofeed',
+        icon: 'fa-newspaper',
+        iconColor: 'text-sky-600 bg-sky-50',
+      });
+    });
+    results.exercises.slice(0, 2).forEach((e) => {
+      items.push({
+        type: 'exercise',
+        key: `ex-${e.id}`,
+        label: e.name,
+        sub: e.body_area || e.difficulty || 'Exercise',
+        to: e.slug ? `/exercises/${e.slug}` : '/exercises',
+        icon: 'fa-dumbbell',
+        iconColor: 'text-teal-600 bg-teal-50',
+      });
+    });
     return items;
   }, [results]);
 
@@ -128,7 +165,10 @@ export default function GlobalSearch({
     results.treatments.length +
     results.conditions.length +
     results.symptoms.length +
-    results.locations.length;
+    results.locations.length +
+    results.packages.length +
+    results.articles.length +
+    results.exercises.length;
 
   const updateMenuPosition = useCallback(() => {
     if (isMobile) return;
@@ -180,9 +220,12 @@ export default function GlobalSearch({
         setResults(mergeSearchResults({}, local));
         const hasLocal = local.treatments.length + local.symptoms.length > 0;
         setApiFailed(!hasLocal);
-        if (!hasLocal && err?.status !== 429) {
+        const errKey = `${term}:${err?.status ?? 'x'}`;
+        if (!hasLocal && err?.status !== 429 && lastErrorRef.current !== errKey) {
+          lastErrorRef.current = errKey;
           toast.error('Search is temporarily unavailable');
-        } else if (err?.status === 429) {
+        } else if (err?.status === 429 && lastErrorRef.current !== errKey) {
+          lastErrorRef.current = errKey;
           toast.error('Too many searches — please wait a moment');
         }
       } finally {
