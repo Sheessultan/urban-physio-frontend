@@ -60,6 +60,9 @@ export default function Doctors() {
     setSearchApi(q);
   }, [searchParams]);
 
+  const urlCityId = searchParams.get('city_id');
+  const effectiveCityId = urlCityId ? Number(urlCityId) : city?.id;
+
   useEffect(() => {
     const t = setTimeout(() => setSearchApi(searchInput.trim()), 400);
     return () => clearTimeout(t);
@@ -74,7 +77,7 @@ export default function Doctors() {
         return;
       }
       const res = await doctors.list({
-        city_id: city?.id || undefined,
+        city_id: effectiveCityId || undefined,
         search: hasSearch ? searchApi : undefined,
       });
       setList(res.data || []);
@@ -83,7 +86,7 @@ export default function Doctors() {
     } finally {
       setLoading(false);
     }
-  }, [searchApi, city?.id, nearbyDoctors]);
+  }, [searchApi, effectiveCityId, nearbyDoctors]);
 
   useEffect(() => {
     load();

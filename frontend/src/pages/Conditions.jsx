@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import FaIcon from '../components/FaIcon';
@@ -38,11 +38,17 @@ const FALLBACK = [
 ];
 
 export default function Conditions() {
+  const [searchParams] = useSearchParams();
   const [list, setList] = useState([]);
   const [allList, setAllList] = useState([]);
   const [filter, setFilter] = useState('');
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(() => searchParams.get('search') || '');
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const q = searchParams.get('search') || '';
+    setSearch(q);
+  }, [searchParams]);
 
   useEffect(() => {
     conditions

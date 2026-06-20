@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import FaIcon from './FaIcon';
 import { search } from '../services/api';
 import { useLocation } from '../contexts/LocationContext';
@@ -8,14 +9,34 @@ import { useLocation } from '../contexts/LocationContext';
 const QUICK_TAGS = ['Back pain', 'Knee pain', 'Neck pain', 'Sports injury'];
 
 const MENU_Z = 10060;
+const SEARCH_HINT = 'Try knee pain, Mumbai, physio near me…';
 
-export default function GlobalSearch({ variant = 'hero', className = '', onNavigate }) {
+const EMPTY_RESULTS = {
+  doctors: [],
+  clinics: [],
+  conditions: [],
+  treatments: [],
+  symptoms: [],
+  locations: [],
+};
+
+function symptomSubtitle(s) {
+  if (s.subtitle) return s.subtitle;
+  return s.source === 'pain_type' ? 'Symptom / pain type' : 'Symptom';
+}
+
+export default function GlobalSearch({
+  variant = 'hero',
+  className = '',
+  onNavigate,
+  autoFocus = false,
+}) {
   const navigate = useNavigate();
-  const { city } = useLocation();
+  const { city, coords } = useLocation();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState({ doctors: [], clinics: [], conditions: [], symptoms: [] });
+  const [results, setResults] = useState(EMPTY_RESULTS);
   const [activeIndex, setActiveIndex] = useState(-1);
 
   const wrapRef = useRef(null);
@@ -26,6 +47,7 @@ export default function GlobalSearch({ variant = 'hero', className = '', onNavig
 
   const isHero = variant === 'hero';
   const isHeader = variant === 'header';
+  const isMobile = variant === 'mobile';
 
   const flatItems = useMemo(() => {
     const items = [];
@@ -51,6 +73,17 @@ export default function GlobalSearch({ variant = 'hero', className = '', onNavig
         iconColor: 'text-emerald-600 bg-emerald-50',
       });
     });
+    results.treatments.slice(0, 3).forEach((t, i) => {
+      items.push({
+        type: 'treatment',
+        key: `t-${t.id ?? t.slug}-${i}`,
+        label: t.title,
+        sub: t.short_description || 'Treatment programme',
+        to: t.slug ? `/treatments/${t.slug}` : '/treatments',
+        icon: 'fa-hand-holding-medical',
+        iconColor: 'text-amber-600 bg-amber-50',
+      });
+    });
     results.conditions.slice(0, 3).forEach((c) => {
       items.push({
         type: 'condition',
@@ -62,12 +95,23 @@ export default function GlobalSearch({ variant = 'hero', className = '', onNavig
         iconColor: 'text-blue-600 bg-blue-50',
       });
     });
+    results.locations.slice(0, 2).forEach((loc) => {
+      items.push({
+        type: 'location',
+        key: `loc-${loc.id}`,
+        label: loc.name,
+        sub: loc.state_name ? `${loc.state_name} · City` : 'City',
+        to: `/doctors?city_id=${loc.id}`,
+        icon: 'fa-location-dot',
+        iconColor: 'text-violet-600 bg-violet-50',
+      });
+    });
     results.symptoms.slice(0, 3).forEach((s, i) => {
       items.push({
         type: 'symptom',
         key: `s-${s.id}-${i}`,
         label: s.title || s.chip_label || s.label,
-        sub: s.subtitle || s.source === 'pain_type' ? 'Symptom / pain type' : 'Symptom',
+        sub: symptomSubtitle(s),
         to: `/conditions?search=${encodeURIComponent(s.title || s.chip_label || '')}`,
         icon: 'fa-heart-pulse',
         iconColor: 'text-rose-600 bg-rose-50',
@@ -79,30 +123,36 @@ export default function GlobalSearch({ variant = 'hero', className = '', onNavig
   const totalCount =
     results.doctors.length +
     results.clinics.length +
+    results.treatments.length +
     results.conditions.length +
-    results.symptoms.length;
+    results.symptoms.length +
+    results.locations.length;
 
   const updateMenuPosition = useCallback(() => {
+    if (isMobile) return;
     const el = wrapRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
     const gap = 8;
     const maxW = Math.min(rect.width, window.innerWidth - 16);
     const left = Math.max(8, Math.min(rect.left, window.innerWidth - maxW - 8));
+    const spaceBelow = window.innerHeight - rect.bottom - gap;
+    const maxH = Math.min(360, Math.max(160, spaceBelow - 8));
     setMenuStyle({
       position: 'fixed',
       top: rect.bottom + gap,
       left,
       width: maxW,
+      maxHeight: maxH,
       zIndex: MENU_Z,
     });
-  }, []);
+  }, [isMobile]);
 
   const runSearch = useCallback(
     async (q) => {
       const term = q.trim();
       if (term.length < 2) {
-        setResults({ doctors: [], clinics: [], conditions: [], symptoms: [] });
+        setResults(EMPTY_RESULTS);
         setLoading(false);
         return;
       }
@@ -110,27 +160,34 @@ export default function GlobalSearch({ variant = 'hero', className = '', onNavig
       try {
         const params = { q: term, search: term };
         if (city?.id) params.city_id = city.id;
+        if (coords?.lat != null && coords?.lng != null) {
+          params.lat = coords.lat;
+          params.lng = coords.lng;
+        }
         const res = await search.universal(params);
         const data = res?.data ?? res ?? {};
         setResults({
           doctors: data.doctors ?? [],
           clinics: data.clinics ?? [],
           conditions: data.conditions ?? [],
+          treatments: data.treatments ?? [],
           symptoms: data.symptoms ?? [],
+          locations: data.locations ?? [],
         });
       } catch {
-        setResults({ doctors: [], clinics: [], conditions: [], symptoms: [] });
+        setResults(EMPTY_RESULTS);
+        toast.error('Search is temporarily unavailable');
       } finally {
         setLoading(false);
       }
     },
-    [city?.id]
+    [city?.id, coords?.lat, coords?.lng]
   );
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (!query.trim()) {
-      setResults({ doctors: [], clinics: [], conditions: [], symptoms: [] });
+      setResults(EMPTY_RESULTS);
       setLoading(false);
       return undefined;
     }
@@ -139,7 +196,7 @@ export default function GlobalSearch({ variant = 'hero', className = '', onNavig
   }, [query, runSearch]);
 
   useEffect(() => {
-    if (!open) return undefined;
+    if (!open || isMobile) return undefined;
     updateMenuPosition();
     const onScroll = () => updateMenuPosition();
     const onResize = () => updateMenuPosition();
@@ -149,17 +206,27 @@ export default function GlobalSearch({ variant = 'hero', className = '', onNavig
       window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', onResize);
     };
-  }, [open, updateMenuPosition, query]);
+  }, [open, updateMenuPosition, query, isMobile]);
 
   useEffect(() => {
-    const onDocClick = (e) => {
+    const onDocPointer = (e) => {
       if (wrapRef.current?.contains(e.target) || menuRef.current?.contains(e.target)) return;
       setOpen(false);
       setActiveIndex(-1);
     };
-    document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
+    document.addEventListener('mousedown', onDocPointer);
+    document.addEventListener('touchstart', onDocPointer, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', onDocPointer);
+      document.removeEventListener('touchstart', onDocPointer);
+    };
   }, []);
+
+  useEffect(() => {
+    if (!autoFocus) return undefined;
+    const t = setTimeout(() => inputRef.current?.focus(), 120);
+    return () => clearTimeout(t);
+  }, [autoFocus]);
 
   const goTo = (path) => {
     setOpen(false);
@@ -177,6 +244,21 @@ export default function GlobalSearch({ variant = 'hero', className = '', onNavig
       return;
     }
     goTo(`/search?q=${encodeURIComponent(term)}`);
+  };
+
+  const applyQuickTag = (tag) => {
+    setQuery(tag);
+    setOpen(true);
+    setActiveIndex(-1);
+    inputRef.current?.focus();
+  };
+
+  const clearQuery = () => {
+    setQuery('');
+    setOpen(false);
+    setActiveIndex(-1);
+    setResults(EMPTY_RESULTS);
+    inputRef.current?.focus();
   };
 
   const onKeyDown = (e) => {
@@ -202,140 +284,205 @@ export default function GlobalSearch({ variant = 'hero', className = '', onNavig
   };
 
   const showDropdown = open && query.trim().length >= 2;
+  const showQuickTags = isHero || isMobile;
+  const trimmedQuery = query.trim();
 
   const inputClass = isHero
     ? 'w-full bg-white/95 backdrop-blur-md border-0 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-12 pr-28 sm:pr-32 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 shadow-xl shadow-black/10 focus:ring-2 focus:ring-orange-400/80 outline-none'
-    : isHeader
-      ? 'w-full bg-slate-50/90 border border-slate-200/80 rounded-full py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-orange-400/60 focus:border-orange-300 outline-none'
-      : 'input-field pl-10';
+    : isMobile
+      ? 'w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-10 text-base text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-orange-400/70 focus:border-orange-300 outline-none'
+      : isHeader
+        ? 'w-full bg-slate-50/90 border border-slate-200/80 rounded-full py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-orange-400/60 focus:border-orange-300 outline-none'
+        : 'input-field pl-10';
 
   const wrapClass = isHero
     ? 'relative w-full max-w-2xl mx-auto md:mx-0'
-    : isHeader
-      ? 'relative w-full min-w-[140px] max-w-[220px] xl:max-w-[260px]'
-      : 'relative w-full';
+    : isMobile
+      ? 'relative w-full'
+      : isHeader
+        ? 'relative w-full min-w-[140px] max-w-[220px] xl:max-w-[260px]'
+        : 'relative w-full';
 
-  const dropdown = showDropdown && menuStyle && createPortal(
-    <div
-      ref={menuRef}
-      style={menuStyle}
-      className="global-search-menu rounded-2xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/10 overflow-hidden animate-fade-in"
-      role="listbox"
-    >
-      {loading ? (
+  const renderDropdownBody = () => {
+    if (loading) {
+      return (
         <div className="px-4 py-6 text-center text-sm text-slate-500">
           <FaIcon icon="fa-spinner" className="fa-spin mr-2" />
           Searching…
         </div>
-      ) : totalCount === 0 ? (
-        <div className="px-4 py-6 text-center">
-          <p className="text-sm text-slate-600">No matches for &ldquo;{query.trim()}&rdquo;</p>
+      );
+    }
+    if (totalCount === 0) {
+      return (
+        <div className="px-4 py-5 text-center">
+          <p className="text-sm text-slate-600">No matches for &ldquo;{trimmedQuery}&rdquo;</p>
           <button
             type="button"
-            className="mt-3 text-sm font-semibold text-orange-600 hover:text-orange-700"
+            className="mt-3 text-sm font-semibold text-orange-600 hover:text-orange-700 active:text-orange-800"
             onClick={submitSearch}
           >
             View all results
           </button>
         </div>
-      ) : (
-        <>
-          <div className="max-h-[min(60vh,360px)] overflow-y-auto py-1">
-            {flatItems.map((item, i) => (
-              <button
-                key={item.key}
-                type="button"
-                role="option"
-                aria-selected={activeIndex === i}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition ${
-                  activeIndex === i ? 'bg-orange-50' : 'hover:bg-slate-50'
-                }`}
-                onMouseEnter={() => setActiveIndex(i)}
-                onClick={() => goTo(item.to)}
-              >
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.iconColor}`}>
-                  <FaIcon icon={item.icon} className="text-sm" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-slate-900 truncate">{item.label}</span>
-                  <span className="block text-xs text-slate-500 truncate capitalize">{item.type} · {item.sub}</span>
-                </span>
-                <FaIcon icon="fa-arrow-right" className="text-xs text-slate-300 shrink-0" />
-              </button>
-            ))}
-          </div>
-          <div className="border-t border-slate-100 px-3 py-2 bg-slate-50/80">
-            <button
-              type="button"
-              onClick={submitSearch}
-              className="w-full text-center text-xs font-semibold text-orange-600 hover:text-orange-700 py-1.5"
-            >
-              View all results for &ldquo;{query.trim()}&rdquo;
-            </button>
-          </div>
-        </>
-      )}
-    </div>,
-    document.body
-  );
-
-  return (
-    <div className={`${wrapClass} ${className}`} ref={wrapRef}>
-      <div className="relative">
-        <FaIcon
-          icon="fa-magnifying-glass"
-          className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${
-            isHero
-              ? 'left-4 text-base text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]'
-              : 'left-3 text-sm text-orange-400'
+      );
+    }
+    return (
+      <>
+        <div
+          className={`overflow-y-auto py-1 overscroll-contain ${
+            isMobile ? 'max-h-[min(42vh,280px)]' : 'max-h-[min(60vh,360px)]'
           }`}
-        />
-        <input
-          ref={inputRef}
-          type="search"
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setOpen(true);
-            setActiveIndex(-1);
-          }}
-          onFocus={() => setOpen(true)}
-          onKeyDown={onKeyDown}
-          placeholder={
-            isHero
-              ? 'Search doctors, clinics, conditions, symptoms…'
-              : 'Search…'
-          }
-          aria-label="Universal search"
-          aria-expanded={showDropdown}
-          aria-autocomplete="list"
-          className={inputClass}
-          autoComplete="off"
-        />
-        {isHero && (
+        >
+          {flatItems.map((item, i) => (
+            <button
+              key={item.key}
+              type="button"
+              role="option"
+              aria-selected={activeIndex === i}
+              className={`w-full flex items-center gap-3 px-3 py-3 text-left transition touch-manipulation ${
+                activeIndex === i ? 'bg-orange-50' : 'hover:bg-slate-50 active:bg-orange-50/80'
+              }`}
+              onMouseEnter={() => setActiveIndex(i)}
+              onTouchStart={() => setActiveIndex(i)}
+              onClick={() => goTo(item.to)}
+            >
+              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.iconColor}`}>
+                <FaIcon icon={item.icon} className="text-sm" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold text-slate-900 truncate">{item.label}</span>
+                <span className="block text-xs text-slate-500 truncate capitalize">{item.type} · {item.sub}</span>
+              </span>
+              <FaIcon icon="fa-arrow-right" className="text-xs text-slate-300 shrink-0" />
+            </button>
+          ))}
+        </div>
+        <div className="border-t border-slate-100 px-3 py-2 bg-slate-50/80">
           <button
             type="button"
             onClick={submitSearch}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md transition"
+            className="w-full text-center text-xs font-semibold text-orange-600 hover:text-orange-700 active:text-orange-800 py-2 touch-manipulation"
           >
-            Search
+            View all results for &ldquo;{trimmedQuery}&rdquo;
+          </button>
+        </div>
+      </>
+    );
+  };
+
+  const dropdownPanelClass =
+    'global-search-menu rounded-2xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/10 overflow-hidden animate-fade-in';
+
+  const inlineDropdown =
+    isMobile && showDropdown ? (
+      <div ref={menuRef} className={`mt-2 ${dropdownPanelClass}`} role="listbox">
+        {renderDropdownBody()}
+      </div>
+    ) : null;
+
+  const portalDropdown =
+    !isMobile && showDropdown && menuStyle
+      ? createPortal(
+          <div ref={menuRef} style={menuStyle} className={dropdownPanelClass} role="listbox">
+            {renderDropdownBody()}
+          </div>,
+          document.body
+        )
+      : null;
+
+  return (
+    <div className={`${wrapClass} ${className}`} ref={wrapRef}>
+      {isMobile && (
+        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Search</p>
+      )}
+
+      <div className={isMobile ? 'flex items-stretch gap-2' : 'relative'}>
+        <div className={`relative ${isMobile ? 'min-w-0 flex-1' : ''}`}>
+          <FaIcon
+            icon="fa-magnifying-glass"
+            className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${
+              isHero
+                ? 'left-4 text-base text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]'
+                : 'left-3 text-sm text-orange-500'
+            }`}
+          />
+          <input
+            ref={inputRef}
+            type="search"
+            enterKeyHint="search"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setOpen(true);
+              setActiveIndex(-1);
+            }}
+            onFocus={() => setOpen(true)}
+            onKeyDown={onKeyDown}
+            placeholder={isHero || isMobile ? SEARCH_HINT : 'Search…'}
+            aria-label="Universal search"
+            aria-expanded={showDropdown}
+            aria-autocomplete="list"
+            className={inputClass}
+            autoComplete="off"
+          />
+          {trimmedQuery && !isHero && (
+            <button
+              type="button"
+              onClick={clearQuery}
+              className={`absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 active:text-slate-800 touch-manipulation ${
+                isMobile ? 'right-3 p-1' : 'right-2.5'
+              }`}
+              aria-label="Clear search"
+            >
+              <FaIcon icon="fa-circle-xmark" className="text-sm" />
+            </button>
+          )}
+          {isHero && (
+            <button
+              type="button"
+              onClick={submitSearch}
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md transition"
+            >
+              Search
+            </button>
+          )}
+        </div>
+
+        {isMobile && (
+          <button
+            type="button"
+            onClick={submitSearch}
+            disabled={!trimmedQuery}
+            className="shrink-0 self-center bg-orange-600 hover:bg-orange-700 active:bg-orange-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold text-sm px-4 py-3 rounded-xl shadow-sm transition touch-manipulation"
+          >
+            Go
           </button>
         )}
       </div>
 
-      {isHero && (
-        <div className="mt-3 flex flex-wrap items-center justify-center md:justify-start gap-2">
-          <span className="text-[11px] sm:text-xs text-slate-300/90 font-medium">Popular:</span>
+      {showQuickTags && (
+        <div
+          className={`mt-3 flex flex-wrap items-center gap-2 ${
+            isMobile ? 'justify-start' : 'justify-center md:justify-start'
+          }`}
+        >
+          <span
+            className={`text-[11px] sm:text-xs font-medium ${
+              isHero ? 'text-slate-300/90' : 'text-slate-500'
+            }`}
+          >
+            Popular:
+          </span>
           {QUICK_TAGS.map((tag) => (
             <button
               key={tag}
               type="button"
-              onClick={() => {
-                setQuery(tag);
-                setOpen(true);
-                inputRef.current?.focus();
-              }}
-              className="text-[11px] sm:text-xs px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-white/90 hover:bg-white/20 transition"
+              onClick={() => applyQuickTag(tag)}
+              className={`text-[11px] sm:text-xs px-2.5 py-1 rounded-full transition touch-manipulation ${
+                isHero
+                  ? 'bg-white/10 border border-white/20 text-white/90 hover:bg-white/20'
+                  : 'bg-orange-50 border border-orange-100 text-orange-700 hover:bg-orange-100 active:bg-orange-200'
+              }`}
             >
               {tag}
             </button>
@@ -343,7 +490,8 @@ export default function GlobalSearch({ variant = 'hero', className = '', onNavig
         </div>
       )}
 
-      {dropdown}
+      {inlineDropdown}
+      {portalDropdown}
     </div>
   );
 }

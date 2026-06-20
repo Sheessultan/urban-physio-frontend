@@ -5,6 +5,7 @@ import { useLocation as useLocationContext } from '../contexts/LocationContext';
 import FaIcon from './FaIcon';
 import Logo from './Logo';
 import GlobalSearch from './GlobalSearch';
+import MobileNavDrawer from './MobileNavDrawer';
 
 const NAV_LINKS = [
   { to: '/', label: 'Home' },
@@ -21,7 +22,7 @@ const NAV_LINKS = [
 export default function Navbar({ beforeLogo = null, headerSpacerClass = '' }) {
   const { pathname } = useLocation();
   const { user, logout, hasRole } = useAuth();
-  const { city, setShowSelector } = useLocationContext();
+  const { city, setShowSelector, locationLabel } = useLocationContext();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -120,7 +121,7 @@ export default function Navbar({ beforeLogo = null, headerSpacerClass = '' }) {
                   className="hidden md:inline-flex text-xs text-primary-700 glass px-2.5 py-1.5 rounded-full font-medium items-center gap-1 max-w-[140px]"
                 >
                   <FaIcon icon="fa-location-dot" className="shrink-0" />
-                  <span className="truncate">{city.name}</span>
+                  <span className="truncate">{locationLabel || city.name}</span>
                 </button>
               )}
               <Link to="/book" className="hidden sm:inline-flex btn-primary text-sm !py-2 !px-4">
@@ -164,84 +165,18 @@ export default function Navbar({ beforeLogo = null, headerSpacerClass = '' }) {
         </div>
       </header>
 
-      {/* Mobile menu overlay */}
-      <button
-        type="button"
-        aria-label="Close menu"
-        className={`site-mobile-backdrop fixed inset-0 z-[105] lg:hidden bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 ${
-          mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={() => setMobileOpen(false)}
+      <MobileNavDrawer
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        user={user}
+        hasRole={hasRole}
+        dashboardPath={dashboardPath}
+        dashboardLabel={dashboardLabel}
+        city={city}
+        locationLabel={locationLabel}
+        onShowLocation={() => setShowSelector(true)}
+        onLogout={handleLogout}
       />
-
-      <div
-        className={`site-mobile-drawer fixed top-0 right-0 z-[108] h-full w-[min(20rem,92vw)] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] lg:hidden ${
-          mobileOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-        aria-hidden={!mobileOpen}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-slate-100">
-          <span className="font-bold text-slate-900">Menu</span>
-          <button type="button" className="site-header-menu-btn" onClick={() => setMobileOpen(false)} aria-label="Close">
-            <FaIcon icon="fa-xmark" />
-          </button>
-        </div>
-        <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-          <div className="pb-3 mb-2 border-b border-slate-100">
-            <GlobalSearch variant="mobile" onNavigate={() => setMobileOpen(false)} />
-          </div>
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className={`block px-4 py-3 rounded-xl text-base font-medium ${
-                pathname === link.to || (link.to !== '/' && pathname.startsWith(link.to))
-                  ? 'bg-primary-50 text-primary-700'
-                  : 'text-slate-700 hover:bg-slate-50'
-              }`}
-              onClick={() => setMobileOpen(false)}
-            >
-              {link.label}
-            </Link>
-          ))}
-          {city && (
-            <button
-              type="button"
-              className="w-full text-left px-4 py-3 rounded-xl text-base font-medium text-primary-700 hover:bg-primary-50 flex items-center gap-2"
-              onClick={() => {
-                setShowSelector(true);
-                setMobileOpen(false);
-              }}
-            >
-              <FaIcon icon="fa-location-dot" />
-              {city.name}
-            </button>
-          )}
-        </nav>
-        <div className="p-4 border-t border-slate-100 space-y-2 shrink-0">
-          <Link to="/book" className="btn-primary w-full text-center block text-sm" onClick={() => setMobileOpen(false)}>
-            Book Appointment
-          </Link>
-          {user ? (
-            <>
-              <Link
-                to={dashboardPath()}
-                className="btn-outline w-full text-center block text-sm"
-                onClick={() => setMobileOpen(false)}
-              >
-                {dashboardLabel()}
-              </Link>
-              <button type="button" className="btn-outline w-full text-sm text-red-700 border-red-200" onClick={handleLogout}>
-                Logout
-              </button>
-            </>
-          ) : (
-            <Link to="/login" className="btn-outline w-full text-center block text-sm" onClick={() => setMobileOpen(false)}>
-              Login
-            </Link>
-          )}
-        </div>
-      </div>
 
       <div
         className={`site-header-spacer h-14 sm:h-16 shrink-0 ${headerSpacerClass}`}

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import Navbar from '../components/Navbar';
@@ -8,21 +8,31 @@ import PasswordInput from '../components/PasswordInput';
 import { navigateAfterAuth } from '../utils/authRedirect';
 
 export default function Register() {
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const { register, googleLogin } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const redirectTo = location.state?.from;
+  const urlRole = searchParams.get('role');
+  const initialRole = urlRole === 'doctor' ? 'doctor' : 'patient';
+
   const [form, setForm] = useState({
     first_name: '',
     last_name: '',
     email: '',
     phone: '',
     password: '',
-    role: 'patient',
+    role: initialRole,
     specialization: '',
   });
-  const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const { register, googleLogin } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const redirectTo = location.state?.from;
+
+  useEffect(() => {
+    if (urlRole === 'doctor' || urlRole === 'patient') {
+      setForm((prev) => ({ ...prev, role: urlRole }));
+    }
+  }, [urlRole]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -153,7 +163,11 @@ export default function Register() {
           </form>
           <p className="mt-4 text-center text-sm">
             Already have an account?{' '}
-            <Link to="/login" state={{ from: redirectTo }} className="text-primary-600">
+            <Link
+              to={form.role === 'doctor' ? '/login?role=doctor' : '/login?role=patient'}
+              state={{ from: redirectTo }}
+              className="text-primary-600"
+            >
               Login
             </Link>
           </p>

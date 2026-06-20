@@ -11,9 +11,7 @@ export function dashboardPath(roleSlug) {
 export function navigateAfterAuth(navigate, user, redirectTo) {
   const canUseRedirect =
     redirectTo &&
-    (user.role_slug === 'patient' ||
-      user.role_slug === 'admin' ||
-      user.role_slug === 'super_admin');
+    ['patient', 'doctor', 'admin', 'super_admin'].includes(user.role_slug);
   if (canUseRedirect) {
     navigate(redirectTo, { replace: true });
   } else {

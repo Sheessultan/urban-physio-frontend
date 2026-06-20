@@ -13,6 +13,7 @@ export default function LocationSelector() {
     requestGeolocation,
     hasNearbyProviders,
     city,
+    locationLabel,
     loading,
   } = useLocation();
 
@@ -120,8 +121,8 @@ export default function LocationSelector() {
             <div className="min-w-0 flex-1">
               <p className="text-xs text-primary-700 font-medium uppercase tracking-wide">Current</p>
               <p className="font-semibold text-slate-900 truncate">
-                {city.name}
-                {city.state_name ? `, ${city.state_name}` : ''}
+                {locationLabel || city.name}
+                {!locationLabel && city.state_name ? `, ${city.state_name}` : ''}
               </p>
             </div>
             {canDismiss && (

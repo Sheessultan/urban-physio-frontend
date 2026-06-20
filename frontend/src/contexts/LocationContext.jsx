@@ -7,14 +7,38 @@ import { hasFunctionalConsent } from '../constants/cookieConsent';
 import toast from 'react-hot-toast';
 
 const LocationContext = createContext(null);
+const STORAGE_KEY = 'selectedCity';
 
 function unwrapList(res) {
   return res?.data ?? res ?? [];
 }
 
-async function fetchProvidersForCity(cityId) {
+function readSavedCity() {
+  if (!hasFunctionalConsent()) return null;
   try {
-    const res = await location.cityProviders(cityId);
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed?.id ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function formatLocationLabel(city, detectedLabel) {
+  if (detectedLabel) return detectedLabel;
+  if (!city?.name) return null;
+  return city.state_name ? `${city.name}, ${city.state_name}` : city.name;
+}
+
+async function fetchProvidersForCity(cityId, coords = null) {
+  try {
+    const params = { city_id: cityId };
+    if (coords?.lat != null && coords?.lng != null) {
+      params.lat = coords.lat;
+      params.lng = coords.lng;
+    }
+    const res = await location.cityProviders(cityId, params.lat, params.lng);
     return res?.data ?? res;
   } catch {
     const [docRes, clinicRes] = await Promise.all([
@@ -34,7 +58,8 @@ async function fetchProvidersForCity(cityId) {
 export function LocationProvider({ children }) {
   const [coords, setCoords] = useState(null);
   const [city, setCity] = useState(null);
-  /** 'gps' = device location, 'city' = manually selected city (GPS ignored) */
+  const [locationLabel, setLocationLabel] = useState(null);
+  /** 'gps' = device location, 'city' = manually selected city */
   const [locationSource, setLocationSource] = useState(null);
   const [nearbyDoctors, setNearbyDoctors] = useState([]);
   const [nearbyClinics, setNearbyClinics] = useState([]);
@@ -48,44 +73,57 @@ export function LocationProvider({ children }) {
 
   const hasNearbyProviders = nearbyDoctors.length > 0 || nearbyClinics.length > 0;
 
-  const persistCity = useCallback((resolvedCity) => {
+  const persistCity = useCallback((resolvedCity, source = 'gps') => {
     if (resolvedCity && hasFunctionalConsent()) {
-      localStorage.setItem('selectedCity', JSON.stringify(resolvedCity));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          ...resolvedCity,
+          source,
+          saved_at: Date.now(),
+        })
+      );
     }
   }, []);
 
   const applyProviderPayload = useCallback(
     (data, cityOverride = null, { userInitiated = false, fromGps = false } = {}) => {
       const resolvedCity = data?.city || cityOverride;
+      const detectedLabel = data?.detected_label || resolvedCity?.detected_label || null;
       const docList = data?.doctors || [];
       const clinicList = data?.clinics || [];
       const has =
         data?.has_nearby_providers ??
         (docList.length > 0 || clinicList.length > 0);
 
+      if (resolvedCity) {
+        setCity(resolvedCity);
+        setLocationLabel(formatLocationLabel(resolvedCity, detectedLabel));
+      }
+
+      setNearbyDoctors(docList);
+      setNearbyClinics(clinicList);
+
       if (userInitiated) {
-        if (resolvedCity) setCity(resolvedCity);
-        setNearbyDoctors(docList);
-        setNearbyClinics(clinicList);
-        setCoords(null);
+        setCoords(data?.coords ?? null);
         setShowSelector(false);
-        persistCity(resolvedCity);
+        if (resolvedCity) persistCity(resolvedCity, fromGps ? 'gps' : 'manual');
         return has;
       }
 
-      if (fromGps && !has) {
-        setNearbyDoctors([]);
-        setNearbyClinics([]);
-        setShowSelector(true);
-        return false;
+      if (fromGps) {
+        setCoords(data?.coords ?? null);
+        if (!has) {
+          setShowSelector(true);
+          return false;
+        }
+        setShowSelector(false);
+        if (resolvedCity) persistCity(resolvedCity, 'gps');
+        return true;
       }
 
-      if (resolvedCity) setCity(resolvedCity);
-      setNearbyDoctors(docList);
-      setNearbyClinics(clinicList);
-      if (data?.coords) setCoords(data.coords);
       setShowSelector(!has);
-      if (has && resolvedCity) persistCity(resolvedCity);
+      if (has && resolvedCity) persistCity(resolvedCity, 'gps');
       return has;
     },
     [persistCity]
@@ -100,7 +138,7 @@ export function LocationProvider({ children }) {
 
       setLoading(true);
       try {
-        const payload = await fetchProvidersForCity(cityId);
+        const payload = await fetchProvidersForCity(cityId, options.coords ?? coords);
         const merged = {
           ...payload,
           city: payload.city || cityData,
@@ -108,8 +146,9 @@ export function LocationProvider({ children }) {
         const has = applyProviderPayload(merged, cityData, options);
 
         if (options.userInitiated && cityData?.name) {
+          const label = formatLocationLabel(cityData, merged.detected_label);
           if (has) {
-            toast.success(`Showing care in ${cityData.name}`);
+            toast.success(`Showing care in ${label || cityData.name}`);
           } else {
             toast(`No doctors or clinics in ${cityData.name} yet. Try another nearby city.`, { icon: '📍' });
           }
@@ -118,10 +157,11 @@ export function LocationProvider({ children }) {
       } catch {
         if (options.userInitiated && cityData) {
           setCity(cityData);
-          setCoords(null);
-          setLocationSource('city');
+          setLocationLabel(formatLocationLabel(cityData));
+          setCoords(options.coords ?? null);
+          setLocationSource(options.fromGps ? 'gps' : 'city');
           setShowSelector(false);
-          persistCity(cityData);
+          persistCity(cityData, options.fromGps ? 'gps' : 'manual');
           toast.success(`Location set to ${cityData.name}`);
           return false;
         }
@@ -133,7 +173,7 @@ export function LocationProvider({ children }) {
         setLocationResolved(true);
       }
     },
-    [applyProviderPayload, persistCity]
+    [applyProviderPayload, persistCity, coords]
   );
 
   const detectLocation = useCallback(
@@ -149,12 +189,33 @@ export function LocationProvider({ children }) {
         setCoords({ lat, lng });
         setLocationSource('gps');
 
-        const hasProviders = applyProviderPayload(data, null, { fromGps: true });
+        const hasProviders = applyProviderPayload(
+          { ...data, coords: data.coords ?? { lat, lng } },
+          null,
+          { fromGps: true }
+        );
 
         if (epoch !== locationEpoch.current) return;
 
-        if (hasProviders && data?.city?.name) {
-          toast.success(`Showing care near ${data.city.name}`);
+        const label =
+          data?.detected_label ||
+          formatLocationLabel(data?.city) ||
+          data?.city?.name;
+
+        if (hasProviders && label) {
+          const serviceName = data?.service_city?.name;
+          const displayName = data?.city?.name;
+          if (serviceName && displayName && serviceName !== displayName) {
+            toast.success(`Showing care near ${displayName} · Providers in ${serviceName} area`);
+          } else {
+            toast.success(`Showing care near ${label}`);
+          }
+        } else if (label) {
+          setShowSelector(true);
+          toast(`We detected ${label}, but no doctors/clinics nearby yet. Please confirm your city.`, {
+            icon: '📍',
+            duration: 5000,
+          });
         } else {
           setShowSelector(true);
           toast('No doctors or clinics near your current location. Please select your city manually.', {
@@ -195,22 +256,16 @@ export function LocationProvider({ children }) {
       async (err) => {
         if (epoch !== locationEpoch.current) return;
 
-        if (hasFunctionalConsent()) {
-          const saved = localStorage.getItem('selectedCity');
-          if (saved) {
-            try {
-              const parsed = JSON.parse(saved);
-              if (parsed?.id) {
-                locationEpoch.current += 1;
-                setCoords(null);
-                setLocationSource('city');
-                await loadCityProviders(parsed.id, parsed, { userInitiated: true });
-                return;
-              }
-            } catch {
-              /* ignore */
-            }
-          }
+        const saved = readSavedCity();
+        if (saved?.id) {
+          locationEpoch.current += 1;
+          setLocationSource(saved.source === 'manual' ? 'city' : 'gps');
+          setCoords(null);
+          await loadCityProviders(saved.id, saved, {
+            userInitiated: false,
+            fromGps: saved.source !== 'manual',
+          });
+          return;
         }
 
         setLoading(false);
@@ -222,38 +277,30 @@ export function LocationProvider({ children }) {
           toast.error('Could not get GPS location. Select your city manually.');
         }
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   }, [detectLocation, loadCityProviders]);
 
   const refreshLocation = useCallback(() => {
     if (locationSource === 'city' && city?.id) {
-      return loadCityProviders(city.id, city, { userInitiated: true });
+      return loadCityProviders(city.id, city, { userInitiated: true, coords });
     }
     return requestGeolocation();
-  }, [locationSource, city, loadCityProviders, requestGeolocation]);
+  }, [locationSource, city, coords, loadCityProviders, requestGeolocation]);
 
   useEffect(() => {
     if (initDone.current) return;
     initDone.current = true;
 
     const bootstrap = async () => {
-      if (hasFunctionalConsent()) {
-        const saved = localStorage.getItem('selectedCity');
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            if (parsed?.id) {
-              locationEpoch.current += 1;
-              setLocationSource('city');
-              setCoords(null);
-              await loadCityProviders(parsed.id, parsed, { userInitiated: true });
-              return;
-            }
-          } catch {
-            /* ignore */
-          }
-        }
+      const saved = readSavedCity();
+
+      if (saved?.source === 'manual' && saved?.id) {
+        locationEpoch.current += 1;
+        setLocationSource('city');
+        setCoords(null);
+        await loadCityProviders(saved.id, saved, { userInitiated: false });
+        return;
       }
 
       requestGeolocation();
@@ -265,17 +312,14 @@ export function LocationProvider({ children }) {
   useEffect(() => {
     const onConsent = () => {
       if (!hasFunctionalConsent()) {
-        localStorage.removeItem('selectedCity');
+        localStorage.removeItem(STORAGE_KEY);
       } else {
-        const saved = localStorage.getItem('selectedCity');
-        if (saved && !city) {
-          try {
-            const parsed = JSON.parse(saved);
-            if (parsed?.id) {
-              loadCityProviders(parsed.id, parsed, { userInitiated: true });
-            }
-          } catch {
-            /* ignore */
+        const saved = readSavedCity();
+        if (saved?.id && !city) {
+          if (saved.source === 'manual') {
+            loadCityProviders(saved.id, saved, { userInitiated: false });
+          } else {
+            requestGeolocation();
           }
         }
       }
@@ -283,7 +327,7 @@ export function LocationProvider({ children }) {
 
     window.addEventListener('tup-cookie-consent-updated', onConsent);
     return () => window.removeEventListener('tup-cookie-consent-updated', onConsent);
-  }, [city, loadCityProviders]);
+  }, [city, loadCityProviders, requestGeolocation]);
 
   const selectCity = async (cityData) => {
     if (!cityData?.id) return;
@@ -294,11 +338,18 @@ export function LocationProvider({ children }) {
     await loadCityProviders(cityData.id, cityData, { userInitiated: true });
   };
 
+  const useCurrentLocation = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
+    setShowSelector(false);
+    requestGeolocation();
+  }, [requestGeolocation]);
+
   return (
     <LocationContext.Provider
       value={{
         coords,
         city,
+        locationLabel,
         locationSource,
         nearbyDoctors,
         nearbyClinics,
@@ -306,7 +357,7 @@ export function LocationProvider({ children }) {
         locationResolved,
         showSelector,
         loading,
-        requestGeolocation,
+        requestGeolocation: useCurrentLocation,
         refreshLocation,
         selectCity,
         detectLocation,

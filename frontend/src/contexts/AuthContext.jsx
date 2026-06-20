@@ -41,8 +41,12 @@ export function AuthProvider({ children }) {
         localStorage.setItem('user', JSON.stringify(payload));
         return payload;
       }
-    } catch {
-      /* keep stored session — only explicit logout clears */
+    } catch (err) {
+      if (err?.status === 401) {
+        clearSession();
+        return null;
+      }
+      /* keep stored session for transient network errors */
     }
     const cached = readStoredUser();
     if (cached) setUser(cached);
@@ -73,9 +77,12 @@ export function AuthProvider({ children }) {
           setUser(payload);
           localStorage.setItem('user', JSON.stringify(payload));
         }
-      } catch {
+      } catch (err) {
         if (cancelled) return;
-        /* Keep token + cached user until user clicks Logout */
+        if (err?.status === 401) {
+          clearSession();
+        }
+        /* Keep token + cached user on transient errors until explicit logout */
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -119,7 +126,7 @@ export function AuthProvider({ children }) {
 
   const register = async (data) => {
     const res = await auth.register(data);
-    return res.data;
+    return res?.data ?? res;
   };
 
   const verifyOtp = async (email, otp) => {

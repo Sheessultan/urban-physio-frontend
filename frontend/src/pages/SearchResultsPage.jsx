@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import Navbar from '../components/Navbar';
 import FaIcon from '../components/FaIcon';
 import { search } from '../services/api';
@@ -8,7 +9,7 @@ import { useLocation } from '../contexts/LocationContext';
 export default function SearchResultsPage() {
   const [params] = useSearchParams();
   const q = params.get('q') || '';
-  const { city } = useLocation();
+  const { city, coords } = useLocation();
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -21,11 +22,25 @@ export default function SearchResultsPage() {
     setLoading(true);
     const apiParams = { q, search: q, limit: 20 };
     if (city?.id) apiParams.city_id = city.id;
+    if (coords?.lat != null && coords?.lng != null) {
+      apiParams.lat = coords.lat;
+      apiParams.lng = coords.lng;
+    }
     search.universal(apiParams)
       .then((res) => setResults(res?.data ?? res))
-      .catch(() => setResults({ doctors: [], clinics: [], conditions: [], symptoms: [] }))
+      .catch(() => {
+        toast.error('Search is temporarily unavailable');
+        setResults({
+          doctors: [],
+          clinics: [],
+          conditions: [],
+          treatments: [],
+          symptoms: [],
+          locations: [],
+        });
+      })
       .finally(() => setLoading(false));
-  }, [q, city?.id]);
+  }, [q, city?.id, coords?.lat, coords?.lng]);
 
   const Section = ({ title, icon, items, renderItem }) => {
     if (!items?.length) return null;
@@ -79,6 +94,36 @@ export default function SearchResultsPage() {
               )}
             />
             <Section
+              title="Treatments"
+              icon="fa-hand-holding-medical"
+              items={results?.treatments}
+              renderItem={(t, i) => (
+                <Link
+                  key={`${t.id ?? t.slug}-${i}`}
+                  to={t.slug ? `/treatments/${t.slug}` : '/treatments'}
+                  className="glass-card p-4 hover:shadow-md transition block"
+                >
+                  <p className="font-semibold text-slate-900">{t.title}</p>
+                  <p className="text-sm text-slate-600 line-clamp-2">{t.short_description}</p>
+                </Link>
+              )}
+            />
+            <Section
+              title="Locations"
+              icon="fa-location-dot"
+              items={results?.locations}
+              renderItem={(loc) => (
+                <Link
+                  key={loc.id}
+                  to={`/doctors?city_id=${loc.id}`}
+                  className="glass-card p-4 hover:shadow-md transition block"
+                >
+                  <p className="font-semibold text-slate-900">{loc.name}</p>
+                  <p className="text-xs text-slate-500 mt-1">{loc.state_name}</p>
+                </Link>
+              )}
+            />
+            <Section
               title="Conditions"
               icon="fa-notes-medical"
               items={results?.conditions}
@@ -106,8 +151,10 @@ export default function SearchResultsPage() {
             />
             {!results?.doctors?.length &&
               !results?.clinics?.length &&
+              !results?.treatments?.length &&
               !results?.conditions?.length &&
-              !results?.symptoms?.length && (
+              !results?.symptoms?.length &&
+              !results?.locations?.length && (
                 <p className="text-slate-600">No results found. Try different keywords.</p>
               )}
           </>

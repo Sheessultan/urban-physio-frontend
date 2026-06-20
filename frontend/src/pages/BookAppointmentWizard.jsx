@@ -614,7 +614,9 @@ export default function BookAppointmentWizard() {
         if (city) patch({ city });
         toast.success('Location saved on map');
       })
-      .catch(() => toast.success('Map pin saved'));
+      .catch(() =>
+        toast.error('Map pin saved, but we could not detect your city. Please select it manually.')
+      );
   };
 
   const slotStillAvailable = async () => {

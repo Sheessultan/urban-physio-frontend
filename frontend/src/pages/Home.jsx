@@ -63,11 +63,12 @@ export default function Home() {
     requestGeolocation,
     refreshLocation,
     city,
+    locationLabel,
     setShowSelector,
   } = useLocation();
   const [treatmentList, setTreatmentList] = useState([]);
   const [conditionList, setConditionList] = useState([]);
-  const [heroImgOk, setHeroImgOk] = useState(true);
+  const areaName = locationLabel || city?.name;
 
   useEffect(() => {
     treatments.list().then((res) => setTreatmentList((res.data || []).slice(0, 3))).catch(() => {});
@@ -143,7 +144,7 @@ export default function Home() {
                 <p className="mt-3 md:mt-4 flex justify-center md:justify-start">
                   <span className="bg-orange-500/20 backdrop-blur-md border border-orange-400/35 px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 text-xs md:text-sm font-medium text-orange-50 shadow-lg shadow-black/10">
                     <FaIcon icon="fa-location-dot" className="text-orange-300 text-xs" />
-                    Near {city.name}
+                    Near {areaName}
                   </span>
                 </p>
               )}
@@ -292,7 +293,7 @@ export default function Home() {
               Doctors Near You
             </h2>
             <p className="text-slate-600 mt-1 text-sm">
-              {city ? `Nearest in ${city.name}` : 'Verified physiotherapists near you'}
+              {areaName ? `Nearest in ${areaName}` : 'Verified physiotherapists near you'}
             </p>
           </div>
           <button type="button" onClick={refreshLocation} className="btn-outline text-xs md:text-sm py-2 px-3 inline-flex items-center gap-1.5">
@@ -333,7 +334,7 @@ export default function Home() {
             <FaIcon icon="fa-location-dot" className="text-3xl md:text-4xl text-primary-600 mb-3" />
             <p className="text-slate-600 text-sm md:text-lg px-4">
               {city
-                ? `No doctors or clinics listed in ${city.name} yet. Try another city nearby.`
+                ? `No doctors or clinics listed in ${areaName} yet. Try another city nearby.`
                 : 'Allow location or pick a city to see nearest doctors.'}
             </p>
             <div className="flex flex-wrap justify-center gap-2 mt-4">
@@ -369,7 +370,7 @@ export default function Home() {
               Clinics Near You
             </h2>
             <p className="text-slate-600 mt-1 text-sm">
-              {city ? `Partner clinics in ${city.name}` : 'Approved partner clinics near you'}
+              {areaName ? `Partner clinics in ${areaName}` : 'Approved partner clinics near you'}
             </p>
           </div>
           <button

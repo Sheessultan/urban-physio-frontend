@@ -33,7 +33,8 @@ export function isInvoiceAvailable(appt) {
  * Resolves when payment is verified; rejects on cancel/failure.
  */
 export function openRazorpayCheckout(orderRes) {
-  const { order_id, amount, key_id } = orderRes.data;
+  const payload = orderRes?.data ?? orderRes ?? {};
+  const { order_id, amount, key_id } = payload;
 
   return new Promise((resolve, reject) => {
     if (window.Razorpay && key_id) {
@@ -65,14 +66,19 @@ export function openRazorpayCheckout(orderRes) {
       return;
     }
 
-    payments
-      .verify({
-        razorpay_order_id: order_id,
-        razorpay_payment_id: 'pay_demo_' + Date.now(),
-        razorpay_signature: 'demo',
-      })
-      .then(resolve)
-      .catch(reject);
+    if (import.meta.env.DEV && order_id) {
+      payments
+        .verify({
+          razorpay_order_id: order_id,
+          razorpay_payment_id: 'pay_demo_' + Date.now(),
+          razorpay_signature: 'demo',
+        })
+        .then(resolve)
+        .catch(reject);
+      return;
+    }
+
+    reject(new Error('Payment gateway unavailable. Please refresh and try again.'));
   });
 }
 

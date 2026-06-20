@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { hasStoredToken, readStoredUser } from '../utils/authSession';
+import { dashboardPath } from '../utils/authRedirect';
 
 export default function ProtectedRoute({ children, roles }) {
   const { user, loading } = useAuth();
@@ -26,13 +27,7 @@ export default function ProtectedRoute({ children, roles }) {
     );
   }
   if (roles && !roles.includes(sessionUser.role_slug)) {
-    const fallback =
-      sessionUser.role_slug === 'doctor'
-        ? '/doctor'
-        : sessionUser.role_slug === 'patient'
-          ? '/patient'
-          : '/';
-    return <Navigate to={fallback} replace />;
+    return <Navigate to={dashboardPath(sessionUser.role_slug)} replace />;
   }
 
   return children;

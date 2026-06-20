@@ -68,7 +68,13 @@ export const location = {
     api.get('/location/cities', {
       params: { state_id: stateId, ...(servedOnly ? { served: '1' } : {}) },
     }),
-  cityProviders: (cityId) => api.get('/location/city-providers', { params: { city_id: cityId } }),
+  cityProviders: (cityId, lat, lng) =>
+    api.get('/location/city-providers', {
+      params: {
+        city_id: cityId,
+        ...(lat != null && lng != null ? { lat, lng } : {}),
+      },
+    }),
   detect: (lat, lng) => api.get('/location/detect', { params: { lat, lng } }),
   nearbyDoctors: (lat, lng, radius, cityId) =>
     api.get('/location/doctors', {

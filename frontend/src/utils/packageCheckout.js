@@ -35,14 +35,19 @@ export function openPackageRazorpayCheckout(orderRes) {
       return;
     }
 
-    packageBookings
-      .verify({
-        razorpay_order_id: order_id,
-        razorpay_payment_id: 'pay_demo_' + Date.now(),
-        razorpay_signature: 'demo',
-      })
-      .then(resolve)
-      .catch(reject);
+    if (import.meta.env.DEV && order_id) {
+      packageBookings
+        .verify({
+          razorpay_order_id: order_id,
+          razorpay_payment_id: 'pay_demo_' + Date.now(),
+          razorpay_signature: 'demo',
+        })
+        .then(resolve)
+        .catch(reject);
+      return;
+    }
+
+    reject(new Error('Payment gateway unavailable. Please refresh and try again.'));
   });
 }
 

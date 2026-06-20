@@ -1,10 +1,14 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import Navbar from '../components/Navbar';
 
 export default function ForgotPassword() {
+  const location = useLocation();
+  const loginRole = location.state?.loginRole;
+  const loginBack = loginRole ? `/login?role=${loginRole}` : '/login';
+
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -38,7 +42,7 @@ export default function ForgotPassword() {
               <p className="text-slate-700">
                 If an account exists for <strong>{email}</strong>, you will receive an email shortly.
               </p>
-              <Link to="/login" className="btn-primary inline-block w-full text-center">
+              <Link to={loginBack} className="btn-primary inline-block w-full text-center">
                 Back to sign in
               </Link>
             </div>
@@ -60,7 +64,7 @@ export default function ForgotPassword() {
             </form>
           )}
           <p className="mt-4 text-center text-sm">
-            <Link to="/login" className="text-primary-600">
+            <Link to={loginBack} className="text-primary-600">
               Back to sign in
             </Link>
           </p>
