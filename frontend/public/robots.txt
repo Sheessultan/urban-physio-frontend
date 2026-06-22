@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mediumorchid-monkey-387815.hostingersite.com/backend/api/sitemap

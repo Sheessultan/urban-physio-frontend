@@ -5,7 +5,7 @@ import GlobalSearch from './GlobalSearch';
 const EXPLORE_LINKS = [
   { to: '/', label: 'Home', icon: 'fa-house' },
   { to: '/doctors', label: 'Find Physiotherapists', icon: 'fa-user-doctor' },
-  { to: '/book?type=clinic', label: 'Find Clinic', icon: 'fa-hospital' },
+  { to: '/clinics', label: 'Find Clinics', icon: 'fa-hospital' },
   { to: '/book?type=home_visit', label: 'Home Physiotherapy', icon: 'fa-house-medical' },
   { to: '/treatments', label: 'Services', icon: 'fa-kit-medical' },
   { to: '/exercises', label: 'Exercise Library', icon: 'fa-dumbbell' },

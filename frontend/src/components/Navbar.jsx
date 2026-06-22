@@ -10,6 +10,7 @@ import MobileNavDrawer from './MobileNavDrawer';
 const NAV_LINKS = [
   { to: '/', label: 'Home' },
   { to: '/doctors', label: 'Find Doctors' },
+  { to: '/clinics', label: 'Find Clinics' },
   { to: '/treatments', label: 'Treatments' },
   { to: '/packages', label: 'Packages' },
   { to: '/conditions', label: 'Conditions' },

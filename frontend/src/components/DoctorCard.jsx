@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import FaIcon from './FaIcon';
 import DoctorAvatar from './DoctorAvatar';
 import { bookDoctorUrl } from '../utils/bookUrl';
+import { doctorProfileUrl } from '../utils/profileUrls';
 
 /**
  * @param {{ doctor: object, compact?: boolean, variant?: 'default' | 'listing' }} props
@@ -95,7 +96,7 @@ export default function DoctorCard({ doctor, compact = false, variant = 'default
 
           <div className="mt-auto pt-5 flex gap-2">
             <Link
-              to={`/doctors/${doctor.id}`}
+              to={doctorProfileUrl(doctor)}
               className="btn-outline flex-1 text-center text-sm !py-2.5 inline-flex items-center justify-center gap-2"
             >
               <FaIcon icon="fa-user" className="text-xs btn-icon" />

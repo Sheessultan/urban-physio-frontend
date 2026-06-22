@@ -7,6 +7,7 @@ import { displayContactText } from '../utils/contactText';
 
 const QUICK_LINKS = [
   { to: '/doctors', label: 'Find Doctors', icon: 'fa-user-doctor' },
+  { to: '/clinics', label: 'Find Clinics', icon: 'fa-hospital' },
   { to: '/treatments', label: 'Treatments', icon: 'fa-kit-medical' },
   { to: '/conditions', label: 'Conditions', icon: 'fa-notes-medical' },
   { to: '/book', label: 'Book Appointment', icon: 'fa-calendar-check' },

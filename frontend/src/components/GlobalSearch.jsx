@@ -6,6 +6,7 @@ import FaIcon from './FaIcon';
 import { search } from '../services/api';
 import { useLocation } from '../contexts/LocationContext';
 import { localSearchMatches, mergeSearchResults, QUICK_SEARCH_TAGS } from '../utils/searchCatalog';
+import { doctorProfileUrl, clinicProfileUrl } from '../utils/profileUrls';
 
 const QUICK_TAGS = QUICK_SEARCH_TAGS;
 
@@ -63,7 +64,8 @@ export default function GlobalSearch({
         key: `d-${d.id}`,
         label: `Dr. ${d.first_name} ${d.last_name}`,
         sub: d.specialization || d.city_name || 'Physiotherapist',
-        to: `/doctors/${d.id}`,
+        to: doctorProfileUrl(d),
+        to: doctorProfileUrl(d),
         icon: 'fa-user-doctor',
         iconColor: 'text-orange-600 bg-orange-50',
       });
@@ -74,7 +76,7 @@ export default function GlobalSearch({
         key: `cl-${c.id}`,
         label: c.name,
         sub: c.city_name || c.address || 'Clinic',
-        to: `/book?clinic_id=${c.id}`,
+        to: clinicProfileUrl(c),
         icon: 'fa-hospital',
         iconColor: 'text-emerald-600 bg-emerald-50',
       });

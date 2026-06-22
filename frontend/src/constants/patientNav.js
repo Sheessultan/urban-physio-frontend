@@ -8,4 +8,5 @@ export const PATIENT_NAV = [
   { to: '/book', label: 'Book Appointment', icon: 'fa-calendar-plus' },
   { to: '/emergency/book', label: 'Emergency Care', icon: 'fa-truck-medical' },
   { to: '/doctors', label: 'Find Doctors', icon: 'fa-user-doctor' },
+  { to: '/clinics', label: 'Find Clinics', icon: 'fa-hospital' },
 ];

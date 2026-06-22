@@ -6,6 +6,7 @@ import FaIcon from '../components/FaIcon';
 import { search } from '../services/api';
 import { useLocation } from '../contexts/LocationContext';
 import { localSearchMatches, mergeSearchResults } from '../utils/searchCatalog';
+import { doctorProfileUrl, clinicProfileUrl } from '../utils/profileUrls';
 
 export default function SearchResultsPage() {
   const [params] = useSearchParams();
@@ -74,7 +75,7 @@ export default function SearchResultsPage() {
               icon="fa-user-doctor"
               items={results?.doctors}
               renderItem={(d) => (
-                <Link key={d.id} to={`/doctors/${d.id}`} className="glass-card p-4 hover:shadow-md transition block">
+                <Link key={d.id} to={doctorProfileUrl(d)} className="glass-card p-4 hover:shadow-md transition block">
                   <p className="font-semibold text-slate-900">Dr. {d.first_name} {d.last_name}</p>
                   <p className="text-sm text-primary-600">{d.specialization}</p>
                   <p className="text-xs text-slate-500 mt-1">{d.city_name}</p>
@@ -86,7 +87,7 @@ export default function SearchResultsPage() {
               icon="fa-hospital"
               items={results?.clinics}
               renderItem={(c) => (
-                <Link key={c.id} to={`/book?clinic_id=${c.id}`} className="glass-card p-4 hover:shadow-md transition block">
+                <Link key={c.id} to={clinicProfileUrl(c)} className="glass-card p-4 hover:shadow-md transition block">
                   <p className="font-semibold text-slate-900">{c.name}</p>
                   <p className="text-sm text-slate-600 line-clamp-2">{c.address}</p>
                   <p className="text-xs text-slate-500 mt-1">{c.city_name}</p>

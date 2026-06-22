@@ -7,7 +7,10 @@ import VerifyOtp from './pages/VerifyOtp';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Doctors from './pages/Doctors';
+import Clinics from './pages/Clinics';
 import DoctorDetail from './pages/DoctorDetail';
+import DoctorProfilePage from './pages/DoctorProfilePage';
+import ClinicProfilePage from './pages/ClinicProfilePage';
 import BookAppointmentWizard from './pages/BookAppointmentWizard';
 import Treatments from './pages/Treatments';
 import TreatmentDetail from './pages/TreatmentDetail';
@@ -78,6 +81,7 @@ export default function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/doctors" element={<Doctors />} />
+      <Route path="/clinics" element={<Clinics />} />
       <Route
         path="/book"
         element={
@@ -103,6 +107,8 @@ export default function App() {
         }
       />
       <Route path="/doctors/:id" element={<DoctorDetail />} />
+      <Route path="/doctor/:slug" element={<DoctorProfilePage />} />
+      <Route path="/clinic/:slug" element={<ClinicProfilePage />} />
       <Route path="/treatments" element={<Treatments />} />
       <Route path="/treatments/:slug" element={<TreatmentDetail />} />
       <Route path="/conditions" element={<Conditions />} />

@@ -406,10 +406,13 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <div className="text-center mt-5 md:mt-10">
-              <Link to="/book?type=clinic" className="btn-primary inline-flex items-center gap-2 text-sm py-2.5 px-5">
-                Book clinic visit
+            <div className="text-center mt-5 md:mt-10 flex flex-wrap justify-center gap-3">
+              <Link to="/clinics" className="btn-primary inline-flex items-center gap-2 text-sm py-2.5 px-5">
+                View all clinics
                 <FaIcon icon="fa-arrow-right" />
+              </Link>
+              <Link to="/book?type=clinic" className="btn-outline inline-flex items-center gap-2 text-sm py-2.5 px-5">
+                Book clinic visit
               </Link>
             </div>
           </>
