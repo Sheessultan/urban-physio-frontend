@@ -30,17 +30,26 @@ function Section({ title, icon, children, accent = 'emerald' }) {
 }
 
 function StatPill({ label, value, icon, tone = 'emerald' }) {
-  const tones = {
-    emerald: 'from-emerald-500/10 to-teal-500/10 border-emerald-100 text-emerald-800',
-    amber: 'from-amber-500/10 to-orange-500/10 border-amber-100 text-amber-900',
-    slate: 'from-slate-500/5 to-slate-500/10 border-slate-100 text-slate-800',
+  const valueTone = {
+    emerald: 'text-emerald-800',
+    amber: 'text-amber-800',
+    slate: 'text-slate-800',
+  };
+  const iconBg = {
+    emerald: 'bg-emerald-50 text-emerald-600',
+    amber: 'bg-amber-50 text-amber-600',
+    slate: 'bg-slate-100 text-slate-500',
   };
   return (
-    <div className={`rounded-2xl border bg-gradient-to-br px-4 py-3 ${tones[tone] || tones.emerald}`}>
-      <p className="text-[10px] font-bold uppercase tracking-wider opacity-70">{label}</p>
-      <p className="text-lg font-bold mt-0.5 flex items-center gap-1.5">
-        {icon && <FaIcon icon={icon} className="text-sm opacity-80" />}
-        {value}
+    <div className="rounded-2xl border border-white/90 bg-white/95 backdrop-blur-md shadow-lg shadow-emerald-950/10 px-4 py-3.5 h-full">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</p>
+      <p className={`text-base md:text-lg font-bold mt-1.5 flex items-center gap-2 ${valueTone[tone] || valueTone.emerald}`}>
+        {icon && (
+          <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs ${iconBg[tone] || iconBg.emerald}`}>
+            <FaIcon icon={icon} />
+          </span>
+        )}
+        <span className="truncate">{value}</span>
       </p>
     </div>
   );
@@ -125,8 +134,8 @@ export default function ClinicProfilePage() {
       />
       <Navbar />
 
-      {/* Hero */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-emerald-950 to-teal-950 text-white">
+      {/* Hero + stats anchored to banner bottom */}
+      <div className="relative overflow-visible bg-gradient-to-br from-slate-900 via-emerald-950 to-teal-950 text-white pb-14 md:pb-16">
         {coverSrc && (
           <div
             className="absolute inset-0 bg-cover bg-center opacity-35"
@@ -138,7 +147,7 @@ export default function ClinicProfilePage() {
         <div className="mesh-blob w-72 h-72 -top-20 -right-16 bg-emerald-400/20 hidden md:block" aria-hidden />
         <div className="mesh-blob w-56 h-56 bottom-0 left-0 bg-teal-400/15 hidden md:block" aria-hidden />
 
-        <div className="relative max-w-6xl mx-auto px-4 pt-20 pb-10 md:pt-24 md:pb-14">
+        <div className="relative max-w-6xl mx-auto px-4 pt-20 pb-8 md:pt-24 md:pb-10">
           <Link
             to="/clinics"
             className="inline-flex items-center gap-1.5 text-sm text-emerald-200/90 hover:text-white transition mb-6"
@@ -208,24 +217,24 @@ export default function ClinicProfilePage() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Stats strip */}
-      <div className="max-w-6xl mx-auto px-4 -mt-5 relative z-[2]">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatPill
-            label="Rating"
-            value={rating > 0 ? `${rating.toFixed(1)} / 5` : 'New'}
-            icon={rating > 0 ? 'fa-star' : undefined}
-            tone={rating > 0 ? 'amber' : 'slate'}
-          />
-          <StatPill label="Physiotherapists" value={doctorCount || '—'} icon="fa-user-doctor" />
-          <StatPill label="City" value={clinic.city_name || '—'} icon="fa-location-dot" tone="slate" />
-          <StatPill label="Care type" value="In-person" icon="fa-hospital" />
+        {/* Stats — sit on banner bottom edge */}
+        <div className="absolute left-0 right-0 bottom-0 translate-y-1/2 z-[3] px-4">
+          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3">
+            <StatPill
+              label="Rating"
+              value={rating > 0 ? `${rating.toFixed(1)} / 5` : 'New'}
+              icon={rating > 0 ? 'fa-star' : undefined}
+              tone={rating > 0 ? 'amber' : 'slate'}
+            />
+            <StatPill label="Physiotherapists" value={doctorCount || '—'} icon="fa-user-doctor" />
+            <StatPill label="City" value={clinic.city_name || '—'} icon="fa-location-dot" tone="slate" />
+            <StatPill label="Care type" value="In-person" icon="fa-hospital" />
+          </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8 md:py-10 space-y-6">
+      <div className="max-w-6xl mx-auto px-4 pt-12 md:pt-14 pb-8 md:pb-10 space-y-6">
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Section title="About this clinic" icon="fa-circle-info">
