@@ -1,5 +1,5 @@
 import toast from 'react-hot-toast';
-import FaIcon from './FaIcon';
+import FaIcon from '../FaIcon';
 
 export default function ShareProfileButton({ title, className = '' }) {
   const share = async () => {

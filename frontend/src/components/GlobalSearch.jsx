@@ -65,7 +65,6 @@ export default function GlobalSearch({
         label: `Dr. ${d.first_name} ${d.last_name}`,
         sub: d.specialization || d.city_name || 'Physiotherapist',
         to: doctorProfileUrl(d),
-        to: doctorProfileUrl(d),
         icon: 'fa-user-doctor',
         iconColor: 'text-orange-600 bg-orange-50',
       });
