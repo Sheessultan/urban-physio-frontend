@@ -109,7 +109,7 @@ export default function Home() {
       <div className="mesh-blob w-80 h-80 bg-primary-500 bottom-1/3 -left-40 animate-float hidden md:block opacity-15" />
 
       {/* HERO — same premium orange as Treatments page */}
-      <section className="relative bg-gradient-to-br from-orange-500 via-primary-600 to-primary-800 text-white py-10 pb-16 md:py-20 md:pb-24 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-orange-600 via-primary-700 to-primary-950 text-white py-10 pb-16 md:py-20 md:pb-24 overflow-hidden">
         <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ backgroundImage: HERO_PATTERN }} />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-[1] w-full">
