@@ -431,11 +431,9 @@
 
   .hero-search-shell {
     @apply relative rounded-2xl sm:rounded-[1.35rem] p-1;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 237, 213, 0.9) 100%);
-    border: 1px solid rgba(251, 146, 60, 0.35);
-    box-shadow:
-      0 20px 50px -16px rgba(234, 88, 12, 0.28),
-      0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.25);
   }
 
   .hero-search-icon {
@@ -444,10 +442,7 @@
   }
 
   .glass-hero-panel {
-    @apply bg-white/70 backdrop-blur-2xl border border-orange-200/60 rounded-3xl shadow-2xl;
-    box-shadow:
-      0 32px 64px -16px rgba(234, 88, 12, 0.2),
-      0 0 0 1px rgba(255, 255, 255, 0.85) inset;
+    @apply bg-white/10 backdrop-blur-2xl border border-white/25 rounded-3xl shadow-2xl;
   }
 
   @keyframes heroOrb {
@@ -520,6 +515,50 @@
 
   .site-header-link--active::after {
     transform: scaleX(1);
+  }
+
+  /* Header "More" — wide landscape mega menu */
+  .site-nav-mega-menu {
+    width: min(44rem, calc(100vw - 1.5rem));
+    @apply rounded-2xl border border-orange-100/90 bg-white/95 backdrop-blur-xl overflow-hidden;
+    box-shadow:
+      0 24px 48px -12px rgba(124, 45, 18, 0.18),
+      0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+  }
+
+  .site-nav-mega-menu__header {
+    @apply px-4 py-3 border-b border-orange-100/80;
+    background: linear-gradient(90deg, #fff7ed 0%, #ffffff 55%, #fff7ed 100%);
+  }
+
+  .site-nav-mega-menu__grid {
+    @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 p-2;
+  }
+
+  .site-nav-mega-menu__item {
+    @apply flex items-center gap-2 px-2.5 py-2 rounded-xl text-[13px] font-medium text-slate-700
+           transition-colors duration-200 whitespace-nowrap;
+  }
+
+  @media (hover: hover) {
+    .site-nav-mega-menu__item:hover {
+      @apply bg-orange-50 text-primary-700;
+    }
+    .site-nav-mega-menu__item:hover .site-nav-mega-menu__icon {
+      @apply bg-orange-100 text-orange-600;
+    }
+  }
+
+  .site-nav-mega-menu__item--active {
+    @apply bg-primary-50 text-primary-700;
+  }
+
+  .site-nav-mega-menu__item--active .site-nav-mega-menu__icon {
+    @apply bg-orange-200/80 text-orange-700;
+  }
+
+  .site-nav-mega-menu__icon {
+    @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 text-[11px];
   }
 
   .site-header-menu-btn {

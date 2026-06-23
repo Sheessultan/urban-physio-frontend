@@ -70,10 +70,13 @@ import AdminAnalytics from './pages/admin/AdminAnalytics';
 import { ADMIN_NAV } from './constants/adminNav';
 import { DOCTOR_NAV } from './constants/doctorNav';
 import { PATIENT_NAV } from './constants/patientNav';
+import ScrollToTop from './components/ScrollToTop';
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -186,5 +189,6 @@ export default function App() {
       <Route path="/admin/profile" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminProfile /></ProtectedRoute>} />
       <Route path="/admin/notifications" element={<ProtectedRoute roles={['admin', 'super_admin']}><NotificationsPage /></ProtectedRoute>} />
     </Routes>
+    </>
   );
 }

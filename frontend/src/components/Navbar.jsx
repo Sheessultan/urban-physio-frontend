@@ -157,23 +157,25 @@ export default function Navbar({ beforeLogo = null, headerSpacerClass = '' }) {
                   <FaIcon icon="fa-chevron-down" className={`text-[10px] transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {moreOpen && (
-                  <div className="absolute left-0 top-full z-[120] mt-1.5 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xl shadow-slate-900/10 p-2">
-                    <div className="grid sm:grid-cols-2 gap-0.5">
+                  <div className="site-nav-mega-menu absolute left-0 top-full z-[120] mt-2 animate-fade-in">
+                    <div className="site-nav-mega-menu__header">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-orange-600">Quick links</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Book care, explore content &amp; get help</p>
+                    </div>
+                    <div className="site-nav-mega-menu__grid">
                       {MORE_NAV_LINKS.map((link) => (
                         <Link
                           key={link.to + link.label}
                           to={link.to}
                           onClick={() => setMoreOpen(false)}
-                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                            isMoreLinkActive(link.to)
-                              ? 'bg-primary-50 text-primary-700'
-                              : 'text-slate-700 hover:bg-slate-50 hover:text-primary-700'
+                          className={`site-nav-mega-menu__item ${
+                            isMoreLinkActive(link.to) ? 'site-nav-mega-menu__item--active' : ''
                           }`}
                         >
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 text-xs">
+                          <span className="site-nav-mega-menu__icon">
                             <FaIcon icon={link.icon} />
                           </span>
-                          <span className="leading-snug">{link.label}</span>
+                          <span className="leading-tight">{link.label}</span>
                         </Link>
                       ))}
                     </div>
