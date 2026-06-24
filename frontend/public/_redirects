@@ -1,4 +1,5 @@
-# Cloudflare Pages — SPA fallback (static files in /assets/ are served automatically when present)
+# Cloudflare Pages — SPA fallback only.
+# Do NOT add _headers that set Content-Type on /assets/* — Cloudflare auto-detects .css / .js correctly.
 
 /backend/api/*
   https://mediumorchid-monkey-387815.hostingersite.com/backend/api/:splat
