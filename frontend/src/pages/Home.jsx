@@ -171,7 +171,7 @@ export default function Home() {
                 {hero.subtitle}
               </p>
 
-              <div className="mt-6 md:mt-8 hero-search-shell">
+              <div className="mt-6 md:mt-8">
                 <GlobalSearch variant="hero" popularTags={hero.popular_tags} />
               </div>
 
