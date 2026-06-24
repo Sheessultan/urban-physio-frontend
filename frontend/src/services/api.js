@@ -1,9 +1,18 @@
 import axios from 'axios';
 
+/** Fallback when VITE_API_URL is missing from the production build */
+const LIVE_API_FALLBACK = 'https://mediumorchid-monkey-387815.hostingersite.com/backend/api';
+
 function resolveApiBase() {
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl && /^https?:\/\//i.test(envUrl)) {
     return envUrl.replace(/\/$/, '');
+  }
+  if (import.meta.env.PROD && typeof window !== 'undefined') {
+    const host = window.location.hostname.toLowerCase();
+    if (host === 'theurbanphysio.com' || host === 'www.theurbanphysio.com' || host.endsWith('.pages.dev')) {
+      return LIVE_API_FALLBACK;
+    }
   }
   const path =
     envUrl ||

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 const SITE = 'The Urban Physio';
-const DEFAULT_OG = '/logo.png';
+const DEFAULT_OG = '/logo.svg';
 
 function upsertMeta(attr, key, content) {
   if (!content) return;

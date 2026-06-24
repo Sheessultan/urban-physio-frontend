@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import FaIcon from './FaIcon';
 
 /** Logo file: frontend/public/logo.png */
-const LOGO_FILES = ['logo.png', 'logo.svg', 'logo.webp', 'logo.jpg'];
+const LOGO_FILES = ['logo.svg', 'logo.png', 'logo.webp', 'logo.jpg'];
 
 export default function Logo({
   className = 'h-10 w-auto max-w-[180px] object-contain',

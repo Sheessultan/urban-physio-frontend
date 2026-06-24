@@ -1,0 +1,41 @@
+# Apache / LiteSpeed (Hostinger public_html) — SPA + correct MIME types
+# Copy this file to public_html/.htaccess when deploying frontend at domain root.
+# Keep backend/ folder alongside index.html (do not route /backend to SPA).
+
+Options -Indexes
+DirectoryIndex index.html
+
+<IfModule mod_mime.c>
+  AddType application/javascript .js .mjs
+  AddType text/css .css
+  AddType image/svg+xml .svg
+  AddType font/woff2 .woff2
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Never rewrite real files or folders
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # API + uploads — pass through to PHP backend
+  RewriteRule ^backend/ - [L]
+
+  # Built assets — must exist on disk; do not fall back to index.html
+  RewriteRule ^assets/ - [L]
+
+  # SPA fallback for client-side routes only
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|mjs)$">
+    Header set Content-Type "application/javascript; charset=utf-8"
+  </FilesMatch>
+  <FilesMatch "\.css$">
+    Header set Content-Type "text/css; charset=utf-8"
+  </FilesMatch>
+</IfModule>

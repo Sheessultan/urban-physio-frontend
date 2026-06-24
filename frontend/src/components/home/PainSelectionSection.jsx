@@ -20,7 +20,7 @@ function publicAssetUrl(filename) {
   return `${base}${String(filename).replace(/^\//, '')}`;
 }
 
-const PAIN_RUNNER_IMG = publicAssetUrl('pain-runner.png');
+const PAIN_RUNNER_SOURCES = [publicAssetUrl('pain-runner.png'), publicAssetUrl('pain-runner.svg')];
 /** Square frame at each breakpoint — proportional scale keeps % hotspots aligned */
 const FIGURE_FRAME_CLASS =
   'relative mx-auto w-[220px] sm:w-[280px] md:w-[340px] lg:w-[460px] max-w-[calc(100vw-2rem)] aspect-square shrink-0';
@@ -71,11 +71,22 @@ function BodyPartHighlight({ activeId, spots }) {
 }
 
 function PainRunnerVisual({ activeId, activeLabel, painPoints }) {
+  const [srcIndex, setSrcIndex] = useState(0);
   const [imgBroken, setImgBroken] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const active = useMemo(() => getPainPointById(activeId, painPoints), [activeId, painPoints]);
   const highlightSpots = useMemo(() => getBodyHighlightSpots(active), [active]);
   const label = activeLabel || active?.label || 'Body';
+  const imgSrc = PAIN_RUNNER_SOURCES[srcIndex] || PAIN_RUNNER_SOURCES[0];
+
+  const onImgError = () => {
+    if (srcIndex < PAIN_RUNNER_SOURCES.length - 1) {
+      setSrcIndex((i) => i + 1);
+      setLoaded(false);
+      return;
+    }
+    setImgBroken(true);
+  };
 
   return (
     <div className={FIGURE_FRAME_CLASS}>
@@ -84,7 +95,8 @@ function PainRunnerVisual({ activeId, activeLabel, painPoints }) {
           <>
             <div className="relative h-full w-full">
               <img
-                src={PAIN_RUNNER_IMG}
+                key={imgSrc}
+                src={imgSrc}
                 alt={`Anatomy figure highlighting ${label}`}
                 className={`block h-full w-full select-none object-contain object-center transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'
                   }`}
@@ -95,7 +107,7 @@ function PainRunnerVisual({ activeId, activeLabel, painPoints }) {
                 decoding="async"
                 fetchPriority="high"
                 onLoad={() => setLoaded(true)}
-                onError={() => setImgBroken(true)}
+                onError={onImgError}
               />
               {loaded && <BodyPartHighlight activeId={activeId} spots={highlightSpots} />}
             </div>
@@ -107,8 +119,8 @@ function PainRunnerVisual({ activeId, activeLabel, painPoints }) {
           </>
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-2 p-4 text-center text-xs text-slate-500 sm:text-sm">
-            <FaIcon icon="fa-image" className="text-xl text-slate-400" />
-            <p>Add asset: frontend/public/pain-runner.png</p>
+            <FaIcon icon="fa-person-running" className="text-3xl text-orange-300" />
+            <p>Body map illustration</p>
           </div>
         )}
       </div>

@@ -1,0 +1,26 @@
+/assets/*
+  Content-Type: application/javascript; charset=utf-8
+
+/assets/*.css
+  Content-Type: text/css; charset=utf-8
+
+/assets/*.woff2
+  Content-Type: font/woff2
+
+/assets/*.png
+  Content-Type: image/png
+
+/assets/*.jpg
+  Content-Type: image/jpeg
+
+/assets/*.webp
+  Content-Type: image/webp
+
+/assets/*.svg
+  Content-Type: image/svg+xml
+
+/assets/*.js
+  Content-Type: application/javascript; charset=utf-8
+
+/assets/*.mjs
+  Content-Type: application/javascript; charset=utf-8

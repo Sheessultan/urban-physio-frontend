@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mediumorchid-monkey-387815.hostingersite.com/backend/api/sitemap
+Sitemap: https://theurbanphysio.com/backend/api/sitemap
