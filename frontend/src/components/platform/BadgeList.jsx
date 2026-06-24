@@ -9,10 +9,10 @@ const COLOR_MAP = {
   sky: 'bg-sky-100 text-sky-800 border-sky-200',
 };
 
-export default function BadgeList({ badges = [], compact = false }) {
+export default function BadgeList({ badges = [], compact = false, className = '' }) {
   if (!badges?.length) return null;
   return (
-    <div className={`flex flex-wrap gap-1.5 ${compact ? '' : 'mt-3'}`}>
+    <div className={`inline-flex flex-wrap items-center gap-1.5 ${compact ? '' : 'mt-3'} ${className}`}>
       {badges.map((b) => (
         <span
           key={b.id || b.slug}

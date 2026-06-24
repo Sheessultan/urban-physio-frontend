@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import AdminDashboardLayout from '../../layouts/AdminDashboardLayout';
 import GlassModal, { GlassModalBody, GlassModalFooter, GlassModalHeader } from '../../components/GlassModal';
 import FaIcon from '../../components/FaIcon';
-import { admin } from '../../services/api';
-import { resolveMediaUrl } from '../../utils/mediaUrl';
+import RichTextEditor from '../../components/admin/RichTextEditor';
+import MediaUrlOrUpload from '../../components/admin/MediaUrlOrUpload';
+import { admin, uploadCmsAudio, uploadCmsImage, uploadCmsVideo } from '../../services/api';
 import toast from 'react-hot-toast';
 
 const EMPTY = {
@@ -97,7 +98,7 @@ export default function AdminPhysioFeed() {
 
   const save = async (e) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.content.trim()) {
+    if (!form.title.trim() || !form.content.trim() || form.content === '<p><br></p>') {
       toast.error('Title and content are required');
       return;
     }
@@ -122,8 +123,6 @@ export default function AdminPhysioFeed() {
       setSaving(false);
     }
   };
-
-  const bannerSrc = resolveMediaUrl(form.featured_image) || form.featured_image;
 
   return (
     <AdminDashboardLayout>
@@ -282,27 +281,25 @@ export default function AdminPhysioFeed() {
                 <FaIcon icon="fa-image" className="text-violet-600" />
                 Banner / featured image
               </p>
-              <input
-                className="input-field text-sm"
-                placeholder="https://… image URL for card & article header"
-                value={form.featured_image}
-                onChange={(e) => set('featured_image', e.target.value)}
+              <MediaUrlOrUpload
+                label=""
+                hint="Paste an image URL or upload JPG, PNG, WebP (max 4MB)"
+                icon="fa-image"
+                urlValue={form.featured_image}
+                onUrlChange={(v) => set('featured_image', v)}
+                onUpload={uploadCmsImage}
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                maxMb={4}
+                preview="image"
               />
-              {bannerSrc && (
-                <div className="rounded-xl overflow-hidden border border-slate-200 aspect-[21/9] max-h-40 bg-slate-200">
-                  <img src={bannerSrc} alt="" className="w-full h-full object-cover" />
-                </div>
-              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Content</label>
-              <textarea
-                className="input-field min-h-[160px] font-mono text-sm"
-                value={form.content}
-                onChange={(e) => set('content', e.target.value)}
-                required
-              />
+              <label className="block text-sm font-medium text-slate-700 mb-2">Content</label>
+              <RichTextEditor value={form.content} onChange={(v) => set('content', v)} minHeight={200} />
+              <p className="text-xs text-slate-500 mt-2">
+                Use headings, bold, lists, links, images &amp; tables for a professional layout.
+              </p>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
@@ -317,9 +314,35 @@ export default function AdminPhysioFeed() {
             </div>
 
             {form.type === 'podcast' && (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Audio URL</label>
-                <input className="input-field" value={form.audio_url || ''} onChange={(e) => set('audio_url', e.target.value)} />
+              <div className="space-y-4 rounded-2xl border border-rose-200/80 bg-rose-50/30 p-4">
+                <p className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                  <FaIcon icon="fa-podcast" className="text-rose-600" />
+                  Podcast media
+                </p>
+                <MediaUrlOrUpload
+                  label="Audio"
+                  hint="MP3, WAV, OGG — link or upload (max 25MB)"
+                  icon="fa-volume-high"
+                  accent="rose"
+                  urlValue={form.audio_url}
+                  onUrlChange={(v) => set('audio_url', v)}
+                  onUpload={uploadCmsAudio}
+                  accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/webm"
+                  maxMb={25}
+                  preview="audio"
+                />
+                <MediaUrlOrUpload
+                  label="Video"
+                  hint="MP4, WebM — link or upload (max 80MB)"
+                  icon="fa-video"
+                  accent="rose"
+                  urlValue={form.video_url}
+                  onUrlChange={(v) => set('video_url', v)}
+                  onUpload={uploadCmsVideo}
+                  accept="video/mp4,video/webm,video/quicktime"
+                  maxMb={80}
+                  preview="video"
+                />
               </div>
             )}
 

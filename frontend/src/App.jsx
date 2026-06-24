@@ -44,6 +44,7 @@ import AdminClinics from './pages/admin/AdminClinics';
 import AdminLocations from './pages/admin/AdminLocations';
 import PolicyPage from './pages/legal/PolicyPage';
 import FaqPage from './pages/FaqPage';
+import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import CancellationHelpPage from './pages/CancellationHelpPage';
 import EmergencyBookingWizard from './pages/EmergencyBookingWizard';
@@ -63,6 +64,9 @@ import DoctorPrescriptions from './pages/doctor/DoctorPrescriptions';
 import PhysioFeed from './pages/PhysioFeed';
 import PhysioFeedDetail from './pages/PhysioFeedDetail';
 import AdminPhysioFeed from './pages/admin/AdminPhysioFeed';
+import AdminAbout from './pages/admin/AdminAbout';
+import AdminHomeHero from './pages/admin/AdminHomeHero';
+import AdminHomeBanners from './pages/admin/AdminHomeBanners';
 import AdminBadges from './pages/admin/AdminBadges';
 import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminReviews from './pages/admin/AdminReviews';
@@ -139,6 +143,7 @@ export default function App() {
       <Route path="/cookie-policy" element={<PolicyPage />} />
 
       <Route path="/faq" element={<FaqPage />} />
+      <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/cancellation-help" element={<CancellationHelpPage />} />
 
@@ -174,6 +179,9 @@ export default function App() {
       <Route path="/admin/treatment-packages" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminTreatmentPackages /></ProtectedRoute>} />
       <Route path="/admin/exercises" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminExercises /></ProtectedRoute>} />
       <Route path="/admin/physiofeed" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminPhysioFeed /></ProtectedRoute>} />
+      <Route path="/admin/about" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminAbout /></ProtectedRoute>} />
+      <Route path="/admin/home-hero" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminHomeHero /></ProtectedRoute>} />
+      <Route path="/admin/home-banners" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminHomeBanners /></ProtectedRoute>} />
       <Route path="/admin/badges" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminBadges /></ProtectedRoute>} />
       <Route path="/admin/coupons" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminCoupons /></ProtectedRoute>} />
       <Route path="/admin/reviews" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminReviews /></ProtectedRoute>} />

@@ -430,15 +430,33 @@
   }
 
   .hero-search-shell {
-    @apply relative rounded-2xl sm:rounded-[1.35rem] p-1;
+    @apply relative rounded-full p-1;
     background: rgba(255, 255, 255, 0.12);
     border: 1px solid rgba(255, 255, 255, 0.22);
     box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.25);
   }
 
   .hero-search-icon {
-    @apply absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl
+    @apply absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full
            bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-md shadow-orange-600/25 pointer-events-none;
+  }
+
+  /* Homepage promo banner — responsive aspect ratios */
+  .home-promo-banner-shell {
+    @apply w-full;
+  }
+
+  .home-promo-banner-track {
+    aspect-ratio: 828 / 420;
+    min-height: 160px;
+    max-height: 52vw;
+  }
+
+  @media (min-width: 768px) {
+    .home-promo-banner-track {
+      aspect-ratio: 1920 / 480;
+      max-height: 320px;
+    }
   }
 
   .glass-hero-panel {
@@ -491,6 +509,69 @@
       transform: translate(12px, -18px) scale(1.06);
       opacity: 1;
     }
+  }
+
+  /* CMS rich HTML (PhysioFeed, About) */
+  .cms-prose {
+    @apply text-slate-700 leading-relaxed;
+  }
+
+  .cms-prose h1 {
+    @apply text-2xl md:text-3xl font-bold text-slate-900 mt-8 mb-4;
+  }
+
+  .cms-prose h2 {
+    @apply text-xl md:text-2xl font-bold text-slate-900 mt-7 mb-3;
+  }
+
+  .cms-prose h3 {
+    @apply text-lg font-bold text-slate-800 mt-6 mb-2;
+  }
+
+  .cms-prose p {
+    @apply mb-4;
+  }
+
+  .cms-prose ul {
+    @apply list-disc pl-6 mb-4 space-y-1;
+  }
+
+  .cms-prose ol {
+    @apply list-decimal pl-6 mb-4 space-y-1;
+  }
+
+  .cms-prose a {
+    @apply text-primary-600 font-medium underline underline-offset-2 hover:text-primary-700;
+  }
+
+  .cms-prose img {
+    @apply rounded-xl my-6 max-w-full h-auto shadow-md;
+  }
+
+  .cms-prose blockquote {
+    @apply border-l-4 border-primary-300 pl-4 italic text-slate-600 my-4;
+  }
+
+  .cms-prose table.cms-table,
+  .cms-prose table {
+    @apply w-full border-collapse my-6 text-sm overflow-x-auto block md:table;
+  }
+
+  .cms-prose table th,
+  .cms-prose table td {
+    @apply border border-slate-200 px-3 py-2 text-left align-top;
+  }
+
+  .cms-prose table th {
+    @apply bg-slate-50 font-semibold text-slate-800;
+  }
+
+  .rich-text-editor .ql-toolbar.ql-snow {
+    @apply border-0 border-b border-slate-200 bg-white;
+  }
+
+  .rich-text-editor .ql-container.ql-snow {
+    @apply border-0;
   }
 
   /* Dashboard sidebar — fixed height card + scrollable menu (admin / doctor / patient) */

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import FaIcon from './FaIcon';
 import ClinicLogo from './ClinicLogo';
+import BadgeList from './platform/BadgeList';
 import { bookClinicUrl } from '../utils/bookUrl';
 import { clinicProfileUrl } from '../utils/profileUrls';
 
@@ -61,32 +62,33 @@ export default function ClinicCard({ clinic, compact = false, variant = 'default
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100 shrink-0">
+              <FaIcon icon="fa-circle-check" className="text-emerald-600" />
+              Partner clinic
+            </span>
+            <BadgeList badges={clinic.badges} compact className="!mt-0" />
             {Number(clinic.is_featured) ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-violet-50 text-violet-900 text-xs font-semibold border border-violet-100">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-violet-50 text-violet-900 text-xs font-semibold border border-violet-100 shrink-0">
                 <FaIcon icon="fa-star" className="text-violet-500" />
                 Featured
               </span>
             ) : null}
             {rating > 0 ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 text-xs font-semibold border border-amber-100">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 text-xs font-semibold border border-amber-100 shrink-0">
                 <FaIcon icon="fa-star" className="text-amber-500" />
                 {rating.toFixed(1)}
                 {ratingCount > 0 && <span className="font-normal text-amber-800/80">({ratingCount})</span>}
               </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium border border-slate-200">
-                Partner clinic
-              </span>
-            )}
+            ) : null}
             {doctorCount > 0 && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-xs font-medium border border-emerald-100">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-xs font-medium border border-emerald-100 shrink-0">
                 <FaIcon icon="fa-user-doctor" />
                 {doctorCount} doctor{doctorCount !== 1 ? 's' : ''}
               </span>
             )}
             {clinic.distance_km != null && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-800 text-xs font-medium border border-sky-100">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-800 text-xs font-medium border border-sky-100 shrink-0">
                 <FaIcon icon="fa-route" />
                 {Number(clinic.distance_km).toFixed(1)} km
               </span>
@@ -152,11 +154,12 @@ export default function ClinicCard({ clinic, compact = false, variant = 'default
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-xs font-medium border border-emerald-100">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-xs font-medium border border-emerald-100 shrink-0">
           <FaIcon icon="fa-circle-check" className="text-emerald-600" />
           Partner clinic
         </span>
+        <BadgeList badges={clinic.badges} compact className="!mt-0" />
         {clinic.distance_km != null && (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-800 text-xs font-medium border border-sky-100">
             <FaIcon icon="fa-route" />

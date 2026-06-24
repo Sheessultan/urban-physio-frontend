@@ -198,6 +198,22 @@ export const uploadClinicGallery = (file, clinicId) => {
   }).then((res) => res.data);
 };
 
+function cmsUpload(field, file) {
+  const form = new FormData();
+  form.append(field, file);
+  const token = localStorage.getItem('token');
+  return axios.post(`${API_BASE}/upload/cms-${field}`, form, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  }).then((res) => res.data);
+}
+
+export const uploadCmsImage = (file) => cmsUpload('image', file);
+export const uploadCmsAudio = (file) => cmsUpload('audio', file);
+export const uploadCmsVideo = (file) => cmsUpload('video', file);
+
 export const payments = {
   createOrder: (appointmentId) => api.post('/payments/order', { appointment_id: appointmentId }),
   verify: (data) => api.post('/payments/verify', data),
@@ -292,6 +308,12 @@ export const admin = {
   updateInvoiceSettings: (data) => api.put('/admin/invoice-settings', data),
   contactSettings: () => api.get('/admin/contact-settings'),
   updateContactSettings: (data) => api.put('/admin/contact-settings', data),
+  aboutSettings: () => api.get('/admin/about-settings'),
+  updateAboutSettings: (data) => api.put('/admin/about-settings', data),
+  heroSettings: () => api.get('/admin/hero-settings'),
+  updateHeroSettings: (data) => api.put('/admin/hero-settings', data),
+  homeBannerSettings: () => api.get('/admin/home-banner-settings'),
+  updateHomeBannerSettings: (data) => api.put('/admin/home-banner-settings', data),
   contactMessages: (params) => api.get('/admin/contact-messages', { params }),
   markContactMessageRead: (id) => api.post(`/admin/contact-messages/${id}/read`),
   deleteContactMessage: (id) => api.delete(`/admin/contact-messages/${id}`),
@@ -362,6 +384,15 @@ export const admin = {
 export const contact = {
   settings: () => api.get('/contact/settings'),
   sendMessage: (data) => api.post('/contact/message', data),
+};
+
+export const about = {
+  settings: () => api.get('/about/settings'),
+};
+
+export const home = {
+  heroSettings: () => api.get('/home/hero-settings'),
+  bannerSettings: () => api.get('/home/banner-settings'),
 };
 
 export const reviews = {

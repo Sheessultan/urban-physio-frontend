@@ -10,7 +10,7 @@ import DoctorAvatar from '../components/DoctorAvatar';
 import BadgeList from '../components/platform/BadgeList';
 import ReviewStars from '../components/platform/ReviewStars';
 import PageMeta, { clinicSchema } from '../components/seo/PageMeta';
-import ShareProfileButton from '../components/profile/ShareProfileButton';
+import ClinicProfileActions from '../components/clinic/ClinicProfileActions';
 import ReviewForm from '../components/platform/ReviewForm';
 import { clinics } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,10 +19,10 @@ import { formatOpeningHoursRows, getBannerImages, isValidHttpUrl, SOCIAL_FIELDS,
 import { googleMapsUrl } from '../utils/locationHelpers';
 import { clinicBookUrl, clinicProfileUrl, doctorProfileUrl, formatOpeningHours } from '../utils/profileUrls';
 
-function Section({ title, icon, children, accent = 'emerald' }) {
+function Section({ title, icon, children, accent = 'emerald', id }) {
   const iconTone = accent === 'emerald' ? 'text-emerald-600' : 'text-primary-600';
   return (
-    <section className="glass-card p-4 sm:p-5 md:p-7 border border-white/60 shadow-sm rounded-2xl">
+    <section id={id} className="glass-card p-4 sm:p-5 md:p-7 border border-white/60 shadow-sm rounded-2xl scroll-mt-24">
       <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2.5 mb-3 sm:mb-4">
         <span className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-emerald-50 shrink-0 ${iconTone}`}>
           <FaIcon icon={icon} className="text-sm sm:text-base" />
@@ -201,13 +201,14 @@ export default function ClinicProfilePage() {
 
         <div className="relative max-w-6xl mx-auto px-4 pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-10 md:pb-12">
           <div className="text-center md:text-left">
-              <div className="flex flex-wrap justify-center md:justify-start gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-full">
+              <div className="flex flex-wrap justify-center md:justify-start items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-full shrink-0">
                   <FaIcon icon="fa-circle-check" className="text-emerald-600" />
                   Partner clinic
                 </span>
+                <BadgeList badges={clinic.badges} compact className="!mt-0" />
                 {(clinic.is_featured === 1 || clinic.is_featured === '1') && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1 rounded-full">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1 rounded-full shrink-0">
                     <FaIcon icon="fa-star" />
                     Featured
                   </span>
@@ -243,17 +244,6 @@ export default function ClinicProfilePage() {
 
               {(websiteUrl || activeSocials.length > 0) && (
                 <div className="mt-3 flex flex-wrap justify-center md:justify-start gap-2">
-                  {websiteUrl && (
-                    <a
-                      href={websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200/80"
-                    >
-                      <FaIcon icon="fa-globe" />
-                      Website
-                    </a>
-                  )}
                   {activeSocials.map(({ key, icon, brand, label }) => (
                     <a
                       key={key}
@@ -270,26 +260,8 @@ export default function ClinicProfilePage() {
                 </div>
               )}
 
-              <div className="mt-2 sm:mt-3 flex justify-center md:justify-start">
-                <BadgeList badges={clinic.badges} />
-              </div>
-
-              <div className="mt-4 sm:mt-6 hidden sm:flex flex-wrap gap-2 sm:gap-3 justify-center md:justify-start">
-                <Link to={clinicBookUrl(clinic)} className="btn-primary text-sm !px-5 !py-3">
-                  <FaIcon icon="fa-calendar-check" />
-                  Book clinic visit
-                </Link>
-                <ShareProfileButton title={clinic.name} />
-                {clinic.phone && (
-                  <a href={`tel:${clinic.phone}`} className="btn-outline text-sm !px-5 !py-3">
-                    <FaIcon icon="fa-phone" />
-                    Call
-                  </a>
-                )}
-              </div>
-
-              <div className="mt-4 flex sm:hidden justify-center">
-                <ShareProfileButton title={clinic.name} className="!py-2.5 !text-sm w-full max-w-xs justify-center" />
+              <div className="mt-4 sm:mt-6 flex justify-center md:justify-start">
+                <ClinicProfileActions clinic={clinic} mapUrl={mapUrl} websiteUrl={websiteUrl} className="max-w-full" />
               </div>
           </div>
 
@@ -484,7 +456,7 @@ export default function ClinicProfilePage() {
               </Section>
             )}
 
-            <Section title="Patient feedback" icon="fa-star">
+            <Section title="Patient feedback" icon="fa-star" id="patient-reviews">
               {clinic.reviews?.length > 0 ? (
                 <div className="space-y-3 mb-4">
                   {clinic.reviews.map((r) => (

@@ -15,6 +15,7 @@ const PRIMARY_NAV_LINKS = [
 
 const MORE_NAV_LINKS = [
   { to: '/book', label: 'Book Appointment', icon: 'fa-calendar-plus' },
+  { to: '/about', label: 'About Us', icon: 'fa-building' },
   { to: '/book?type=home_visit', label: 'Home Physiotherapy', icon: 'fa-house-medical' },
   { to: '/treatments', label: 'Treatments', icon: 'fa-kit-medical' },
   { to: '/packages', label: 'Packages', icon: 'fa-box-open' },

@@ -11,6 +11,7 @@ const EXPLORE_LINKS = [
   { to: '/treatments', label: 'Services', icon: 'fa-kit-medical' },
   { to: '/exercises', label: 'Exercise Library', icon: 'fa-dumbbell' },
   { to: '/physiofeed', label: 'Blogs / PhysioFeed', icon: 'fa-newspaper' },
+  { to: '/about', label: 'About Us', icon: 'fa-building' },
 ];
 
 const HELP_LINKS = [
@@ -205,7 +206,7 @@ export default function MobileNavDrawer({
             ))}
           </NavSection>
 
-          {city && (
+          {city ? (
             <button
               type="button"
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[15px] font-medium text-primary-700 hover:bg-primary-50 mt-1"
@@ -218,6 +219,20 @@ export default function MobileNavDrawer({
                 <FaIcon icon="fa-location-dot" />
               </span>
               <span className="truncate text-left">{locationLabel || city.name}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[15px] font-medium text-primary-700 hover:bg-primary-50 mt-1 border border-primary-100"
+              onClick={() => {
+                onShowLocation();
+                onClose();
+              }}
+            >
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-600 text-sm">
+                <FaIcon icon="fa-map-location-dot" />
+              </span>
+              <span className="text-left">Select your location</span>
             </button>
           )}
         </nav>

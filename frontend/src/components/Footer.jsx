@@ -14,6 +14,7 @@ const QUICK_LINKS = [
 ];
 
 const SUPPORT_LINKS = [
+  { to: '/about', label: 'About Us', icon: 'fa-building' },
   { to: '/faq', label: 'FAQ', icon: 'fa-circle-question' },
   { to: '/contact', label: 'Contact Us', icon: 'fa-envelope' },
   { to: '/cancellation-help', label: 'Cancellation Help', icon: 'fa-calendar-xmark' },

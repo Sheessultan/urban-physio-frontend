@@ -5,7 +5,6 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import FaIcon from '../components/FaIcon';
 import DoctorAvatar from '../components/DoctorAvatar';
-import LocationSelector from '../components/LocationSelector';
 import { emergency, payments } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocation } from '../contexts/LocationContext';
@@ -485,7 +484,6 @@ export default function EmergencyBookingWizard() {
         </div>
       </main>
       <Footer />
-      <LocationSelector />
     </div>
   );
 }

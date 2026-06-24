@@ -44,8 +44,10 @@ export default function GlobalSearch({
   className = '',
   onNavigate,
   autoFocus = false,
+  popularTags,
 }) {
   const navigate = useNavigate();
+  const quickTags = popularTags?.length ? popularTags : QUICK_TAGS;
   const { city, coords } = useLocation();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -381,7 +383,7 @@ export default function GlobalSearch({
   const heroPlaceholder = typedPlaceholder ? `Search ${typedPlaceholder}` : 'Search physiotherapy…';
 
   const inputClass = isHero
-    ? 'w-full bg-white border border-orange-100/80 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-[3.75rem] sm:pl-[4.25rem] pr-28 sm:pr-32 text-sm sm:text-base text-slate-800 placeholder:text-slate-400 shadow-sm focus:ring-2 focus:ring-orange-400/60 focus:border-orange-300 outline-none'
+    ? 'w-full bg-white border border-orange-100/80 rounded-full py-3.5 sm:py-4 pl-[3.75rem] sm:pl-[4.25rem] pr-28 sm:pr-32 text-sm sm:text-base text-slate-800 placeholder:text-slate-400 shadow-sm focus:ring-2 focus:ring-orange-400/60 focus:border-orange-300 outline-none'
     : isMobile
       ? 'w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-10 text-base text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-orange-400/70 focus:border-orange-300 outline-none'
       : isHeader
@@ -550,7 +552,7 @@ export default function GlobalSearch({
             <button
               type="button"
               onClick={submitSearch}
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-semibold text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md shadow-orange-600/25 transition"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-semibold text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-md shadow-orange-600/25 transition"
             >
               Search
             </button>
@@ -582,7 +584,7 @@ export default function GlobalSearch({
           >
             Popular:
           </span>
-          {QUICK_TAGS.map((tag) => (
+          {quickTags.map((tag) => (
             <button
               key={tag}
               type="button"

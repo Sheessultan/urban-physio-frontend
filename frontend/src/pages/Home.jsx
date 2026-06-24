@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import LocationSelector from '../components/LocationSelector';
 import DoctorCard from '../components/DoctorCard';
 import ClinicCard from '../components/ClinicCard';
 import FaIcon from '../components/FaIcon';
@@ -13,9 +12,10 @@ import FaqSection from '../components/FaqSection';
 import ExercisesSection from '../components/home/ExercisesSection';
 import PackagesSection from '../components/home/PackagesSection';
 import PhysioFeedSection from '../components/home/PhysioFeedSection';
+import HomePromoBanner from '../components/home/HomePromoBanner';
 import GlobalSearch from '../components/GlobalSearch';
 import { useLocation } from '../contexts/LocationContext';
-import { treatments, conditions } from '../services/api';
+import { treatments, conditions, home } from '../services/api';
 import { SITE_FAQS } from '../constants/supportPages';
 
 const SERVICES = [
@@ -31,12 +31,22 @@ const STEPS = [
   { step: '04', title: 'Get Treatment', desc: 'Online, clinic, or home — your choice', icon: 'fa-hand-holding-medical' },
 ];
 
-const HERO_FEATURES = [
+const HERO_FEATURES_DEFAULT = [
   { label: 'Online Meet', icon: 'fa-video' },
   { label: 'Clinic Visit', icon: 'fa-hospital' },
   { label: 'Home Care', icon: 'fa-house-medical' },
   { label: 'Rehab Plans', icon: 'fa-notes-medical' },
 ];
+
+const HERO_DEFAULTS = {
+  badge_text: '#1 Physio Platform in India',
+  title_prefix: 'Heal Faster with',
+  title_highlight: 'Premium Care',
+  subtitle:
+    'Access trusted physiotherapists nationwide — online sessions, partner clinics, and home treatments in one place.',
+  popular_tags: ['Back pain', 'Knee pain', 'Neck pain'],
+  feature_pills: HERO_FEATURES_DEFAULT,
+};
 
 const WHY_US = [
   { title: 'Verified Experts', desc: 'Every doctor is license-verified by our admin team', icon: 'fa-circle-check', iconColor: 'text-emerald-600' },
@@ -72,7 +82,42 @@ export default function Home() {
   const [treatmentList, setTreatmentList] = useState([]);
   const [conditionList, setConditionList] = useState([]);
   const [heroImgOk, setHeroImgOk] = useState(true);
+  const [hero, setHero] = useState(HERO_DEFAULTS);
+  const [promoBanner, setPromoBanner] = useState({ enabled: false, slides: [] });
   const areaName = locationLabel || city?.name;
+
+  useEffect(() => {
+    home
+      .heroSettings()
+      .then((res) => {
+        const d = res?.data ?? res;
+        if (!d) return;
+        setHero({
+          badge_text: d.badge_text || HERO_DEFAULTS.badge_text,
+          title_prefix: d.title_prefix || HERO_DEFAULTS.title_prefix,
+          title_highlight: d.title_highlight || HERO_DEFAULTS.title_highlight,
+          subtitle: d.subtitle || HERO_DEFAULTS.subtitle,
+          popular_tags: Array.isArray(d.popular_tags) && d.popular_tags.length ? d.popular_tags : HERO_DEFAULTS.popular_tags,
+          feature_pills:
+            Array.isArray(d.feature_pills) && d.feature_pills.length ? d.feature_pills : HERO_DEFAULTS.feature_pills,
+        });
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    home
+      .bannerSettings()
+      .then((res) => {
+        const d = res?.data ?? res;
+        if (!d) return;
+        setPromoBanner({
+          enabled: !!d.enabled,
+          slides: Array.isArray(d.slides) ? d.slides : [],
+        });
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     treatments.list().then((res) => setTreatmentList((res.data || []).slice(0, 3))).catch(() => {});
@@ -103,7 +148,6 @@ export default function Home() {
   return (
     <div className="relative overflow-x-hidden page-enter">
       <Navbar />
-      <LocationSelector />
 
       <div className="mesh-blob w-96 h-96 bg-orange-400 -top-48 -right-48 animate-pulse-soft hidden md:block opacity-20" />
       <div className="mesh-blob w-80 h-80 bg-primary-500 bottom-1/3 -left-40 animate-float hidden md:block opacity-15" />
@@ -117,18 +161,18 @@ export default function Home() {
             <div className="animate-slide-up text-center md:text-left">
               <span className="inline-flex items-center gap-2 glass-dark px-3.5 py-1.5 rounded-full text-xs md:text-sm font-medium mb-4 md:mb-6">
                 <FaIcon icon="fa-heart-pulse" className="text-orange-300 text-sm" />
-                #1 Physio Platform in India
+                {hero.badge_text}
               </span>
               <h1 className="text-3xl sm:text-4xl lg:text-[3.35rem] font-bold leading-[1.1] tracking-tight text-white">
-                Heal Faster with{' '}
-                <span className="text-orange-200">Premium Care</span>
+                {hero.title_prefix}{' '}
+                <span className="text-orange-200">{hero.title_highlight}</span>
               </h1>
               <p className="mt-4 md:mt-6 text-sm md:text-lg text-primary-100/90 max-w-xl leading-relaxed mx-auto md:mx-0">
-                Access trusted physiotherapists nationwide — online sessions, partner clinics, and home treatments in one place.
+                {hero.subtitle}
               </p>
 
               <div className="mt-6 md:mt-8 hero-search-shell">
-                <GlobalSearch variant="hero" />
+                <GlobalSearch variant="hero" popularTags={hero.popular_tags} />
               </div>
 
               {city && (
@@ -141,7 +185,7 @@ export default function Home() {
               )}
 
               <div className="mt-5 flex flex-wrap justify-center md:justify-start gap-2 md:gap-3">
-                {HERO_FEATURES.map((t) => (
+                {hero.feature_pills.map((t) => (
                   <span
                     key={t.label}
                     className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-medium text-white/90 glass-dark rounded-full px-3 py-1.5"
@@ -163,27 +207,27 @@ export default function Home() {
                 </div>
               )}
 
-              <div className="mt-6 md:mt-9 flex flex-col sm:flex-row flex-wrap gap-2.5 md:gap-3 justify-center md:justify-start">
-                <Link
-                  to="/book"
-                  className="inline-flex items-center justify-center gap-2 bg-white text-primary-700 font-bold px-5 py-3 md:px-8 md:py-3.5 rounded-xl text-sm md:text-base shadow-lg hover:bg-orange-50 transition"
-                >
-                  Book Appointment
-                  <FaIcon icon="fa-calendar-check" className="text-sm" />
-                </Link>
+              <div className="mt-6 md:mt-9 flex flex-row flex-nowrap gap-2 max-w-xl mx-auto md:mx-0 w-full">
                 <Link
                   to="/doctors"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 md:px-8 md:py-3.5 text-sm md:text-base rounded-xl font-semibold text-white glass-dark hover:bg-white/15 transition"
+                  className="flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2.5 sm:py-3.5 text-[11px] sm:text-sm md:text-base rounded-xl font-semibold text-white glass-dark hover:bg-white/15 transition"
                 >
-                  Find Doctor
-                  <FaIcon icon="fa-user-doctor" className="text-sm" />
+                  <span className="truncate">Find Doctor</span>
+                  <FaIcon icon="fa-user-doctor" className="text-xs sm:text-sm shrink-0" />
                 </Link>
                 <Link
                   to="/clinics"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 md:px-8 md:py-3.5 text-sm md:text-base rounded-xl font-semibold text-white glass-dark hover:bg-white/15 transition"
+                  className="flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2.5 sm:py-3.5 text-[11px] sm:text-sm md:text-base rounded-xl font-semibold text-white glass-dark hover:bg-white/15 transition"
                 >
-                  Find Clinic
-                  <FaIcon icon="fa-hospital" className="text-sm" />
+                  <span className="truncate">Find Clinic</span>
+                  <FaIcon icon="fa-hospital" className="text-xs sm:text-sm shrink-0" />
+                </Link>
+                <Link
+                  to="/book"
+                  className="flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 bg-white text-primary-700 font-bold px-2 sm:px-4 py-2.5 sm:py-3.5 rounded-xl text-[11px] sm:text-sm md:text-base shadow-lg hover:bg-orange-50 transition"
+                >
+                  <span className="truncate">Book Appointment</span>
+                  <FaIcon icon="fa-calendar-check" className="text-xs sm:text-sm shrink-0 hidden sm:inline" />
                 </Link>
               </div>
             </div>
@@ -211,7 +255,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      {HERO_FEATURES.map((t) => (
+                      {hero.feature_pills.map((t) => (
                         <div key={t.label} className="glass-dark rounded-xl p-4 text-center">
                           <FaIcon icon={t.icon} className="text-xl text-orange-200 mb-2" />
                           <p className="text-white font-medium text-sm">{t.label}</p>
@@ -232,6 +276,10 @@ export default function Home() {
           </svg>
         </div>
       </section>
+
+      {promoBanner.enabled && promoBanner.slides.length >= 2 && (
+        <HomePromoBanner slides={promoBanner.slides} className="pt-4 pb-2 sm:pt-6 sm:pb-4 bg-slate-50" />
+      )}
 
       <EmergencyCareSection />
 
