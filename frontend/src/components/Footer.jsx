@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import FaIcon from './FaIcon';
 import FooterCookieSettings from './FooterCookieSettings';
+import CodeWaveAttribution from '../core/CodeWaveAttribution';
 import { ALL_POLICIES } from '../constants/policyPages';
 import { useContact } from '../contexts/ContactContext';
 import { displayContactText } from '../utils/contactText';
@@ -20,8 +21,6 @@ const SUPPORT_LINKS = [
   { to: '/contact', label: 'Contact Us', icon: 'fa-envelope' },
   { to: '/cancellation-help', label: 'Cancellation Help', icon: 'fa-calendar-xmark' },
 ];
-
-const CODEWAVE_URL = 'https://codewavestudio.space/';
 
 function FooterLinkColumn({ title, links }) {
   return (
@@ -147,16 +146,10 @@ export default function Footer() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-3 sm:gap-5 order-1 sm:order-2">
             <FooterCookieSettings />
-            <p className="text-primary-200/80 text-center sm:text-right">
-              Designed &amp; Developed by{' '}
-              <a
-                href={CODEWAVE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                CodeWave Studio
-              </a>
-            </p>
+            <CodeWaveAttribution variant="footer" />
+            <Link to="/license" className="text-[11px] text-primary-300/70 hover:text-white transition">
+              License
+            </Link>
           </div>
         </div>
       </div>

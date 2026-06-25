@@ -4,6 +4,7 @@ import FaIcon from '../../../components/FaIcon';
 import { admin } from '../../../services/api';
 import toast from 'react-hot-toast';
 import EditableList from '../../../components/admin/booking/EditableList';
+import BookingFilterManager from '../../../components/admin/booking/BookingFilterManager';
 import SessionTypesManager from '../../../components/admin/booking/SessionTypesManager';
 
 const emptySettings = () => ({
@@ -50,6 +51,8 @@ export default function AdminBookingSettings() {
   const TABS = [
     { id: 'pain', label: 'Pain types', icon: 'fa-heart-pulse' },
     { id: 'conditions', label: 'Home conditions', icon: 'fa-bed' },
+    { id: 'sort', label: 'Sort filters', icon: 'fa-arrow-down-wide-short' },
+    { id: 'spec', label: 'Specialization', icon: 'fa-stethoscope' },
     { id: 'session', label: 'Session types', icon: 'fa-clock' },
     { id: 'slots', label: 'Slot settings', icon: 'fa-calendar-days' },
   ];
@@ -102,6 +105,32 @@ export default function AdminBookingSettings() {
               create={admin.createBookingHomeCondition}
               update={admin.updateBookingHomeCondition}
               remove={admin.deleteBookingHomeCondition}
+            />
+          )}
+
+          {tab === 'sort' && (
+            <BookingFilterManager
+              title="Booking sort filters"
+              subtitle="Step 2 — Doctor & clinic: Recommended, Top Rated, Nearest, etc."
+              icon="fa-arrow-down-wide-short"
+              mode="sort"
+              load={admin.bookingSortFilters}
+              create={admin.createBookingSortFilter}
+              update={admin.updateBookingSortFilter}
+              remove={admin.deleteBookingSortFilter}
+            />
+          )}
+
+          {tab === 'spec' && (
+            <BookingFilterManager
+              title="Specialization filters"
+              subtitle="Step 2 — Orthopedic, Neuro, Sports… Keywords match doctor specialization or doctor-selected categories."
+              icon="fa-stethoscope"
+              mode="spec"
+              load={admin.bookingSpecFilters}
+              create={admin.createBookingSpecFilter}
+              update={admin.updateBookingSpecFilter}
+              remove={admin.deleteBookingSpecFilter}
             />
           )}
 

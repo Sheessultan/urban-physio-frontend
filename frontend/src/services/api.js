@@ -116,6 +116,13 @@ export const doctors = {
   acceptEmergency: (id) => api.post(`/doctors/emergency/${id}/accept`),
   rejectEmergency: (id) => api.post(`/doctors/emergency/${id}/reject`),
   updateEmergencyStatus: (id, emergency_status) => api.put(`/doctors/emergency/${id}/status`, { emergency_status }),
+  bookingFilters: () => api.get('/doctors/booking-filters'),
+  updateBookingFilters: (filter_ids) => api.put('/doctors/booking-filters', { filter_ids }),
+};
+
+export const license = {
+  show: () => api.get('/license'),
+  verify: () => api.get('/license/verify'),
 };
 
 export const appointments = {
@@ -341,6 +348,14 @@ export const admin = {
   deleteBookingHomeCondition: (id) => api.delete(`/admin/booking/home-conditions/${id}`),
   bookingSettings: () => api.get('/admin/booking/settings'),
   updateBookingSettings: (data) => api.put('/admin/booking/settings', data),
+  bookingSortFilters: () => api.get('/admin/booking/sort-filters'),
+  createBookingSortFilter: (data) => api.post('/admin/booking/sort-filters', data),
+  updateBookingSortFilter: (id, data) => api.put(`/admin/booking/sort-filters/${id}`, data),
+  deleteBookingSortFilter: (id) => api.delete(`/admin/booking/sort-filters/${id}`),
+  bookingSpecFilters: () => api.get('/admin/booking/specialization-filters'),
+  createBookingSpecFilter: (data) => api.post('/admin/booking/specialization-filters', data),
+  updateBookingSpecFilter: (id, data) => api.put(`/admin/booking/specialization-filters/${id}`, data),
+  deleteBookingSpecFilter: (id) => api.delete(`/admin/booking/specialization-filters/${id}`),
   sessionTypesList: () => api.get('/admin/session-types'),
   createSessionType: (data) => api.post('/admin/session-types', data),
   updateSessionType: (id, data) => api.put(`/admin/session-types/${id}`, data),

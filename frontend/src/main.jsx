@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster } from 'react-hot-toast';
 import App from './App';
+import LicenseGate from './core/LicenseGate';
 import { AuthProvider } from './contexts/AuthContext';
 import { CookieConsentProvider } from './contexts/CookieConsentContext';
 import { LocationProvider } from './contexts/LocationContext';
@@ -34,7 +35,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <CookieConsentProvider>
           <ContactProvider>
           <LocationProvider>
-            <App />
+            <LicenseGate>
+              <App />
+            </LicenseGate>
             <LocationSelector />
             <HapticsRoot />
             <FloatingActions />

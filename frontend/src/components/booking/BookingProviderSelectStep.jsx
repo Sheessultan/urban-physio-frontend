@@ -8,21 +8,21 @@ import { patients } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
-const SORT_OPTIONS = [
-  { id: 'recommended', label: 'Recommended', icon: 'fa-wand-magic-sparkles' },
-  { id: 'rating', label: 'Top Rated', icon: 'fa-star' },
-  { id: 'experience', label: 'Experience', icon: 'fa-award' },
-  { id: 'nearest', label: 'Nearest', icon: 'fa-location-crosshairs' },
-  { id: 'price', label: 'Price', icon: 'fa-indian-rupee-sign' },
+const FALLBACK_SORT = [
+  { slug: 'recommended', label: 'Recommended', icon: 'fa-wand-magic-sparkles' },
+  { slug: 'rating', label: 'Top Rated', icon: 'fa-star' },
+  { slug: 'experience', label: 'Experience', icon: 'fa-award' },
+  { slug: 'nearest', label: 'Nearest', icon: 'fa-location-crosshairs' },
+  { slug: 'price', label: 'Price', icon: 'fa-indian-rupee-sign' },
 ];
 
-const SPECIALIZATIONS = [
-  { id: 'all', label: 'All' },
-  { id: 'orthopedic', label: 'Orthopedic' },
-  { id: 'neuro', label: 'Neuro' },
-  { id: 'sports', label: 'Sports' },
-  { id: 'pediatric', label: 'Pediatric' },
-  { id: 'cardiopulmonary', label: 'Cardiopulmonary' },
+const FALLBACK_SPEC = [
+  { slug: 'all', label: 'All' },
+  { slug: 'orthopedic', label: 'Orthopedic' },
+  { slug: 'neuro', label: 'Neuro' },
+  { slug: 'sports', label: 'Sports' },
+  { slug: 'pediatric', label: 'Pediatric' },
+  { slug: 'cardiopulmonary', label: 'Cardiopulmonary' },
 ];
 
 function feeForType(doctor, consultationType) {
@@ -150,6 +150,8 @@ export default function BookingProviderSelectStep({
   specialization,
   onSpecializationChange,
   onRefresh,
+  sortFilters = FALLBACK_SORT,
+  specializationFilters = FALLBACK_SPEC,
 }) {
   const { user } = useAuth();
   const [favourites, setFavourites] = useState(() => getLocalFavourites());
@@ -211,31 +213,31 @@ export default function BookingProviderSelectStep({
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
-        {SORT_OPTIONS.map((opt) => (
+        {sortFilters.map((opt) => (
           <button
-            key={opt.id}
+            key={opt.slug}
             type="button"
-            onClick={() => onSortChange(opt.id)}
+            onClick={() => onSortChange(opt.slug)}
             className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
-              sortBy === opt.id
+              sortBy === opt.slug
                 ? 'bg-primary-600 text-white border-primary-600'
                 : 'bg-white/80 text-slate-600 border-slate-200 hover:border-primary-300'
             }`}
           >
-            <FaIcon icon={opt.icon} className="text-[10px]" />
+            <FaIcon icon={opt.icon || 'fa-star'} className="text-[10px]" />
             {opt.label}
           </button>
         ))}
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {SPECIALIZATIONS.map((s) => (
+        {specializationFilters.map((s) => (
           <button
-            key={s.id}
+            key={s.slug}
             type="button"
-            onClick={() => onSpecializationChange(s.id)}
+            onClick={() => onSpecializationChange(s.slug)}
             className={`px-3 py-1 rounded-full text-xs font-medium border transition ${
-              specialization === s.id
+              specialization === s.slug
                 ? 'bg-orange-500 text-white border-orange-500'
                 : 'bg-white/70 text-slate-600 border-slate-200'
             }`}
@@ -367,4 +369,4 @@ export default function BookingProviderSelectStep({
   );
 }
 
-export { SORT_OPTIONS, SPECIALIZATIONS };
+export { FALLBACK_SORT, FALLBACK_SPEC };

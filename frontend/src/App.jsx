@@ -32,6 +32,7 @@ import DoctorProfile from './pages/doctor/DoctorProfile';
 import DoctorClinics from './pages/doctor/DoctorClinics';
 import DoctorAddClinic from './pages/doctor/DoctorAddClinic';
 import DoctorClinicAvailability from './pages/doctor/DoctorClinicAvailability';
+import DoctorBookingFilters from './pages/doctor/DoctorBookingFilters';
 import NotificationsPage from './pages/NotificationsPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
@@ -47,6 +48,7 @@ import FaqPage from './pages/FaqPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import CancellationHelpPage from './pages/CancellationHelpPage';
+import LicensePage from './pages/LicensePage';
 import EmergencyBookingWizard from './pages/EmergencyBookingWizard';
 import DoctorEmergency from './pages/doctor/DoctorEmergency';
 import AdminEmergency from './pages/admin/AdminEmergency';
@@ -146,6 +148,7 @@ export default function App() {
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/cancellation-help" element={<CancellationHelpPage />} />
+      <Route path="/license" element={<LicensePage />} />
 
       <Route path="/patient" element={<ProtectedRoute roles={['patient']}><PatientDashboard /></ProtectedRoute>} />
       <Route path="/patient/appointments" element={<ProtectedRoute roles={['patient']}><PatientAppointments /></ProtectedRoute>} />
@@ -163,6 +166,7 @@ export default function App() {
       <Route path="/doctor/clinics" element={<ProtectedRoute roles={['doctor']}><DoctorClinics /></ProtectedRoute>} />
       <Route path="/doctor/clinics/new" element={<ProtectedRoute roles={['doctor']}><DoctorAddClinic /></ProtectedRoute>} />
       <Route path="/doctor/clinic-availability" element={<ProtectedRoute roles={['doctor']}><DoctorClinicAvailability /></ProtectedRoute>} />
+      <Route path="/doctor/booking-filters" element={<ProtectedRoute roles={['doctor']}><DoctorBookingFilters /></ProtectedRoute>} />
       <Route path="/doctor/custom-slots" element={<ProtectedRoute roles={['doctor']}><DoctorCustomSlots /></ProtectedRoute>} />
       <Route path="/doctor/packages" element={<ProtectedRoute roles={['doctor']}><DoctorPackages /></ProtectedRoute>} />
       <Route path="/doctor/prescriptions" element={<ProtectedRoute roles={['doctor']}><DoctorPrescriptions /></ProtectedRoute>} />

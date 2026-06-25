@@ -115,6 +115,8 @@ export default function BookAppointmentWizard() {
   const [sessions, setSessions] = useState([]);
   const [painTypes, setPainTypes] = useState([]);
   const [homeConditions, setHomeConditions] = useState([]);
+  const [sortFilters, setSortFilters] = useState([]);
+  const [specializationFilters, setSpecializationFilters] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [availableDates, setAvailableDates] = useState([]);
@@ -239,6 +241,8 @@ export default function BookAppointmentWizard() {
         const d = res?.data ?? res;
         setPainTypes((d?.pain_types || []).map((p) => p.label).filter(Boolean));
         setHomeConditions((d?.home_conditions || []).map((c) => c.label).filter(Boolean));
+        setSortFilters(d?.sort_filters || []);
+        setSpecializationFilters(d?.specialization_filters || []);
       })
       .catch(() => {
         setPainTypes(['Back Pain', 'Neck Pain', 'Knee Pain', 'Shoulder Pain', 'Other']);
@@ -811,6 +815,8 @@ export default function BookAppointmentWizard() {
               specialization={specialization}
               onSpecializationChange={setSpecialization}
               onRefresh={loadProvidersForLocation}
+              sortFilters={sortFilters}
+              specializationFilters={specializationFilters}
             />
           )}
 
