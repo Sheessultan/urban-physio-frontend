@@ -308,23 +308,6 @@ export default function GlobalSearch({
   }, [open, updateMenuPosition, query, isMobile]);
 
   useEffect(() => {
-    const onDocPointer = (e) => {
-      if (wrapRef.current?.contains(e.target) || menuRef.current?.contains(e.target)) return;
-      // Keep results visible until the search box is cleared
-      if (!query.trim()) {
-        setOpen(false);
-        setActiveIndex(-1);
-      }
-    };
-    document.addEventListener('mousedown', onDocPointer);
-    document.addEventListener('touchstart', onDocPointer, { passive: true });
-    return () => {
-      document.removeEventListener('mousedown', onDocPointer);
-      document.removeEventListener('touchstart', onDocPointer);
-    };
-  }, []);
-
-  useEffect(() => {
     if (!autoFocus) return undefined;
     const t = setTimeout(() => inputRef.current?.focus(), 120);
     return () => clearTimeout(t);
@@ -353,18 +336,21 @@ export default function GlobalSearch({
     inputRef.current?.focus();
   };
 
-  const clearQuery = () => {
-    setQuery('');
+  const closeResults = () => {
     setOpen(false);
     setActiveIndex(-1);
+  };
+
+  const clearQuery = () => {
+    setQuery('');
+    closeResults();
     setResults(EMPTY_RESULTS);
     inputRef.current?.focus();
   };
 
   const onKeyDown = (e) => {
     if (e.key === 'Escape') {
-      setOpen(false);
-      setActiveIndex(-1);
+      closeResults();
       inputRef.current?.blur();
       return;
     }
@@ -405,17 +391,27 @@ export default function GlobalSearch({
         ? 'relative w-full min-w-[140px] max-w-[220px] xl:max-w-[260px]'
         : 'relative w-full';
 
-  const renderDropdownBody = () => {
-    if (loading && totalCount === 0) {
-      return (
+  const renderDropdownBody = () => (
+    <>
+      <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-slate-100 bg-slate-50/90">
+        <p className="text-xs font-semibold text-slate-600 truncate">
+          {loading && totalCount === 0 ? 'Searching…' : `Results for “${trimmedQuery}”`}
+        </p>
+        <button
+          type="button"
+          onClick={closeResults}
+          className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition touch-manipulation"
+          aria-label="Close search results"
+        >
+          <FaIcon icon="fa-xmark" className="text-sm" />
+        </button>
+      </div>
+      {loading && totalCount === 0 ? (
         <div className="px-4 py-6 text-center text-sm text-slate-500">
           <FaIcon icon="fa-spinner" className="fa-spin mr-2" />
           Searching…
         </div>
-      );
-    }
-    if (totalCount === 0 && !loading) {
-      return (
+      ) : totalCount === 0 && !loading ? (
         <div className="px-4 py-5 text-center">
           <p className="text-sm text-slate-600">No matches for &ldquo;{trimmedQuery}&rdquo;</p>
           {apiFailed && (
@@ -429,62 +425,61 @@ export default function GlobalSearch({
             Browse all results
           </button>
         </div>
-      );
-    }
-    return (
-      <>
-        {loading && (
-          <p className="px-3 py-2 text-xs text-slate-500 bg-slate-50 border-b border-slate-100 flex items-center gap-2">
-            <FaIcon icon="fa-spinner" className="fa-spin" />
-            Finding doctors, clinics &amp; more…
-          </p>
-        )}
-        {apiFailed && !loading && (
-          <p className="px-3 py-2 text-xs text-amber-700 bg-amber-50 border-b border-amber-100">
-            Showing quick matches — full search loading may be limited
-          </p>
-        )}
-        <div
-          className={`overflow-y-auto py-1 overscroll-contain ${
-            isMobile ? 'max-h-[min(42vh,280px)]' : 'max-h-[min(60vh,360px)]'
-          }`}
-        >
-          {flatItems.map((item, i) => (
-            <button
-              key={item.key}
-              type="button"
-              role="option"
-              aria-selected={activeIndex === i}
-              className={`w-full flex items-center gap-3 px-3 py-3 text-left transition touch-manipulation ${
-                activeIndex === i ? 'bg-orange-50' : 'hover:bg-slate-50 active:bg-orange-50/80'
-              }`}
-              onMouseEnter={() => setActiveIndex(i)}
-              onTouchStart={() => setActiveIndex(i)}
-              onClick={() => goTo(item.to)}
-            >
-              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.iconColor}`}>
-                <FaIcon icon={item.icon} className="text-sm" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-slate-900 truncate">{item.label}</span>
-                <span className="block text-xs text-slate-500 truncate capitalize">{item.type} · {item.sub}</span>
-              </span>
-              <FaIcon icon="fa-arrow-right" className="text-xs text-slate-300 shrink-0" />
-            </button>
-          ))}
-        </div>
-        <div className="border-t border-slate-100 px-3 py-2 bg-slate-50/80">
-          <button
-            type="button"
-            onClick={submitSearch}
-            className="w-full text-center text-xs font-semibold text-orange-600 hover:text-orange-700 active:text-orange-800 py-2 touch-manipulation"
+      ) : (
+        <>
+          {loading && (
+            <p className="px-3 py-2 text-xs text-slate-500 bg-slate-50 border-b border-slate-100 flex items-center gap-2">
+              <FaIcon icon="fa-spinner" className="fa-spin" />
+              Finding doctors, clinics &amp; more…
+            </p>
+          )}
+          {apiFailed && !loading && (
+            <p className="px-3 py-2 text-xs text-amber-700 bg-amber-50 border-b border-amber-100">
+              Showing quick matches — full search loading may be limited
+            </p>
+          )}
+          <div
+            className={`overflow-y-auto py-1 overscroll-contain ${
+              isMobile ? 'max-h-[min(42vh,280px)]' : 'max-h-[min(60vh,360px)]'
+            }`}
           >
-            View all results for &ldquo;{trimmedQuery}&rdquo;
-          </button>
-        </div>
-      </>
-    );
-  };
+            {flatItems.map((item, i) => (
+              <button
+                key={item.key}
+                type="button"
+                role="option"
+                aria-selected={activeIndex === i}
+                className={`w-full flex items-center gap-3 px-3 py-3 text-left transition touch-manipulation ${
+                  activeIndex === i ? 'bg-orange-50' : 'hover:bg-slate-50 active:bg-orange-50/80'
+                }`}
+                onMouseEnter={() => setActiveIndex(i)}
+                onTouchStart={() => setActiveIndex(i)}
+                onClick={() => goTo(item.to)}
+              >
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.iconColor}`}>
+                  <FaIcon icon={item.icon} className="text-sm" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-slate-900 truncate">{item.label}</span>
+                  <span className="block text-xs text-slate-500 truncate capitalize">{item.type} · {item.sub}</span>
+                </span>
+                <FaIcon icon="fa-arrow-right" className="text-xs text-slate-300 shrink-0" />
+              </button>
+            ))}
+          </div>
+          <div className="border-t border-slate-100 px-3 py-2 bg-slate-50/80">
+            <button
+              type="button"
+              onClick={submitSearch}
+              className="w-full text-center text-xs font-semibold text-orange-600 hover:text-orange-700 active:text-orange-800 py-2 touch-manipulation"
+            >
+              View all results for &ldquo;{trimmedQuery}&rdquo;
+            </button>
+          </div>
+        </>
+      )}
+    </>
+  );
 
   const dropdownPanelClass =
     'global-search-menu rounded-2xl border border-slate-200/90 bg-white shadow-2xl shadow-slate-900/10 overflow-hidden animate-fade-in';
@@ -526,7 +521,8 @@ export default function GlobalSearch({
           )}
           <input
             ref={inputRef}
-            type="search"
+            type="text"
+            inputMode="search"
             enterKeyHint="search"
             value={query}
             onChange={(e) => {
@@ -534,7 +530,9 @@ export default function GlobalSearch({
               setOpen(true);
               setActiveIndex(-1);
             }}
-            onFocus={() => setOpen(true)}
+            onFocus={() => {
+              if (query.trim()) setOpen(true);
+            }}
             onKeyDown={onKeyDown}
             placeholder={isHero ? heroPlaceholder : isMobile ? SEARCH_HINT : 'Search…'}
             aria-label="Universal search"
