@@ -60,10 +60,6 @@ export default function DoctorCard({ doctor, compact = false, variant = 'default
           onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openPreview()}
           className="premium-preview-card premium-preview-card--doctor interactive-card group relative flex flex-col h-full cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-500"
         >
-          <span className="premium-preview-hint premium-preview-hint--doctor">
-            <FaIcon icon="fa-up-right-and-down-left-from-center" className="text-[9px]" />
-            Quick view
-          </span>
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-400/10 to-transparent rounded-bl-full pointer-events-none" />
           <div className="p-5 md:p-6 flex-1 flex flex-col relative">
             <div className="flex gap-4">
@@ -158,10 +154,6 @@ export default function DoctorCard({ doctor, compact = false, variant = 'default
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openPreview()}
         className="premium-preview-card premium-preview-card--doctor p-5 animate-fade-in group cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-500"
       >
-        <span className="premium-preview-hint premium-preview-hint--doctor">
-          <FaIcon icon="fa-up-right-and-down-left-from-center" className="text-[9px]" />
-          Tap to preview
-        </span>
         <div className="flex gap-4">
           <DoctorAvatar doctor={doctor} size="lg" />
           <div className="flex-1 min-w-0">

@@ -3,6 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Navbar from '../components/Navbar';
 import FaIcon from '../components/FaIcon';
+import DoctorAvatar from '../components/DoctorAvatar';
+import ClinicLogo from '../components/ClinicLogo';
 import { search } from '../services/api';
 import { useLocation } from '../contexts/LocationContext';
 import { localSearchMatches, mergeSearchResults } from '../utils/searchCatalog';
@@ -75,10 +77,20 @@ export default function SearchResultsPage() {
               icon="fa-user-doctor"
               items={results?.doctors}
               renderItem={(d) => (
-                <Link key={d.id} to={doctorProfileUrl(d)} className="glass-card p-4 hover:shadow-md transition block">
-                  <p className="font-semibold text-slate-900">Dr. {d.first_name} {d.last_name}</p>
-                  <p className="text-sm text-primary-600">{d.specialization}</p>
-                  <p className="text-xs text-slate-500 mt-1">{d.city_name}</p>
+                <Link key={d.id} to={doctorProfileUrl(d)} className="glass-card p-4 hover:shadow-md transition block group">
+                  <div className="flex items-center gap-3">
+                    <DoctorAvatar doctor={d} size="md" />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-slate-900 truncate group-hover:text-primary-700 transition-colors">
+                        Dr. {d.first_name} {d.last_name}
+                      </p>
+                      <p className="text-sm font-medium text-primary-600 truncate mt-0.5">
+                        {d.specialization || 'Physiotherapist'}
+                      </p>
+                      {d.city_name && <p className="text-xs text-slate-500 truncate mt-0.5">{d.city_name}</p>}
+                    </div>
+                    <FaIcon icon="fa-chevron-right" className="text-xs text-slate-300 shrink-0" />
+                  </div>
                 </Link>
               )}
             />
@@ -87,10 +99,20 @@ export default function SearchResultsPage() {
               icon="fa-hospital"
               items={results?.clinics}
               renderItem={(c) => (
-                <Link key={c.id} to={clinicProfileUrl(c)} className="glass-card p-4 hover:shadow-md transition block">
-                  <p className="font-semibold text-slate-900">{c.name}</p>
-                  <p className="text-sm text-slate-600 line-clamp-2">{c.address}</p>
-                  <p className="text-xs text-slate-500 mt-1">{c.city_name}</p>
+                <Link key={c.id} to={clinicProfileUrl(c)} className="glass-card p-4 hover:shadow-md transition block group">
+                  <div className="flex items-center gap-3">
+                    <ClinicLogo clinic={c} size="md" />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-slate-900 truncate group-hover:text-emerald-700 transition-colors">
+                        {c.name}
+                      </p>
+                      <p className="text-sm font-medium text-emerald-700 truncate mt-0.5">
+                        {c.city_name || 'Clinic'}
+                      </p>
+                      {c.address && <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{c.address}</p>}
+                    </div>
+                    <FaIcon icon="fa-chevron-right" className="text-xs text-slate-300 shrink-0" />
+                  </div>
                 </Link>
               )}
             />

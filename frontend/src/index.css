@@ -139,11 +139,6 @@
     .interactive-card:hover .icon-hover-shift {
       transform: translateX(3px);
     }
-
-    .premium-preview-card:hover .premium-preview-hint {
-      opacity: 1;
-      transform: translateY(0);
-    }
   }
 
   /* Premium listing cards — doctor / clinic */
@@ -190,22 +185,6 @@
         0 12px 24px -12px rgb(15 23 42 / 0.1);
       transform: translateY(-5px);
     }
-  }
-
-  .premium-preview-hint {
-    @apply absolute top-3 right-3 z-[2] inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide
-           px-2 py-1 rounded-full border pointer-events-none;
-    opacity: 0.85;
-    transform: translateY(-2px);
-    transition: opacity 0.25s ease, transform 0.25s ease;
-  }
-
-  .premium-preview-hint--doctor {
-    @apply bg-white/90 text-primary-700 border-primary-200/80 shadow-sm;
-  }
-
-  .premium-preview-hint--clinic {
-    @apply bg-white/90 text-emerald-700 border-emerald-200/80 shadow-sm;
   }
 
   /* Ruler-style range slider */

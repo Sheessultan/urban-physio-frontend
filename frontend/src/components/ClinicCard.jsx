@@ -68,10 +68,6 @@ export default function ClinicCard({ clinic, compact = false, variant = 'default
           onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openPreview()}
           className="premium-preview-card premium-preview-card--clinic interactive-card group relative flex flex-col h-full cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500"
         >
-          <span className="premium-preview-hint premium-preview-hint--clinic">
-            <FaIcon icon="fa-up-right-and-down-left-from-center" className="text-[9px]" />
-            Quick view
-          </span>
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-400/10 to-transparent rounded-bl-full pointer-events-none" />
           <div className="p-5 md:p-6 flex-1 flex flex-col relative">
             <div className="flex gap-4">
@@ -183,14 +179,8 @@ export default function ClinicCard({ clinic, compact = false, variant = 'default
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openPreview()}
         className="premium-preview-card premium-preview-card--clinic p-5 md:p-6 flex flex-col h-full animate-fade-in group cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500"
       >
-        <span className="premium-preview-hint premium-preview-hint--clinic">
-          <FaIcon icon="fa-up-right-and-down-left-from-center" className="text-[9px]" />
-          Tap to preview
-        </span>
         <div className="flex gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-md">
-            <FaIcon icon="fa-hospital" className="text-xl" />
-          </div>
+          <ClinicLogo clinic={clinic} size="lg" />
           <div className="min-w-0 flex-1">
             <h3 className="font-bold text-lg text-slate-900 leading-tight group-hover:text-primary-700 transition-colors">
               {clinic.name}

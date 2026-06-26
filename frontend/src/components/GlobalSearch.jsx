@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import FaIcon from './FaIcon';
+import DoctorAvatar from './DoctorAvatar';
+import ClinicLogo from './ClinicLogo';
 import { search } from '../services/api';
 import { useLocation } from '../contexts/LocationContext';
 import { localSearchMatches, mergeSearchResults, QUICK_SEARCH_TAGS } from '../utils/searchCatalog';
@@ -104,8 +106,10 @@ export default function GlobalSearch({
         type: 'doctor',
         key: `d-${d.id}`,
         label: `Dr. ${d.first_name} ${d.last_name}`,
-        sub: d.specialization || d.city_name || 'Physiotherapist',
+        sub: d.specialization || 'Physiotherapist',
+        meta: d.city_name || null,
         to: doctorProfileUrl(d),
+        doctor: d,
         icon: 'fa-user-doctor',
         iconColor: 'text-orange-600 bg-orange-50',
       });
@@ -116,7 +120,9 @@ export default function GlobalSearch({
         key: `cl-${c.id}`,
         label: c.name,
         sub: c.city_name || c.address || 'Clinic',
+        meta: c.address && c.city_name ? c.address : null,
         to: clinicProfileUrl(c),
+        clinic: c,
         icon: 'fa-hospital',
         iconColor: 'text-emerald-600 bg-emerald-50',
       });
@@ -391,6 +397,47 @@ export default function GlobalSearch({
         ? 'relative w-full min-w-[140px] max-w-[220px] xl:max-w-[260px]'
         : 'relative w-full';
 
+  const renderResultVisual = (item) => {
+    if (item.type === 'doctor' && item.doctor) {
+      return <DoctorAvatar doctor={item.doctor} size="md" />;
+    }
+    if (item.type === 'clinic' && item.clinic) {
+      return <ClinicLogo clinic={item.clinic} size="md" />;
+    }
+    return (
+      <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${item.iconColor}`}>
+        <FaIcon icon={item.icon} className="text-sm" />
+      </span>
+    );
+  };
+
+  const renderResultText = (item) => {
+    if (item.type === 'doctor') {
+      return (
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold text-slate-900 truncate leading-snug">{item.label}</span>
+          <span className="block text-xs font-medium text-primary-600 truncate mt-0.5">{item.sub}</span>
+          {item.meta && <span className="block text-[11px] text-slate-500 truncate mt-0.5">{item.meta}</span>}
+        </span>
+      );
+    }
+    if (item.type === 'clinic') {
+      return (
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold text-slate-900 truncate leading-snug">{item.label}</span>
+          <span className="block text-xs font-medium text-emerald-700 truncate mt-0.5">{item.sub}</span>
+          {item.meta && <span className="block text-[11px] text-slate-500 truncate mt-0.5">{item.meta}</span>}
+        </span>
+      );
+    }
+    return (
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold text-slate-900 truncate">{item.label}</span>
+        <span className="block text-xs text-slate-500 truncate capitalize mt-0.5">{item.type} · {item.sub}</span>
+      </span>
+    );
+  };
+
   const renderDropdownBody = () => (
     <>
       <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-slate-100 bg-slate-50/90">
@@ -449,21 +496,16 @@ export default function GlobalSearch({
                 type="button"
                 role="option"
                 aria-selected={activeIndex === i}
-                className={`w-full flex items-center gap-3 px-3 py-3 text-left transition touch-manipulation ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition touch-manipulation ${
                   activeIndex === i ? 'bg-orange-50' : 'hover:bg-slate-50 active:bg-orange-50/80'
                 }`}
                 onMouseEnter={() => setActiveIndex(i)}
                 onTouchStart={() => setActiveIndex(i)}
                 onClick={() => goTo(item.to)}
               >
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.iconColor}`}>
-                  <FaIcon icon={item.icon} className="text-sm" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-slate-900 truncate">{item.label}</span>
-                  <span className="block text-xs text-slate-500 truncate capitalize">{item.type} · {item.sub}</span>
-                </span>
-                <FaIcon icon="fa-arrow-right" className="text-xs text-slate-300 shrink-0" />
+                {renderResultVisual(item)}
+                {renderResultText(item)}
+                <FaIcon icon="fa-chevron-right" className="text-[10px] text-slate-300 shrink-0" />
               </button>
             ))}
           </div>
