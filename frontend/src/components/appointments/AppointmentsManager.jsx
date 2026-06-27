@@ -54,17 +54,27 @@ export default function AppointmentsManager({
   const [filterCities, setFilterCities] = useState([]);
 
   useEffect(() => {
-    if (view !== 'admin') return;
-    location.states().then((res) => {
-      const states = res.data || [];
-      Promise.all(states.map((s) => location.cities(s.id).then((r) => r.data || [])))
-        .then((groups) => {
-          const flat = groups.flat().map((c) => ({ id: c.id, name: c.name, state_id: c.state_id }));
-          flat.sort((a, b) => a.name.localeCompare(b.name));
-          setFilterCities(flat);
-        })
-        .catch(() => {});
-    });
+    if (view !== 'admin') return undefined;
+    let cancelled = false;
+    location
+      .cities()
+      .then((res) => {
+        if (cancelled) return;
+        const flat = (res.data || [])
+          .map((c) => ({
+            id: c.id,
+            name: c.state_name ? `${c.name} (${c.state_name})` : c.name,
+            state_id: c.state_id,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        setFilterCities(flat);
+      })
+      .catch(() => {
+        if (!cancelled) setFilterCities([]);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [view]);
 
   const load = useCallback(() => {

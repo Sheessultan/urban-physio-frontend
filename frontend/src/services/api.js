@@ -75,7 +75,10 @@ export const location = {
   servedStates: () => api.get('/location/served-states'),
   cities: (stateId, servedOnly = false) =>
     api.get('/location/cities', {
-      params: { state_id: stateId, ...(servedOnly ? { served: '1' } : {}) },
+      params: {
+        ...(stateId != null && stateId !== '' ? { state_id: stateId } : {}),
+        ...(servedOnly ? { served: '1' } : {}),
+      },
     }),
   cityProviders: (cityId, lat, lng) =>
     api.get('/location/city-providers', {
