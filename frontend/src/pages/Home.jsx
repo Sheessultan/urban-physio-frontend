@@ -417,23 +417,10 @@ export default function Home() {
               {areaName ? `Partner clinics in ${areaName}` : 'Approved partner clinics near you'}
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 shrink-0 w-full sm:w-auto">
-            <Link
-              to="/clinics"
-              className="btn-primary text-xs md:text-sm py-2.5 px-4 inline-flex items-center justify-center gap-1.5 !bg-emerald-600 hover:!bg-emerald-700 w-full sm:w-auto"
-            >
-              <FaIcon icon="fa-hospital" />
-              Find Clinic
-            </Link>
-            <button
-              type="button"
-              onClick={refreshLocation}
-              className="btn-outline text-xs md:text-sm py-2.5 px-3 inline-flex items-center justify-center gap-1.5 w-full sm:w-auto"
-            >
-              <FaIcon icon="fa-location-crosshairs" />
-              Refresh
-            </button>
-          </div>
+          <button type="button" onClick={refreshLocation} className="btn-outline text-xs md:text-sm py-2 px-3 inline-flex items-center gap-1.5">
+            <FaIcon icon="fa-location-crosshairs" />
+            Refresh
+          </button>
         </div>
 
         {loading ? (
