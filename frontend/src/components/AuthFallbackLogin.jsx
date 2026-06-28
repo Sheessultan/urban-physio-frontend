@@ -6,7 +6,7 @@ import PasswordInput from './PasswordInput';
 import { navigateAfterAuth } from '../utils/authRedirect';
 
 /** Email & password sign-in when mobile OTP is not available. */
-export default function AuthFallbackLogin({ redirectTo, forgotPasswordRole }) {
+export default function AuthFallbackLogin({ redirectTo, forgotPasswordRole, forgotPasswordLoginPath }) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -70,7 +70,7 @@ export default function AuthFallbackLogin({ redirectTo, forgotPasswordRole }) {
           labelExtra={
             <Link
               to="/forgot-password"
-              state={{ from: redirectTo, loginRole: forgotPasswordRole }}
+              state={{ from: redirectTo, loginRole: forgotPasswordRole, loginPath: forgotPasswordLoginPath }}
               className="text-xs text-primary-600 font-medium hover:underline"
             >
               Forgot password?

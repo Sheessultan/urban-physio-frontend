@@ -93,6 +93,8 @@ export const location = {
     api.get('/location/doctors', {
       params: { lat, lng, radius, ...(cityId ? { city_id: cityId } : {}) },
     }),
+  cityBySlug: (slug) => api.get(`/location/city-by-slug/${encodeURIComponent(slug)}`),
+  seoCities: () => api.get('/location/seo-cities'),
 };
 
 export const doctors = {
@@ -285,6 +287,17 @@ export const notifications = {
   unreadCount: () => api.get('/notifications/unread-count'),
   markRead: (ids) => api.post('/notifications/read', { ids }),
   markAllRead: () => api.post('/notifications/read', { all: true }),
+};
+
+export const profileServices = {
+  listDoctor: () => api.get('/doctors/profile-services'),
+  createDoctor: (data) => api.post('/doctors/profile-services', data),
+  updateDoctor: (id, data) => api.put(`/doctors/profile-services/${id}`, data),
+  deleteDoctor: (id) => api.delete(`/doctors/profile-services/${id}`),
+  listClinic: (clinicId) => api.get(`/doctors/clinics/${clinicId}/profile-services`),
+  createClinic: (clinicId, data) => api.post(`/doctors/clinics/${clinicId}/profile-services`, data),
+  updateClinic: (clinicId, id, data) => api.put(`/doctors/clinics/${clinicId}/profile-services/${id}`, data),
+  deleteClinic: (clinicId, id) => api.delete(`/doctors/clinics/${clinicId}/profile-services/${id}`),
 };
 
 export const clinics = {

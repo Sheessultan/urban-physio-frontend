@@ -11,11 +11,8 @@ import { clinicBookUrl } from '../../utils/profileUrls';
 
 
 function scrollToReviews() {
-
-  const el = document.getElementById('patient-reviews');
-
+  const el = document.getElementById('profile-stories');
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
 }
 
 

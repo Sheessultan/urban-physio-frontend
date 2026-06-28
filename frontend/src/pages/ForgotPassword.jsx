@@ -7,7 +7,8 @@ import Navbar from '../components/Navbar';
 export default function ForgotPassword() {
   const location = useLocation();
   const loginRole = location.state?.loginRole;
-  const loginBack = loginRole ? `/login?role=${loginRole}` : '/login';
+  const loginPath = location.state?.loginPath;
+  const loginBack = loginPath || (loginRole ? `/login?role=${loginRole}` : '/login');
 
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);

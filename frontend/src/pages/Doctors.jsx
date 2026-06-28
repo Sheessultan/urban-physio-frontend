@@ -72,7 +72,8 @@ export default function Doctors() {
     setLoading(true);
     try {
       const hasSearch = Boolean(searchApi.trim());
-      if (!hasSearch && nearbyDoctors.length) {
+      const cacheCityMatches = !effectiveCityId || effectiveCityId === city?.id;
+      if (!hasSearch && nearbyDoctors.length && cacheCityMatches) {
         setList(nearbyDoctors);
         return;
       }
@@ -86,7 +87,7 @@ export default function Doctors() {
     } finally {
       setLoading(false);
     }
-  }, [searchApi, effectiveCityId, nearbyDoctors]);
+  }, [searchApi, effectiveCityId, nearbyDoctors, city?.id]);
 
   useEffect(() => {
     load();

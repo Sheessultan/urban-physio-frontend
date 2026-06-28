@@ -6,6 +6,7 @@ import FaIcon from '../components/FaIcon';
 import DoctorAvatar from '../components/DoctorAvatar';
 import ClinicLogo from '../components/ClinicLogo';
 import DoctorProfileBanner from '../components/doctor/DoctorProfileBanner';
+import DoctorCredentialsSection from '../components/doctor/DoctorCredentialsSection';
 import BadgeList from '../components/platform/BadgeList';
 import ReviewStars from '../components/platform/ReviewStars';
 import PageMeta, { doctorSchema } from '../components/seo/PageMeta';
@@ -24,6 +25,10 @@ import {
   formatAvailabilitySummary,
 } from '../utils/profileUrls';
 import { isValidHttpUrl, SOCIAL_FIELDS } from '../utils/clinicProfileUtils';
+import ProfileSectionNav, { scrollToProfileSection } from '../components/profile/ProfileSectionNav';
+import ProfileServicesGrid from '../components/profile/ProfileServicesGrid';
+import { HEALTHCARE_IMAGES } from '../utils/healthcareImages';
+import { resolveMediaUrl } from '../utils/mediaUrl';
 
 const SERVICE_META = {
   clinic: { icon: 'fa-hospital', label: 'Clinic visit', feeKey: 'consultation_fee' },
@@ -33,9 +38,9 @@ const SERVICE_META = {
 
 const SERVICE_TYPES = ['clinic', 'online', 'home_visit'];
 
-function Section({ title, icon, children }) {
+function Section({ title, icon, children, id }) {
   return (
-    <section className="glass-card p-4 sm:p-5 md:p-7 border border-white/60 shadow-sm rounded-2xl">
+    <section id={id} className="glass-card p-4 sm:p-5 md:p-7 border border-white/60 shadow-sm rounded-2xl scroll-mt-28">
       <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2.5 mb-3 sm:mb-4">
         <span className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-primary-50 text-primary-600 shrink-0">
           <FaIcon icon={icon} className="text-sm sm:text-base" />
@@ -47,7 +52,7 @@ function Section({ title, icon, children }) {
   );
 }
 
-function StatPill({ label, value, icon, tone = 'primary', compact = false }) {
+function StatPill({ label, value, icon, tone = 'primary', compact = false, onClick }) {
   const valueTone = {
     primary: 'text-primary-800',
     amber: 'text-amber-800',
@@ -60,9 +65,13 @@ function StatPill({ label, value, icon, tone = 'primary', compact = false }) {
   };
   return (
     <div
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
       className={`rounded-xl sm:rounded-2xl border border-slate-200/90 bg-white shadow-md shadow-slate-200/60 h-full ${
         compact ? 'px-3 py-2.5 min-w-[8.75rem] snap-start shrink-0' : 'px-3 py-2.5 sm:px-4 sm:py-3.5'
-      }`}
+      } ${onClick ? 'cursor-pointer hover:border-primary-300 hover:shadow-lg transition' : ''}`}
     >
       <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">{label}</p>
       <p
@@ -173,6 +182,7 @@ export default function DoctorProfilePage() {
   const languages = doctor.languages_list || ['English', 'Hindi'];
   const rating = Number(doctor.rating_avg) || 0;
   const reviewCount = Number(doctor.rating_count) || 0;
+  const scrollToReviews = () => scrollToProfileSection('profile-stories');
   const minFee = doctorMinFee(doctor, enabled);
   const fullName = `Dr. ${doctor.first_name} ${doctor.last_name}`;
   const locationLine = [doctor.address, doctor.city_name, doctor.state_name].filter(Boolean).join(', ');
@@ -256,7 +266,12 @@ export default function DoctorProfilePage() {
             )}
 
             <div className="mt-3 sm:mt-4 flex justify-center md:justify-start">
-              <ReviewStars rating={doctor.rating_avg} count={doctor.rating_count} size="lg" />
+              <ReviewStars
+                rating={doctor.rating_avg}
+                count={doctor.rating_count}
+                size="lg"
+                onClick={scrollToReviews}
+              />
             </div>
 
             <div className="mt-2 sm:mt-3 flex justify-center md:justify-start">
@@ -309,6 +324,7 @@ export default function DoctorProfilePage() {
                 icon={rating > 0 ? 'fa-star' : undefined}
                 tone={rating > 0 ? 'amber' : 'slate'}
                 compact
+                onClick={scrollToReviews}
               />
               <StatPill
                 label="Experience"
@@ -316,7 +332,13 @@ export default function DoctorProfilePage() {
                 icon="fa-briefcase"
                 compact
               />
-              <StatPill label="Reviews" value={formatReviewCount(reviewCount)} icon="fa-comment-dots" compact />
+              <StatPill
+                label="Reviews"
+                value={formatReviewCount(reviewCount)}
+                icon="fa-comment-dots"
+                compact
+                onClick={scrollToReviews}
+              />
               <StatPill
                 label="From"
                 value={minFee != null ? `₹${minFee.toLocaleString('en-IN')}` : '—'}
@@ -331,13 +353,19 @@ export default function DoctorProfilePage() {
                 value={rating > 0 ? `${rating.toFixed(1)} / 5` : 'New'}
                 icon={rating > 0 ? 'fa-star' : undefined}
                 tone={rating > 0 ? 'amber' : 'slate'}
+                onClick={scrollToReviews}
               />
               <StatPill
                 label="Experience"
                 value={Number(doctor.experience_years) > 0 ? `${doctor.experience_years}+ years` : '—'}
                 icon="fa-briefcase"
               />
-              <StatPill label="Patient reviews" value={formatReviewCount(reviewCount)} icon="fa-comment-dots" />
+              <StatPill
+                label="Patient reviews"
+                value={formatReviewCount(reviewCount)}
+                icon="fa-comment-dots"
+                onClick={scrollToReviews}
+              />
               <StatPill
                 label="Starting fee"
                 value={minFee != null ? `₹${minFee.toLocaleString('en-IN')}` : 'On request'}
@@ -350,6 +378,7 @@ export default function DoctorProfilePage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 pt-4 sm:pt-6 pb-24 sm:pb-8 md:pb-10 space-y-4 sm:space-y-6">
+        <div id="profile-services" className="scroll-mt-28 space-y-4 sm:space-y-6">
         <div className="grid md:grid-cols-3 gap-3 sm:gap-4">
           {SERVICE_TYPES.map((type) => {
             const meta = SERVICE_META[type];
@@ -385,6 +414,8 @@ export default function DoctorProfilePage() {
             );
           })}
         </div>
+
+        <ProfileSectionNav accent="primary" />
 
         {(adminPackages.length > 0 || doctorPackages.length > 0) && (
           <Section title="Treatment packages" icon="fa-box-open">
@@ -450,20 +481,19 @@ export default function DoctorProfilePage() {
           </Section>
         )}
 
+        </div>
+
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
           <div className="lg:col-span-2 space-y-4 sm:space-y-6 order-2 lg:order-1">
-            <Section title="About the doctor" icon="fa-user-doctor">
+            <Section title="About the doctor" icon="fa-user-doctor" id="profile-overview">
               <p className="text-slate-600 leading-relaxed whitespace-pre-line">
                 {doctor.bio ||
                   'Experienced physiotherapist dedicated to helping patients recover faster with evidence-based care.'}
               </p>
-              {doctor.qualifications && (
-                <p className="mt-4 text-sm">
-                  <span className="font-semibold text-slate-800">Qualifications: </span>
-                  <span className="text-slate-600">{doctor.qualifications}</span>
-                </p>
-              )}
-              <p className="mt-2 text-sm text-slate-600">
+              <div className="mt-5">
+                <DoctorCredentialsSection doctor={doctor} />
+              </div>
+              <p className="mt-4 text-sm text-slate-600">
                 <span className="font-semibold text-slate-800">Languages: </span>
                 {languages.join(', ')}
               </p>
@@ -493,6 +523,12 @@ export default function DoctorProfilePage() {
               </div>
             </Section>
 
+            {doctor.profile_services?.length > 0 && (
+              <Section title="Services & treatments" icon="fa-spa">
+                <ProfileServicesGrid services={doctor.profile_services} variant="doctor" />
+              </Section>
+            )}
+
             {doctor.clinics?.length > 0 && (
               <Section title="Available clinics" icon="fa-hospital">
                 <div className="grid gap-2.5 sm:gap-3 sm:grid-cols-2">
@@ -519,7 +555,28 @@ export default function DoctorProfilePage() {
               </Section>
             )}
 
-            <Section title="Patient feedback" icon="fa-star">
+            <Section title="Photos & videos" icon="fa-images" id="profile-media">
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div className="rounded-2xl overflow-hidden border border-slate-100 aspect-[4/3]">
+                  <img
+                    src={resolveMediaUrl(doctor.avatar) || HEALTHCARE_IMAGES.doctorProfile}
+                    alt={fullName}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="rounded-2xl overflow-hidden border border-slate-100 aspect-[4/3]">
+                  <img
+                    src={HEALTHCARE_IMAGES.rehab}
+                    alt="Physiotherapy session"
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </Section>
+
+            <Section title="Patient feedback" icon="fa-star" id="profile-stories">
               {doctor.reviews?.length > 0 ? (
                 <div className="space-y-3 mb-4">
                   {doctor.reviews.map((r) => (

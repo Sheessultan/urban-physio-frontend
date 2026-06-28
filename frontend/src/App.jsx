@@ -64,6 +64,7 @@ import AdminExercises from './pages/admin/AdminExercises';
 import PatientPackages from './pages/patient/PatientPackages';
 import PatientSaved from './pages/patient/PatientSaved';
 import DoctorPackages from './pages/doctor/DoctorPackages';
+import DoctorTreatmentServices from './pages/doctor/DoctorTreatmentServices';
 import DoctorServicePackages from './pages/doctor/DoctorServicePackages';
 import DoctorAdminPackagePrices from './pages/doctor/DoctorAdminPackagePrices';
 import DoctorPrescriptions from './pages/doctor/DoctorPrescriptions';
@@ -80,6 +81,9 @@ import AdminAnalytics from './pages/admin/AdminAnalytics';
 import { ADMIN_NAV } from './constants/adminNav';
 import { DOCTOR_NAV } from './constants/doctorNav';
 import { PATIENT_NAV } from './constants/patientNav';
+import CitySeoListingPage from './pages/CitySeoListingPage';
+import AuthLoginPage from './pages/auth/AuthLoginPage';
+import AuthRegisterPage from './pages/auth/AuthRegisterPage';
 import ScrollToTop from './components/ScrollToTop';
 
 export default function App() {
@@ -90,11 +94,19 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/patient/login" element={<AuthLoginPage portalId="patient" />} />
+      <Route path="/patient/register" element={<AuthRegisterPage portalId="patient" />} />
+      <Route path="/doctor/login" element={<AuthLoginPage portalId="doctor" />} />
+      <Route path="/doctor/register" element={<AuthRegisterPage portalId="doctor" />} />
+      <Route path="/provider/login" element={<AuthLoginPage portalId="provider" />} />
+      <Route path="/provider/register" element={<AuthRegisterPage portalId="provider" />} />
       <Route path="/verify-otp" element={<VerifyOtp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/doctors" element={<Doctors />} />
       <Route path="/clinics" element={<Clinics />} />
+      <Route path="/best-physiotherapy-clinic-in/:citySlug" element={<CitySeoListingPage type="clinics" />} />
+      <Route path="/best-physiotherapist-in/:citySlug" element={<CitySeoListingPage type="doctors" />} />
       <Route
         path="/book"
         element={
@@ -122,6 +134,7 @@ export default function App() {
       <Route path="/doctors/:id" element={<DoctorDetail />} />
       <Route path="/doctor/:slug" element={<DoctorProfilePage />} />
       <Route path="/clinic/:slug" element={<ClinicProfilePage />} />
+      <Route path="/clinic/id/:id" element={<ClinicProfilePage />} />
       <Route path="/treatments" element={<Treatments />} />
       <Route path="/treatments/:slug" element={<TreatmentDetail />} />
       <Route path="/conditions" element={<Conditions />} />
@@ -142,6 +155,10 @@ export default function App() {
 
       <Route path="/privacy-policy" element={<PolicyPage />} />
       <Route path="/terms-and-conditions" element={<PolicyPage />} />
+      <Route path="/medico-legal-terms" element={<PolicyPage />} />
+      <Route path="/patient-registration-terms" element={<PolicyPage />} />
+      <Route path="/doctor-registration-terms" element={<PolicyPage />} />
+      <Route path="/clinic-registration-terms" element={<PolicyPage />} />
       <Route path="/refund-policy" element={<PolicyPage />} />
       <Route path="/medical-disclaimer" element={<PolicyPage />} />
       <Route path="/data-security" element={<PolicyPage />} />
@@ -174,6 +191,7 @@ export default function App() {
       <Route path="/doctor/booking-filters" element={<ProtectedRoute roles={['doctor']}><DoctorBookingFilters /></ProtectedRoute>} />
       <Route path="/doctor/custom-slots" element={<ProtectedRoute roles={['doctor']}><DoctorCustomSlots /></ProtectedRoute>} />
       <Route path="/doctor/packages" element={<ProtectedRoute roles={['doctor']}><DoctorPackages /></ProtectedRoute>} />
+      <Route path="/doctor/treatment-services" element={<ProtectedRoute roles={['doctor']}><DoctorTreatmentServices /></ProtectedRoute>} />
       <Route path="/doctor/service-packages" element={<ProtectedRoute roles={['doctor']}><DoctorServicePackages /></ProtectedRoute>} />
       <Route path="/doctor/admin-package-prices" element={<ProtectedRoute roles={['doctor']}><DoctorAdminPackagePrices /></ProtectedRoute>} />
       <Route path="/doctor/prescriptions" element={<ProtectedRoute roles={['doctor']}><DoctorPrescriptions /></ProtectedRoute>} />

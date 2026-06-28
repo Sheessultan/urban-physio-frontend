@@ -17,11 +17,12 @@ import GlobalSearch from '../components/GlobalSearch';
 import { useLocation } from '../contexts/LocationContext';
 import { treatments, conditions, home } from '../services/api';
 import { SITE_FAQS } from '../constants/supportPages';
+import { HEALTHCARE_IMAGES, SERVICE_CARD_IMAGES } from '../utils/healthcareImages';
 
 const SERVICES = [
-  { title: 'Online Consultation', desc: 'HD video sessions via Jitsi Meet from your home', icon: 'fa-video', color: 'from-orange-400/20 to-amber-400/20', iconColor: 'text-orange-600', link: '/book?type=online', linkLabel: 'Book' },
-  { title: 'Clinic Visit', desc: 'Premium partner clinics with modern equipment', icon: 'fa-hospital', color: 'from-emerald-400/20 to-teal-400/20', iconColor: 'text-emerald-600', link: '/clinics', linkLabel: 'Find Clinic' },
-  { title: 'Home Visit', desc: 'Licensed physiotherapist at your doorstep', icon: 'fa-house-medical', color: 'from-amber-400/20 to-orange-400/20', iconColor: 'text-orange-600', link: '/book?type=home_visit', linkLabel: 'Book' },
+  { title: 'Online Consultation', desc: 'HD video sessions via Jitsi Meet from your home', icon: 'fa-video', color: 'from-orange-400/20 to-amber-400/20', iconColor: 'text-orange-600', link: '/book?type=online', linkLabel: 'Book', image: SERVICE_CARD_IMAGES['Online Consultation'] },
+  { title: 'Clinic Visit', desc: 'Premium partner clinics with modern equipment', icon: 'fa-hospital', color: 'from-emerald-400/20 to-teal-400/20', iconColor: 'text-emerald-600', link: '/clinics', linkLabel: 'Find Clinic', image: SERVICE_CARD_IMAGES['Clinic Visit'] },
+  { title: 'Home Visit', desc: 'Licensed physiotherapist at your doorstep', icon: 'fa-house-medical', color: 'from-amber-400/20 to-orange-400/20', iconColor: 'text-orange-600', link: '/book?type=home_visit', linkLabel: 'Book', image: SERVICE_CARD_IMAGES['Home Visit'] },
 ];
 
 const STEPS = [
@@ -63,7 +64,8 @@ const TESTIMONIALS = [
 
 const HOME_FAQS = SITE_FAQS.slice(0, 6);
 
-const HERO_IMG = `${import.meta.env.BASE_URL}hero-illustration.svg`;
+const HERO_IMG = HEALTHCARE_IMAGES.hero;
+const HERO_IMG_FALLBACK = `${import.meta.env.BASE_URL}hero-illustration.svg`;
 const HERO_PATTERN =
   "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/svg%3E\")";
 
@@ -82,6 +84,7 @@ export default function Home() {
   const [treatmentList, setTreatmentList] = useState([]);
   const [conditionList, setConditionList] = useState([]);
   const [heroImgOk, setHeroImgOk] = useState(true);
+  const [heroImgSrc, setHeroImgSrc] = useState(HERO_IMG);
   const [hero, setHero] = useState(HERO_DEFAULTS);
   const [promoBanner, setPromoBanner] = useState({ enabled: false, slides: [] });
   const areaName = locationLabel || city?.name;
@@ -199,10 +202,13 @@ export default function Home() {
               {heroImgOk && (
                 <div className="md:hidden mt-6 flex justify-center">
                   <img
-                    src={HERO_IMG}
-                    alt=""
-                    className="max-h-40 w-auto object-contain drop-shadow-2xl"
-                    onError={() => setHeroImgOk(false)}
+                    src={heroImgSrc}
+                    alt="Professional physiotherapy care"
+                    className="max-h-44 w-full max-w-sm object-cover rounded-2xl shadow-2xl"
+                    onError={() => {
+                      if (heroImgSrc !== HERO_IMG_FALLBACK) setHeroImgSrc(HERO_IMG_FALLBACK);
+                      else setHeroImgOk(false);
+                    }}
                   />
                 </div>
               )}
@@ -237,10 +243,13 @@ export default function Home() {
                 <div className="absolute -inset-6 bg-white/10 rounded-full blur-3xl" />
                 {heroImgOk ? (
                   <img
-                    src={HERO_IMG}
-                    alt="Physiotherapy care illustration"
-                    className="relative w-full max-w-md lg:max-w-lg max-h-[500px] object-contain drop-shadow-2xl animate-float"
-                    onError={() => setHeroImgOk(false)}
+                    src={heroImgSrc}
+                    alt="Professional physiotherapy care"
+                    className="relative w-full max-w-md lg:max-w-lg max-h-[500px] object-cover rounded-3xl shadow-2xl animate-float"
+                    onError={() => {
+                      if (heroImgSrc !== HERO_IMG_FALLBACK) setHeroImgSrc(HERO_IMG_FALLBACK);
+                      else setHeroImgOk(false);
+                    }}
                   />
                 ) : (
                 <div className="glass-hero-panel p-8 relative w-full max-w-md">
@@ -295,7 +304,11 @@ export default function Home() {
         </div>
         <div className="mobile-scroll-x md:grid md:grid-cols-3 md:gap-8 stagger-children">
           {SERVICES.map((f) => (
-            <div key={f.title} className={`mobile-scroll-item glass-card text-center bg-gradient-to-br ${f.color} p-4 md:p-6`}>
+            <div key={f.title} className={`mobile-scroll-item glass-card overflow-hidden bg-gradient-to-br ${f.color} p-0`}>
+              <div className="h-32 sm:h-36 overflow-hidden">
+                <img src={f.image} alt={f.title} className="w-full h-full object-cover" loading="lazy" />
+              </div>
+              <div className="p-4 md:p-6 text-center">
               <div className={`w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 rounded-xl bg-white/60 flex items-center justify-center ${f.iconColor}`}>
                 <FaIcon icon={f.icon} className="text-2xl md:text-3xl" />
               </div>
@@ -304,6 +317,7 @@ export default function Home() {
               <Link to={f.link || '/book'} className="inline-flex items-center gap-1 mt-3 text-primary-600 font-semibold text-sm">
                 {f.linkLabel || 'Book'} <FaIcon icon="fa-arrow-right" className="text-xs" />
               </Link>
+              </div>
             </div>
           ))}
         </div>

@@ -11,6 +11,7 @@ import { googleMapsUrl } from '../../utils/locationHelpers';
 import { DOCTOR_NAV } from '../../constants/doctorNav';
 import { useAuth } from '../../contexts/AuthContext';
 import { ClinicSocialLinksFields } from '../../components/clinic/ClinicProfileFormSections';
+import DoctorProfessionalFields from '../../components/doctor/DoctorProfessionalFields';
 import { normalizeSocialLinks } from '../../utils/clinicProfileUtils';
 import toast from 'react-hot-toast';
 
@@ -50,6 +51,10 @@ const emptyForm = () => ({
   profile_public: 1,
   seo_title: '',
   seo_description: '',
+  degree_bpt: '',
+  degree_mpt: '',
+  certifications: [],
+  experience_timeline: [],
 });
 
 function profileToForm(p) {
@@ -82,6 +87,18 @@ function profileToForm(p) {
     profile_public: p.profile_public != null ? Number(p.profile_public) : 1,
     seo_title: p.seo_title || '',
     seo_description: p.seo_description || '',
+    degree_bpt: p.degree_bpt || '',
+    degree_mpt: p.degree_mpt || '',
+    certifications: p.certifications_list?.length
+      ? [...p.certifications_list]
+      : Array.isArray(p.certifications)
+        ? p.certifications
+        : [],
+    experience_timeline: p.experience_timeline_list?.length
+      ? p.experience_timeline_list.map((e) => ({ ...e }))
+      : Array.isArray(p.experience_timeline)
+        ? p.experience_timeline
+        : [],
   };
 }
 
@@ -208,6 +225,15 @@ export default function DoctorProfile() {
         profile_public: form.profile_public ? 1 : 0,
         seo_title: form.seo_title.trim(),
         seo_description: form.seo_description.trim(),
+        degree_bpt: form.degree_bpt.trim(),
+        degree_mpt: form.degree_mpt.trim(),
+        certifications: (form.certifications || []).map((c) => c.trim()).filter(Boolean),
+        experience_timeline: (form.experience_timeline || [])
+          .map((e) => ({
+            duration: (e.duration || '').trim(),
+            organization: (e.organization || '').trim(),
+          }))
+          .filter((e) => e.duration || e.organization),
       },
       'Professional details saved'
     );
@@ -483,6 +509,7 @@ export default function DoctorProfile() {
               onChange={(e) => set('bio', e.target.value)}
             />
           </div>
+          <DoctorProfessionalFields form={form} set={set} setForm={setForm} />
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Social media links</label>
             <ClinicSocialLinksFields

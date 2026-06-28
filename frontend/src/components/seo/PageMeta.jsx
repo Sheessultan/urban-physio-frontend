@@ -141,3 +141,84 @@ export function clinicSchema(clinic, canonicalUrl) {
         : undefined,
   };
 }
+
+export function breadcrumbSchema(items, canonicalUrl) {
+  if (!items?.length) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.label,
+      item: item.href ? (item.href.startsWith('http') ? item.href : `${window.location.origin}${item.href}`) : undefined,
+    })),
+  };
+}
+
+/** @param {'clinics'|'doctors'} type */
+export function cityListingSchema({ city, type, items, canonicalUrl }) {
+  const isClinics = type === 'clinics';
+  const seo = city?.seo?.[type] || {};
+  const place = city?.location_label || city?.name || 'India';
+
+  const listItems = (items || []).slice(0, 20).map((item, index) => {
+    if (isClinics) {
+      const url = item.slug
+        ? `${window.location.origin}/clinic/${item.slug}`
+        : `${window.location.origin}/clinic/id/${item.id}`;
+      return {
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.name,
+        url,
+      };
+    }
+    const name = `Dr. ${item.first_name || ''} ${item.last_name || ''}`.trim();
+    const url = item.slug
+      ? `${window.location.origin}/doctor/${item.slug}`
+      : `${window.location.origin}/doctors/${item.id}`;
+    return {
+      '@type': 'ListItem',
+      position: index + 1,
+      name,
+      url,
+    };
+  });
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebPage',
+        name: seo.h1 || seo.title,
+        description: seo.description,
+        url: canonicalUrl,
+        inLanguage: 'en-IN',
+        isPartOf: {
+          '@type': 'WebSite',
+          name: 'The Urban Physio',
+          url: window.location.origin,
+        },
+        about: {
+          '@type': 'Place',
+          name: place,
+          address: {
+            '@type': 'PostalAddress',
+            addressLocality: city?.name,
+            addressRegion: city?.state_name,
+            addressCountry: 'IN',
+          },
+        },
+      },
+      {
+        '@type': 'ItemList',
+        name: isClinics
+          ? `Physiotherapy clinics in ${city?.name || 'city'}`
+          : `Physiotherapists in ${city?.name || 'city'}`,
+        numberOfItems: items?.length || 0,
+        itemListElement: listItems,
+      },
+    ],
+  };
+}

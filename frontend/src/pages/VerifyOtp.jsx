@@ -18,6 +18,14 @@ export default function VerifyOtp() {
   const navigate = useNavigate();
   const inputsRef = useRef([]);
 
+  const portalId = location.state?.portalId;
+  const registerBack =
+    portalId === 'doctor'
+      ? '/doctor/register'
+      : portalId === 'provider'
+        ? '/provider/register'
+        : '/patient/register';
+
   useEffect(() => {
     if (!email) {
       navigate('/register', { replace: true });

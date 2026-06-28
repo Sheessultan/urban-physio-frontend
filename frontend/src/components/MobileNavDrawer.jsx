@@ -4,6 +4,7 @@ import FaIcon from './FaIcon';
 import { hapticClose, hapticOpen } from '../utils/haptics';
 
 const EXPLORE_LINKS = [
+  { to: '/search', label: 'Search', icon: 'fa-magnifying-glass' },
   { to: '/', label: 'Home', icon: 'fa-house' },
   { to: '/doctors', label: 'Find Physiotherapists', icon: 'fa-user-doctor' },
   { to: '/clinics', label: 'Find Clinic', icon: 'fa-hospital', tone: 'emerald' },
@@ -21,8 +22,9 @@ const HELP_LINKS = [
 ];
 
 const PROVIDER_LINKS = [
-  { to: '/register?role=doctor', label: 'Join as a Physiotherapist', icon: 'fa-user-plus' },
-  { to: '/register?role=doctor', label: 'Join as a Clinic Partner', icon: 'fa-building' },
+  { to: '/doctor/register', label: 'Join as a Physiotherapist', icon: 'fa-user-doctor' },
+  { to: '/provider/register', label: 'Join as a Clinic Partner', icon: 'fa-building' },
+  { to: '/provider/login', label: 'Clinic partner login', icon: 'fa-right-to-bracket' },
   { to: '/contact', label: 'Provider Support', icon: 'fa-headset' },
 ];
 
@@ -130,7 +132,7 @@ export default function MobileNavDrawer({
     }
   }
 
-  const providerDashboardTo = user && hasRole('doctor', 'admin', 'super_admin') ? dashboardPath() : '/login?role=doctor';
+  const providerDashboardTo = user && hasRole('doctor', 'admin', 'super_admin') ? dashboardPath() : '/provider/login';
   const providerDashboardLabel =
     user && hasRole('doctor') ? 'Provider Dashboard' : user && hasRole('admin', 'super_admin') ? 'Admin Dashboard' : 'Provider Login';
 
@@ -176,8 +178,8 @@ export default function MobileNavDrawer({
             )
           ) : (
             <NavSection title="My account">
-              <NavItem to="/login?role=patient" label="Login" icon="fa-right-to-bracket" pathname={pathname} search={search} onNavigate={onClose} />
-              <NavItem to="/register?role=patient" label="Register" icon="fa-user-plus" pathname={pathname} search={search} onNavigate={onClose} />
+              <NavItem to="/patient/login" label="Patient login" icon="fa-right-to-bracket" pathname={pathname} search={search} onNavigate={onClose} />
+              <NavItem to="/patient/register" label="Patient register" icon="fa-user-plus" pathname={pathname} search={search} onNavigate={onClose} />
             </NavSection>
           )}
 
@@ -260,7 +262,7 @@ export default function MobileNavDrawer({
               Logout
             </button>
           ) : (
-            <Link to="/login?role=patient" className="btn-outline w-full text-center block text-sm" onClick={onClose}>
+            <Link to="/patient/login" className="btn-outline w-full text-center block text-sm" onClick={onClose}>
               Login
             </Link>
           )}

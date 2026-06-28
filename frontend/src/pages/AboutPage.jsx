@@ -5,6 +5,7 @@ import FaIcon from '../components/FaIcon';
 import { about } from '../services/api';
 import { resolveMediaUrl } from '../utils/mediaUrl';
 import { cmsContentToHtml } from '../utils/htmlContent';
+import { HEALTHCARE_IMAGES } from '../utils/healthcareImages';
 
 export default function AboutPage() {
   const [data, setData] = useState(null);
@@ -31,7 +32,7 @@ export default function AboutPage() {
   }
 
   const sections = data?.sections || {};
-  const heroImage = resolveMediaUrl(data?.hero_image) || data?.hero_image;
+  const heroImage = resolveMediaUrl(data?.hero_image) || data?.hero_image || HEALTHCARE_IMAGES.about;
 
   return (
     <InfoPageLayout
@@ -53,7 +54,7 @@ export default function AboutPage() {
     >
       {heroImage && (
         <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-lg mb-10 -mt-4 aspect-[21/7] max-h-56 sm:max-h-72">
-          <img src={heroImage} alt="" className="w-full h-full object-cover" />
+          <img src={heroImage} alt="The Urban Physio team" className="w-full h-full object-cover" />
         </div>
       )}
 

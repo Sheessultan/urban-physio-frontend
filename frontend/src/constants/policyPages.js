@@ -5,6 +5,10 @@ export const POLICY_LAST_UPDATED = '23 May 2026';
 export const ALL_POLICIES = [
   { key: 'privacy', path: '/privacy-policy', label: 'Privacy Policy', icon: 'fa-shield-halved' },
   { key: 'terms', path: '/terms-and-conditions', label: 'Terms & Conditions', icon: 'fa-file-contract' },
+  { key: 'medico-legal', path: '/medico-legal-terms', label: 'Medico-Legal Terms', icon: 'fa-scale-balanced' },
+  { key: 'patient-registration', path: '/patient-registration-terms', label: 'Patient Registration Terms', icon: 'fa-user' },
+  { key: 'doctor-registration', path: '/doctor-registration-terms', label: 'Doctor Registration Terms', icon: 'fa-user-doctor' },
+  { key: 'clinic-registration', path: '/clinic-registration-terms', label: 'Clinic Registration Terms', icon: 'fa-hospital' },
   { key: 'refund', path: '/refund-policy', label: 'Refund & Cancellation', icon: 'fa-rotate-left' },
   { key: 'medical', path: '/medical-disclaimer', label: 'Medical Disclaimer', icon: 'fa-heart-pulse' },
   { key: 'data-security', path: '/data-security', label: 'Data Security', icon: 'fa-lock' },
@@ -430,6 +434,192 @@ export const POLICY_PAGES = {
         title: '4. Updates',
         paragraphs: [
           'We may update this Cookie Policy periodically. The "Last updated" date at the top reflects the latest revision.',
+        ],
+      },
+    ],
+  },
+
+  medicoLegal: {
+    key: 'medico-legal',
+    path: '/medico-legal-terms',
+    title: 'Medico-Legal Terms',
+    subtitle: 'Professional, clinical, and legal obligations for healthcare providers on The Urban Physio.',
+    icon: 'fa-scale-balanced',
+    accent: 'from-slate-700 to-slate-900',
+    sections: [
+      {
+        id: 'scope',
+        title: '1. Scope & Applicability',
+        paragraphs: [
+          'These Medico-Legal Terms apply to physiotherapists, clinic partners, and other licensed healthcare providers ("Providers") who register or practise on The Urban Physio platform in India.',
+          'By registering as a doctor or clinic partner, you confirm you have authority to bind yourself and, where applicable, your clinic to these terms.',
+        ],
+      },
+      {
+        id: 'licensure',
+        title: '2. Licensure & Professional Standards',
+        bullets: [
+          'You must hold valid registration with the relevant State Council / licensing body for physiotherapy in India',
+          'You will practise within your scope of training and applicable clinical guidelines',
+          'You must maintain professional indemnity cover where required by law or your council',
+          'You will not misrepresent qualifications, experience, or clinic facilities',
+        ],
+      },
+      {
+        id: 'clinical-duty',
+        title: '3. Clinical Duty of Care',
+        paragraphs: [
+          'Treatment decisions remain solely yours. The Urban Physio is a technology platform and does not direct clinical care, diagnosis, or treatment plans.',
+          'You must obtain informed consent, maintain appropriate records, and refer patients when care exceeds your competence or licence.',
+        ],
+      },
+      {
+        id: 'data',
+        title: '4. Patient Data & Confidentiality',
+        bullets: [
+          'Patient health information must be handled per applicable law, including the Digital Personal Data Protection Act, 2023 and professional ethics',
+          'Access patient data only for legitimate treatment, billing, or legal purposes',
+          'Report data breaches affecting patients without undue delay',
+        ],
+      },
+      {
+        id: 'liability',
+        title: '5. Liability & Indemnity',
+        paragraphs: [
+          'You are independently responsible for clinical outcomes, negligence claims, and regulatory compliance arising from your practice.',
+          'You agree to indemnify The Urban Physio against claims arising from your clinical acts, omissions, or misrepresentation of credentials, except where liability cannot be limited under applicable law.',
+        ],
+      },
+      {
+        id: 'platform',
+        title: '6. Platform Rules',
+        bullets: [
+          'Fees, availability, and profile information must be accurate',
+          'No off-platform solicitation that circumvents patient safety or payment protections where prohibited',
+          'Cooperate with verification, audit, and complaint-resolution processes',
+        ],
+      },
+    ],
+  },
+
+  patientRegistration: {
+    key: 'patient-registration',
+    path: '/patient-registration-terms',
+    title: 'Patient Registration Terms',
+    subtitle: 'Terms specific to creating a patient account on The Urban Physio.',
+    icon: 'fa-user',
+    accent: 'from-primary-600 to-orange-600',
+    sections: [
+      {
+        id: 'eligibility',
+        title: '1. Who May Register',
+        paragraphs: [
+          'Patient accounts are for individuals seeking physiotherapy services. If you are a physiotherapist or clinic representative, you must use the doctor or clinic partner registration pages instead.',
+        ],
+      },
+      {
+        id: 'accuracy',
+        title: '2. Accurate Information',
+        bullets: [
+          'Provide truthful name, contact, and health-related booking information',
+          'Keep your login credentials secure',
+          'Notify us of unauthorised account use',
+        ],
+      },
+      {
+        id: 'booking',
+        title: '3. Bookings & Payments',
+        paragraphs: [
+          'Appointments are subject to provider availability and our Refund & Cancellation Policy. Online consultations require a suitable device and internet connection.',
+        ],
+      },
+      {
+        id: 'health',
+        title: '4. Not Emergency Care',
+        paragraphs: [
+          'The platform is not for medical emergencies. Call local emergency services or visit the nearest hospital in urgent situations.',
+        ],
+      },
+    ],
+  },
+
+  doctorRegistration: {
+    key: 'doctor-registration',
+    path: '/doctor-registration-terms',
+    title: 'Doctor Registration Terms',
+    subtitle: 'Terms for physiotherapists registering as independent practitioners.',
+    icon: 'fa-user-doctor',
+    accent: 'from-violet-600 to-indigo-700',
+    sections: [
+      {
+        id: 'eligibility',
+        title: '1. Provider Eligibility',
+        paragraphs: [
+          'Doctor registration is only for licensed physiotherapists. You must not register as a patient if you intend to practise as a provider.',
+        ],
+      },
+      {
+        id: 'verification',
+        title: '2. Verification',
+        bullets: [
+          'Profiles may remain hidden until Urban Physio verifies your credentials',
+          'You agree to submit licence/registration proof when requested',
+          'False credentials may result in immediate suspension',
+        ],
+      },
+      {
+        id: 'fees',
+        title: '3. Fees & Payouts',
+        paragraphs: [
+          'You set consultation fees displayed on your profile. Platform commissions, taxes, and payout schedules are described in the Service Policy and your provider agreement.',
+        ],
+      },
+      {
+        id: 'medico',
+        title: '4. Medico-Legal Compliance',
+        paragraphs: [
+          'You also accept our Medico-Legal Terms, which govern clinical practice, patient confidentiality, and professional liability on the platform.',
+        ],
+      },
+    ],
+  },
+
+  clinicRegistration: {
+    key: 'clinic-registration',
+    path: '/clinic-registration-terms',
+    title: 'Clinic Registration Terms',
+    subtitle: 'Terms for physiotherapy clinics and rehabilitation centres joining as partners.',
+    icon: 'fa-hospital',
+    accent: 'from-emerald-600 to-teal-700',
+    sections: [
+      {
+        id: 'eligibility',
+        title: '1. Clinic Partner Eligibility',
+        paragraphs: [
+          'Clinic registration is for authorised representatives of physiotherapy clinics or rehabilitation centres. You confirm you have authority to register the clinic and bind it to these terms.',
+        ],
+      },
+      {
+        id: 'listing',
+        title: '2. Clinic Listing & Accuracy',
+        bullets: [
+          'Clinic name, address, photos, and services must be accurate and not misleading',
+          'Only list doctors who are employed or affiliated and have consented to appear',
+          'Maintain valid registrations for the clinical establishment where required',
+        ],
+      },
+      {
+        id: 'operations',
+        title: '3. Operations & Appointments',
+        paragraphs: [
+          'You are responsible for honouring confirmed bookings, hygiene standards, and patient safety at the premises. Urban Physio facilitates bookings but does not operate your clinic.',
+        ],
+      },
+      {
+        id: 'medico',
+        title: '4. Medico-Legal & Staff',
+        paragraphs: [
+          'Clinic partners accept the Medico-Legal Terms and ensure affiliated physiotherapists comply with professional and data-protection obligations.',
         ],
       },
     ],

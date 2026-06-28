@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLocation as useLocationContext } from '../contexts/LocationContext';
 import FaIcon from './FaIcon';
 import Logo from './Logo';
-import GlobalSearch from './GlobalSearch';
 import MobileNavDrawer from './MobileNavDrawer';
 
 const PRIMARY_NAV_LINKS = [
@@ -14,7 +13,6 @@ const PRIMARY_NAV_LINKS = [
 ];
 
 const MORE_NAV_LINKS = [
-  { to: '/book', label: 'Book Appointment', icon: 'fa-calendar-plus' },
   { to: '/patient/saved', label: 'Saved', icon: 'fa-heart', patientOnly: true },
   { to: '/about', label: 'About Us', icon: 'fa-building' },
   { to: '/book?type=home_visit', label: 'Home Physiotherapy', icon: 'fa-house-medical' },
@@ -26,7 +24,8 @@ const MORE_NAV_LINKS = [
   { to: '/faq', label: 'FAQ', icon: 'fa-circle-question' },
   { to: '/contact', label: 'Contact Us', icon: 'fa-envelope' },
   { to: '/cancellation-help', label: 'Cancellation Help', icon: 'fa-calendar-xmark' },
-  { to: '/register?role=doctor', label: 'Join as Provider', icon: 'fa-user-plus' },
+  { to: '/provider/register', label: 'Join as Clinic Partner', icon: 'fa-building' },
+  { to: '/doctor/register', label: 'Join as Physiotherapist', icon: 'fa-user-doctor' },
 ];
 
 /**
@@ -190,12 +189,15 @@ export default function Navbar({ beforeLogo = null, headerSpacerClass = '' }) {
               </div>
             </nav>
 
-            <div className="hidden xl:flex flex-1 max-w-[280px] min-w-0 justify-center px-4 lg:px-6 mx-auto">
-              <GlobalSearch variant="header" onNavigate={() => setMobileOpen(false)} />
-            </div>
-
-            {/* Right actions */}
             <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
+              <Link
+                to="/search"
+                className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 bg-white/80 text-slate-700 hover:text-primary-600 hover:border-primary-300 hover:bg-primary-50/50 transition shrink-0"
+                aria-label="Open search"
+                title="Search"
+              >
+                <FaIcon icon="fa-magnifying-glass" className="text-sm sm:text-base" />
+              </Link>
               {city && (
                 <button
                   type="button"

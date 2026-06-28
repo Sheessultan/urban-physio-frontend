@@ -3,6 +3,7 @@ export const DOCTOR_NAV = [
   { to: '/doctor/appointments', label: 'Appointments', icon: 'fa-calendar-check' },
   { to: '/doctor/patients', label: 'Patients', icon: 'fa-users' },
   { to: '/doctor/packages', label: 'Enrollments', icon: 'fa-user-plus' },
+  { to: '/doctor/treatment-services', label: 'Services & treatments', icon: 'fa-hand-holding-medical' },
   { to: '/doctor/service-packages', label: 'My packages', icon: 'fa-box-open' },
   { to: '/doctor/admin-package-prices', label: 'Platform prices', icon: 'fa-tags' },
   { to: '/doctor/prescriptions', label: 'Prescriptions', icon: 'fa-file-prescription' },

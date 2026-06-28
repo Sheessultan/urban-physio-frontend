@@ -79,7 +79,8 @@ export default function Clinics() {
     setLoading(true);
     try {
       const hasSearch = Boolean(searchApi.trim());
-      if (!hasSearch && nearbyClinics.length) {
+      const cacheCityMatches = !effectiveCityId || effectiveCityId === city?.id;
+      if (!hasSearch && nearbyClinics.length && cacheCityMatches) {
         setList(nearbyClinics);
         return;
       }
@@ -93,7 +94,7 @@ export default function Clinics() {
     } finally {
       setLoading(false);
     }
-  }, [searchApi, effectiveCityId, nearbyClinics]);
+  }, [searchApi, effectiveCityId, nearbyClinics, city?.id]);
 
   useEffect(() => {
     load();

@@ -9,6 +9,7 @@ import { search } from '../services/api';
 import { useLocation } from '../contexts/LocationContext';
 import { localSearchMatches, mergeSearchResults, QUICK_SEARCH_TAGS } from '../utils/searchCatalog';
 import { doctorProfileUrl, clinicProfileUrl } from '../utils/profileUrls';
+import { addRecentSearch } from '../utils/searchHistory';
 
 const QUICK_TAGS = QUICK_SEARCH_TAGS;
 
@@ -332,6 +333,7 @@ export default function GlobalSearch({
       goTo(flatItems[activeIndex].to);
       return;
     }
+    addRecentSearch(term);
     goTo(`/search?q=${encodeURIComponent(term)}`);
   };
 

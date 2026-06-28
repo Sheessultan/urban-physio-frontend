@@ -19,6 +19,9 @@ import { formatOpeningHoursRows, getBannerImages, isValidHttpUrl, SOCIAL_FIELDS,
 import { showPartnerClinicBadge } from '../utils/clinicBadges';
 import { googleMapsUrl } from '../utils/locationHelpers';
 import { clinicBookUrl, clinicProfileUrl, doctorProfileUrl, formatOpeningHours } from '../utils/profileUrls';
+import ProfileSectionNav, { scrollToProfileSection } from '../components/profile/ProfileSectionNav';
+import ProfileServicesGrid from '../components/profile/ProfileServicesGrid';
+import { HEALTHCARE_IMAGES } from '../utils/healthcareImages';
 
 function Section({ title, icon, children, accent = 'emerald', id }) {
   const iconTone = accent === 'emerald' ? 'text-emerald-600' : 'text-primary-600';
@@ -40,7 +43,7 @@ function formatPatientsTreated(count) {
   return `${Number(count).toLocaleString('en-IN')}+`;
 }
 
-function StatPill({ label, value, icon, tone = 'emerald', compact = false }) {
+function StatPill({ label, value, icon, tone = 'emerald', compact = false, onClick }) {
   const valueTone = {
     emerald: 'text-emerald-800',
     amber: 'text-amber-800',
@@ -53,9 +56,13 @@ function StatPill({ label, value, icon, tone = 'emerald', compact = false }) {
   };
   return (
     <div
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
       className={`rounded-xl sm:rounded-2xl border border-slate-200/90 bg-white shadow-md shadow-slate-200/60 h-full ${
         compact ? 'px-3 py-2.5 min-w-[8.75rem] snap-start shrink-0' : 'px-3 py-2.5 sm:px-4 sm:py-3.5'
-      }`}
+      } ${onClick ? 'cursor-pointer hover:border-emerald-300 hover:shadow-lg transition' : ''}`}
     >
       <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">{label}</p>
       <p
@@ -79,7 +86,8 @@ function StatPill({ label, value, icon, tone = 'emerald', compact = false }) {
 }
 
 export default function ClinicProfilePage() {
-  const { slug } = useParams();
+  const { slug, id } = useParams();
+  const identifier = id ?? slug;
   const { hasRole } = useAuth();
   const [clinic, setClinic] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -89,7 +97,7 @@ export default function ClinicProfilePage() {
     setLoading(true);
     setNotFound(false);
     clinics
-      .get(slug)
+      .get(identifier)
       .then((res) => setClinic(res?.data ?? res))
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
@@ -97,7 +105,7 @@ export default function ClinicProfilePage() {
 
   useEffect(() => {
     load();
-  }, [slug]);
+  }, [identifier]);
 
   const canonical = clinic?.canonical_path || (slug ? `/clinic/${slug}` : '');
   const canonicalUrl = typeof window !== 'undefined' ? `${window.location.origin}${canonical}` : canonical;
@@ -106,13 +114,16 @@ export default function ClinicProfilePage() {
   const hoursText = formatOpeningHours(clinic?.opening_hours_parsed || clinic?.opening_hours);
   const hoursRows = formatOpeningHoursRows(clinic?.opening_hours_parsed || clinic?.opening_hours);
   const todayHours = todayOpenStatus(clinic?.opening_hours_parsed || clinic?.opening_hours);
-  const services = clinic?.services_list?.length ? clinic.services_list : [];
+  const profileServices = clinic?.profile_services?.length ? clinic.profile_services : [];
+  const legacyServices = clinic?.services_list?.length ? clinic.services_list : [];
+  const hasProfileServices = profileServices.length > 0;
   const facilities = clinic?.facilities_list?.length ? clinic.facilities_list : [];
   const equipment = clinic?.equipment_list?.length ? clinic.equipment_list : [];
   const stats = clinic?.statistics || {};
   const social = clinic?.social_links_parsed || {};
   const doctorCount = stats.doctor_count ?? clinic?.doctors?.length ?? clinic?.doctor_count ?? 0;
   const rating = Number(stats.avg_rating ?? clinic?.rating_avg) || 0;
+  const scrollToReviews = () => scrollToProfileSection('profile-stories');
   const bannerImages = useMemo(() => getBannerImages(clinic), [clinic]);
   const websiteUrl = clinic?.website_url || clinic?.website;
   const activeSocials = SOCIAL_FIELDS.filter(({ key }) => isValidHttpUrl(social[key]));
@@ -228,7 +239,12 @@ export default function ClinicProfilePage() {
               </p>
 
               <div className="mt-3 sm:mt-4 flex justify-center md:justify-start">
-                <ReviewStars rating={clinic.rating_avg} count={clinic.rating_count} size="lg" />
+                <ReviewStars
+                  rating={clinic.rating_avg}
+                  count={clinic.rating_count}
+                  size="lg"
+                  onClick={scrollToReviews}
+                />
               </div>
 
               {todayHours?.text && (
@@ -276,6 +292,7 @@ export default function ClinicProfilePage() {
                 icon={rating > 0 ? 'fa-star' : undefined}
                 tone={rating > 0 ? 'amber' : 'slate'}
                 compact
+                onClick={scrollToReviews}
               />
               <StatPill
                 label="Patients"
@@ -317,10 +334,11 @@ export default function ClinicProfilePage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 pt-4 sm:pt-6 pb-24 sm:pb-8 md:pb-10 space-y-4 sm:space-y-6">
+        <ProfileSectionNav accent="emerald" />
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
           <div className="lg:col-span-2 space-y-4 sm:space-y-6 order-2 lg:order-1">
-            {clinic.gallery?.length > 0 && (
-              <Section title="Clinic photos" icon="fa-images">
+            <Section title="Clinic photos & videos" icon="fa-images" id="profile-media">
+              {clinic.gallery?.length > 0 ? (
                 <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {clinic.gallery.map((img) => (
                     <div
@@ -336,10 +354,24 @@ export default function ClinicProfilePage() {
                     </div>
                   ))}
                 </div>
-              </Section>
-            )}
+              ) : (
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="rounded-2xl overflow-hidden border border-slate-100 aspect-[16/10]">
+                    <img
+                      src={resolveMediaUrl(clinic.cover_image || clinic.logo) || HEALTHCARE_IMAGES.clinicProfile}
+                      alt={clinic.name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="rounded-2xl overflow-hidden border border-slate-100 aspect-[16/10]">
+                    <img src={HEALTHCARE_IMAGES.clinicVisit} alt="Clinic interior" className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                </div>
+              )}
+            </Section>
 
-            <Section title="About this clinic" icon="fa-circle-info">
+            <Section title="About this clinic" icon="fa-circle-info" id="profile-overview">
               <p className="text-slate-600 leading-relaxed whitespace-pre-line">
                 {clinic.description ||
                   'A verified Urban Physio partner clinic offering in-person physiotherapy with modern equipment and experienced specialists.'}
@@ -414,23 +446,27 @@ export default function ClinicProfilePage() {
               </Section>
             )}
 
-            {services.length > 0 && (
-              <Section title="Treatments & services" icon="fa-hand-holding-medical">
-                <div className="flex flex-wrap gap-2">
-                  {services.map((s) => (
-                    <span
-                      key={s}
-                      className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-sm font-medium border border-emerald-100"
-                    >
-                      {s}
-                    </span>
-                  ))}
-                </div>
+            {(hasProfileServices || legacyServices.length > 0) && (
+              <Section title="Treatments & services" icon="fa-hand-holding-medical" id="profile-services">
+                {hasProfileServices ? (
+                  <ProfileServicesGrid services={profileServices} variant="clinic" />
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {legacyServices.map((s) => (
+                      <span
+                        key={s}
+                        className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-sm font-medium border border-emerald-100"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </Section>
             )}
 
             {equipment.length > 0 && (
-              <Section title="Equipment & modalities" icon="fa-stethoscope">
+              <Section title="Equipment & modalities" icon="fa-stethoscope" id={!hasProfileServices && legacyServices.length === 0 ? 'profile-services' : undefined}>
                 <div className="flex flex-wrap gap-2">
                   {equipment.map((item) => (
                     <span
@@ -459,7 +495,7 @@ export default function ClinicProfilePage() {
               </Section>
             )}
 
-            <Section title="Patient feedback" icon="fa-star" id="patient-reviews">
+            <Section title="Patient feedback" icon="fa-star" id="profile-stories">
               {clinic.reviews?.length > 0 ? (
                 <div className="space-y-3 mb-4">
                   {clinic.reviews.map((r) => (
