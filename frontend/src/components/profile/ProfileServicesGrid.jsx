@@ -1,4 +1,4 @@
-import FaIcon from './FaIcon';
+import FaIcon from '../FaIcon';
 
 function formatPrice(price) {
   const n = Number(price);
