@@ -60,6 +60,7 @@ export const auth = {
   login: (data) => api.post('/auth/login', data),
   googleLogin: (data) => api.post('/auth/google', data),
   forgotPassword: (data) => api.post('/auth/forgot-password', data),
+  validateResetToken: (token) => api.get('/auth/reset-password/validate', { params: { token } }),
   resetPassword: (data) => api.post('/auth/reset-password', data),
   me: () => api.get('/auth/me'),
   updateProfile: (data) => api.put('/auth/profile', data),

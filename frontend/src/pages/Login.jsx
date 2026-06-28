@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import toast from 'react-hot-toast';
 import Navbar from '../components/Navbar';
 import PhoneOtpLogin from '../components/PhoneOtpLogin';
 import AuthFallbackLogin from '../components/AuthFallbackLogin';
@@ -36,12 +37,20 @@ export default function Login() {
   const activeTab = urlRole === 'doctor' || urlRole === 'provider' ? 'doctor' : 'patient';
   const tab = TABS.find((t) => t.id === activeTab) || TABS[0];
   const { user, hasRole } = useAuth();
+  const passwordResetShown = useRef(false);
 
   useEffect(() => {
     if (urlRole === 'provider') {
       setSearchParams({ role: 'doctor' }, { replace: true });
     }
   }, [urlRole, setSearchParams]);
+
+  useEffect(() => {
+    if (location.state?.passwordReset && !passwordResetShown.current) {
+      passwordResetShown.current = true;
+      toast.success('Password updated successfully. Please sign in with your new password.');
+    }
+  }, [location.state?.passwordReset]);
 
   const setTab = (id) => {
     setSearchParams(id === 'doctor' ? { role: 'doctor' } : {}, { replace: true });

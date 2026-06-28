@@ -1,6 +1,9 @@
 # Cloudflare Pages — The Urban Physio
 # Build output uses /static/ (not /assets/) to bypass old poisoned CDN cache.
 
+# Canonical domain — www must point to Cloudflare Pages (not Hostinger origin)
+https://www.theurbanphysio.com/*  https://theurbanphysio.com/:splat  301
+
 /static/*
   /static/:splat
   200
