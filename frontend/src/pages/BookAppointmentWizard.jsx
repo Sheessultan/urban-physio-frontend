@@ -38,7 +38,7 @@ import BookingPersonalDetailsStep from '../components/booking/BookingPersonalDet
 import { POLICY_LAST_UPDATED } from '../constants/policyPages';
 import { matchPainTypeLabel, matchHomeConditionLabel } from '../utils/bookUrl';
 import { applyPatientProfileToBooking } from '../utils/patientBookingPrefill';
-import { buildSchedulePayload, isStructuredPackageId } from '../utils/bookingScheduleUtils';
+import { buildSchedulePayload, createEmptySessions, isStructuredPackageId } from '../utils/bookingScheduleUtils';
 import CouponInput from '../components/platform/CouponInput';
 
 const STEPS = [
@@ -325,10 +325,15 @@ export default function BookAppointmentWizard() {
         const key = adminPackageKey(pkg.id);
         setPackageId(key);
         setSelectedDoctorPackage({ ...pkg, package_source: 'admin' });
-        const n = pkg.total_sessions || 1;
-        setScheduleSessions([
-          { date: prefillDate || '', time: prefillSlotTime || '' },
-        ]);
+        const n = pkg.total_sessions || pkg.duration_days || 1;
+        if (prefillDate || prefillSlotTime) {
+          setScheduleSessions([
+            { date: prefillDate || '', time: prefillSlotTime || '' },
+            ...createEmptySessions(Math.max(0, n - 1)),
+          ]);
+        } else {
+          setScheduleSessions(createEmptySessions(n));
+        }
         patch({
           number_of_sessions: n,
           package_label: pkg.name,
@@ -342,10 +347,15 @@ export default function BookAppointmentWizard() {
         const key = `doctor-${pkg.id}`;
         setPackageId(key);
         setSelectedDoctorPackage(pkg);
-        const n = pkg.total_sessions || 1;
-        setScheduleSessions([
-          { date: prefillDate || '', time: prefillSlotTime || '' },
-        ]);
+        const n = pkg.total_sessions || pkg.duration_days || 1;
+        if (prefillDate || prefillSlotTime) {
+          setScheduleSessions([
+            { date: prefillDate || '', time: prefillSlotTime || '' },
+            ...createEmptySessions(Math.max(0, n - 1)),
+          ]);
+        } else {
+          setScheduleSessions(createEmptySessions(n));
+        }
         patch({ number_of_sessions: n, package_label: pkg.name, doctor_package_id: pkg.id, treatment_package_id: '' });
       }
     } else if (prefillDate) {
@@ -703,7 +713,7 @@ export default function BookAppointmentWizard() {
     }
     const sessions = pkg?.total_sessions || pkg?.duration_days || 1;
     setSelectedDoctorPackage(pkg);
-    setScheduleSessions([{ date: '', time: '' }]);
+    setScheduleSessions(createEmptySessions(sessions));
     const parsed = parsePackageKey(id);
     if (parsed.source === 'admin') {
       patch({
@@ -749,23 +759,23 @@ export default function BookAppointmentWizard() {
     }
     if (s === 2) {
       const structured = isStructuredPackageId(packageId);
-      if (structured || packageId === SINGLE_PACKAGE_ID) {
-        const first = scheduleSessions[0];
-        if (!first?.date || !first?.time) {
-          toast.error(
-            structured
-              ? 'Select date and time for your first package session'
-              : 'Select date and time for your visit'
-          );
+      const multi = structured || packageId === CUSTOM_PACKAGE_ID;
+      if (multi) {
+        const incomplete = scheduleSessions.find((sess) => !sess.date || !sess.time);
+        if (incomplete) {
+          toast.error('Complete date and time for every session');
           return false;
         }
-        patch({ appointment_date: first.date, start_time: first.time });
-        return true;
-      }
-      const incomplete = scheduleSessions.find((sess) => !sess.date || !sess.time);
-      if (incomplete) {
-        toast.error('Complete date and time for every session');
-        return false;
+        if (structured && scheduleSessions.length < (form.number_of_sessions || 1)) {
+          toast.error('Schedule all package sessions');
+          return false;
+        }
+      } else {
+        const first = scheduleSessions[0];
+        if (!first?.date || !first?.time) {
+          toast.error('Select date and time for your visit');
+          return false;
+        }
       }
       const first = scheduleSessions[0];
       patch({ appointment_date: first.date, start_time: first.time });
@@ -1172,12 +1182,18 @@ export default function BookAppointmentWizard() {
                 </p>
                 <p>
                   <span className="text-slate-500">Sessions:</span> {form.number_of_sessions}
-                  {isStructuredPackageId(packageId) && form.number_of_sessions > 1 && (
-                    <span className="text-slate-600">
-                      {' '}
-                      (first visit now — {form.number_of_sessions - 1} more from your dashboard)
-                    </span>
-                  )}
+                  {(isStructuredPackageId(packageId) || packageId === CUSTOM_PACKAGE_ID) &&
+                    scheduleSessions.length > 1 && (
+                      <span className="block text-xs text-slate-600 mt-1 space-y-0.5">
+                        {scheduleSessions.map((s, i) =>
+                          s.date && s.time ? (
+                            <span key={i} className="block">
+                              Session {i + 1}: {s.date} · {s.time}
+                            </span>
+                          ) : null
+                        )}
+                      </span>
+                    )}
                 </p>
                 <p className="text-lg font-bold text-primary-700 pt-2">
                   Total: ₹{fee().toLocaleString('en-IN')}

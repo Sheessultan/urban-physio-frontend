@@ -1,19 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FaIcon from '../FaIcon';
-import TreatmentPackagesBrowser from '../packages/TreatmentPackagesBrowser';
+import PackageCarousel from './PackageCarousel';
 import HorizontalScrollRow, { scrollChipClass } from './HorizontalScrollRow';
 import { packageMatchesCategory } from '../../utils/packageHelpers';
 import {
+  applySmartSessionDefaults,
+  createEmptySessions,
+  CUSTOM_PACKAGE_ID,
   formatDateChip,
   formatDateHeading,
   formatSlotLabel,
   isStructuredPackageId,
+  SINGLE_PACKAGE_ID,
   todayIso,
 } from '../../utils/bookingScheduleUtils';
 
-export const CUSTOM_PACKAGE_ID = 'custom';
-export const SINGLE_PACKAGE_ID = 'single';
+export { CUSTOM_PACKAGE_ID, SINGLE_PACKAGE_ID } from '../../utils/bookingScheduleUtils';
 
 export function adminPackageKey(id) {
   return `admin-${id}`;
@@ -59,6 +62,7 @@ export default function BookingScheduleStep({
   const isStructured = isStructuredPackageId(selectedPackageId);
   const isCustom = selectedPackageId === CUSTOM_PACKAGE_ID;
   const isSingle = selectedPackageId === SINGLE_PACKAGE_ID || !selectedPackageId;
+  const isMulti = isStructured || isCustom;
 
   const structuredPackages = useMemo(
     () => [
@@ -103,16 +107,43 @@ export default function BookingScheduleStep({
   const preferredTime = scheduleSessions[0]?.time || '';
 
   useEffect(() => {
-    if (isStructured || isSingle) {
-      if (scheduleSessions.length !== 1) {
-        onScheduleChange([scheduleSessions[0] || { date: '', time: '' }]);
-      }
-      return;
-    }
+    setActiveSessionIndex(0);
+    setShowDatePicker(false);
+  }, [selectedPackageId]);
+
+  useEffect(() => {
     if (isCustom && scheduleSessions.length < 1) {
       onScheduleChange([{ date: '', time: '' }]);
     }
-  }, [isStructured, isSingle, isCustom, scheduleSessions, onScheduleChange]);
+  }, [isCustom, scheduleSessions.length, onScheduleChange]);
+
+  useEffect(() => {
+    if (!isStructured) return;
+    const expected = selectedPkg.sessions;
+    if (scheduleSessions.length !== expected) {
+      onScheduleChange(createEmptySessions(expected));
+      setActiveSessionIndex(0);
+    }
+  }, [isStructured, selectedPkg.sessions, selectedPackageId, scheduleSessions.length, onScheduleChange]);
+
+  useEffect(() => {
+    if (availableDatesLoading || !availableDates?.length) return;
+    if (!isMulti) return;
+
+    const allDatesEmpty = scheduleSessions.every((s) => !s.date);
+    const missingLaterDates =
+      Boolean(scheduleSessions[0]?.date) &&
+      scheduleSessions.some((s, i) => i > 0 && !s.date);
+
+    if (!allDatesEmpty && !missingLaterDates) return;
+
+    const next = applySmartSessionDefaults(scheduleSessions, availableDates, { onlyEmptyDates: true });
+    const changed = next.some(
+      (s, i) => s.date !== scheduleSessions[i]?.date || s.time !== scheduleSessions[i]?.time
+    );
+    if (changed) onScheduleChange(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availableDates, availableDatesLoading, selectedPackageId, isMulti, scheduleSessions.length, scheduleSessions[0]?.date]);
 
   useEffect(() => {
     const first = scheduleSessions[0];
@@ -125,21 +156,36 @@ export default function BookingScheduleStep({
   }, [scheduleSessions, selectedPkg.label, selectedPkg.sessions, isStructured, isCustom]);
 
   const updateSession = (index, fields) => {
-    const nextFields = { ...fields };
-    if (nextFields.date != null && index > 0 && !nextFields.time && preferredTime) {
-      nextFields.time = preferredTime;
+    let next = scheduleSessions.map((s, i) => (i === index ? { ...s, ...fields } : s));
+
+    if (index === 0 && fields.time && isMulti) {
+      next = next.map((s, i) =>
+        i > 0 && (!s.time || s.time === preferredTime) ? { ...s, time: fields.time } : s
+      );
     }
-    onScheduleChange(scheduleSessions.map((s, i) => (i === index ? { ...s, ...nextFields } : s)));
+
+    if (fields.date != null && index > 0 && !fields.time && preferredTime) {
+      next[index] = { ...next[index], time: preferredTime };
+    }
+
+    onScheduleChange(next);
   };
 
   const pickDate = (index, d) => {
-    const time =
-      index > 0 && preferredTime
-        ? preferredTime
-        : scheduleSessions[index]?.date === d
-          ? scheduleSessions[index]?.time || ''
-          : '';
-    updateSession(index, { date: d, time });
+    let next = scheduleSessions.map((s, i) => {
+      if (i !== index) return s;
+      const keepTime = s.date === d ? s.time || '' : index === 0 ? s.time || '' : preferredTime || '';
+      return { ...s, date: d, time: keepTime };
+    });
+
+    if (index === 0 && isMulti) {
+      next = applySmartSessionDefaults(next, availableDates, { onlyEmptyDates: true });
+      next[0] = { ...next[0], date: d };
+    } else if (index > 0 && preferredTime && !next[index].time) {
+      next[index] = { ...next[index], time: preferredTime };
+    }
+
+    onScheduleChange(next);
   };
 
   const addCustomSession = () => {
@@ -160,12 +206,12 @@ export default function BookingScheduleStep({
   const activeSession = scheduleSessions[activeSessionIndex] || { date: '', time: '' };
   const activeSlots = activeSession.date ? slotsCache[activeSession.date] || [] : [];
   const scheduledCount = scheduleSessions.filter((s) => s.date && s.time).length;
-  const progressTotal = isStructured ? 1 : scheduleSessions.length;
-  const progressDone = isStructured
-    ? scheduleSessions[0]?.date && scheduleSessions[0]?.time
+  const progressTotal = isMulti ? scheduleSessions.length : 1;
+  const progressDone = isMulti
+    ? scheduledCount
+    : scheduleSessions[0]?.date && scheduleSessions[0]?.time
       ? 1
-      : 0
-    : scheduledCount;
+      : 0;
   const progressPct = progressTotal > 0 ? Math.round((progressDone / progressTotal) * 100) : 0;
 
   useEffect(() => {
@@ -173,18 +219,16 @@ export default function BookingScheduleStep({
   }, [activeSession.date, loadSlotsForDate]);
 
   useEffect(() => {
-    const sess = scheduleSessions[activeSessionIndex];
-    if (activeSessionIndex > 0 && sess?.date && !sess?.time && preferredTime) {
-      updateSession(activeSessionIndex, { time: preferredTime });
+    if (activeSessionIndex >= scheduleSessions.length) {
+      setActiveSessionIndex(Math.max(0, scheduleSessions.length - 1));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeSessionIndex, preferredTime]);
+  }, [scheduleSessions.length, activeSessionIndex]);
 
   useEffect(() => {
-    if (!isCustom || scheduleSessions.length <= 1) return;
+    if (!isMulti || scheduleSessions.length <= 1) return;
     const el = sessionScrollRef.current?.querySelector(`[data-session-idx="${activeSessionIndex}"]`);
     el?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-  }, [activeSessionIndex, isCustom, scheduleSessions.length]);
+  }, [activeSessionIndex, isMulti, scheduleSessions.length]);
 
   const serviceLabel =
     serviceType === 'home_visit' ? 'Home visit' : serviceType === 'online' ? 'Online' : 'Clinic';
@@ -194,29 +238,18 @@ export default function BookingScheduleStep({
       <div>
         <h2 className="text-xl md:text-2xl font-bold text-slate-900">Package &amp; schedule</h2>
         <p className="text-sm text-slate-600 mt-1">
-          {serviceLabel} — swipe sessions &amp; dates sideways on mobile.
+          {serviceLabel} — swipe packages &amp; sessions sideways on mobile.
         </p>
       </div>
 
       {packagesForService.length > 0 && (
-        <section className="space-y-2">
-          <p className="text-xs font-bold uppercase tracking-wide text-orange-700 flex items-center gap-2">
-            <FaIcon icon="fa-box-open" />
-            {serviceLabel} packages
-          </p>
-          <TreatmentPackagesBrowser
-            packages={packagesForService}
-            interaction="select"
-            selectedKey={isStructured ? selectedPackageId : null}
-            defaultCategory={serviceType || 'clinic'}
-            lockCategory
-            getPackageKey={(pkg) =>
-              pkg.package_source === 'admin' ? adminPackageKey(pkg.id) : doctorPackageKey(pkg.id)
-            }
-            onSelect={(key, pkg) => onPackageChange(key, { ...pkg, package_source: pkg.package_source || 'doctor' })}
-            bookLabel="Select package"
-          />
-        </section>
+        <PackageCarousel
+          adminPackages={adminPackages}
+          doctorPackages={doctorPackages}
+          serviceType={serviceType}
+          selectedKey={isStructured ? selectedPackageId : null}
+          onSelect={(key, pkg) => onPackageChange(key, { ...pkg, package_source: pkg.package_source || 'doctor' })}
+        />
       )}
 
       <section className="space-y-2">
@@ -249,9 +282,9 @@ export default function BookingScheduleStep({
       </section>
 
       {isStructured && (
-        <div className="rounded-2xl bg-sky-50 border border-sky-200/80 px-3 py-2.5 text-sm text-sky-900">
-          <strong>{selectedPkg.label}</strong> — book session 1 now;{' '}
-          <strong>{Math.max(0, packageTotalSessions - 1)}</strong> later from dashboard.
+        <div className="rounded-2xl bg-gradient-to-r from-sky-50 to-orange-50 border border-sky-200/80 px-3 py-2.5 text-sm text-sky-900">
+          <strong>{selectedPkg.label}</strong> — schedule all{' '}
+          <strong>{packageTotalSessions}</strong> sessions below. Dates auto-fill from your first pick.
         </div>
       )}
 
@@ -264,8 +297,7 @@ export default function BookingScheduleStep({
         </div>
       )}
 
-      {/* Session picker — horizontal only, never wraps */}
-      {isCustom && scheduleSessions.length >= 1 && (
+      {isMulti && scheduleSessions.length >= 1 && (
         <div>
           <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-2 flex items-center justify-between">
             <span>Sessions</span>
@@ -307,10 +339,11 @@ export default function BookingScheduleStep({
         >
           <div className="px-3 py-2.5 border-b border-slate-100 flex items-center justify-between gap-2 bg-slate-50/80">
             <p className="font-bold text-slate-900 text-sm">
-              {isStructured ? (
-                <>Session 1 <span className="text-slate-500 font-medium">/ {packageTotalSessions}</span></>
-              ) : isCustom ? (
-                <>Session {activeSessionIndex + 1} <span className="text-slate-500 font-medium">/ {scheduleSessions.length}</span></>
+              {isMulti ? (
+                <>
+                  Session {activeSessionIndex + 1}{' '}
+                  <span className="text-slate-500 font-medium">/ {scheduleSessions.length}</span>
+                </>
               ) : (
                 'Your visit'
               )}
@@ -327,7 +360,6 @@ export default function BookingScheduleStep({
           </div>
 
           <div className="p-3 sm:p-4 space-y-4">
-            {/* Dates — horizontal scroll */}
             <div>
               <div className="flex items-center justify-between gap-2 mb-2">
                 <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">Date</p>
@@ -380,7 +412,6 @@ export default function BookingScheduleStep({
               ) : null}
             </div>
 
-            {/* Times — horizontal scroll */}
             {activeSession.date && (
               <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
                 <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
