@@ -1,5 +1,5 @@
 import toast from 'react-hot-toast';
-import { payments } from '../services/api';
+import { appointments, payments } from '../services/api';
 
 function bookingMeta(appt) {
   if (!appt?.booking_meta) return {};
@@ -8,9 +8,10 @@ function bookingMeta(appt) {
 
 /** True when booking is held until Razorpay (online) payment completes — not offline/clinic COD. */
 export function isAwaitingOnlinePayment(appt) {
-  if (!appt || appt.status !== 'pending') return false;
-  if (appt.payment_status === 'paid') return false;
+  if (!appt || appt.payment_status === 'paid') return false;
+  if (appt.status !== 'pending') return false;
   const meta = bookingMeta(appt);
+  if (meta.awaiting_online_payment) return true;
   return Number(meta.pay_now_amount) > 0;
 }
 
@@ -88,12 +89,14 @@ export async function completeAppointmentPayment(appointmentId) {
   return openRazorpayCheckout(orderRes);
 }
 
-export function handlePaymentError(err, { onPendingNavigate } = {}) {
+export function handlePaymentError(err, { onPendingNavigate, appointmentId } = {}) {
   if (err?.code === 'DISMISS' || err?.message === 'Payment cancelled') {
-    toast.error('Payment not completed. Your booking stays on hold until you pay.');
-    onPendingNavigate?.();
+    toast.error('Payment not completed. Your slot was not booked.');
     return;
   }
   const msg = err?.message || 'Payment failed';
   toast.error(msg === 'A server error occurred' ? 'Payment could not be started. Please try again.' : msg);
+  if (appointmentId) {
+    appointments.cancelAwaitingPayment(appointmentId).catch(() => {});
+  }
 }

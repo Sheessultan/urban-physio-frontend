@@ -912,16 +912,16 @@ export default function BookAppointmentWizard() {
       if (appliedCoupon?.code) payload.coupon_code = appliedCoupon.code;
       const res = await appointments.book(payload);
       const appt = res.data;
-      setCreatedAppt(appt);
-      if (isEmergency) {
-        sessionStorage.removeItem('emergency_booking_context');
-      }
-      const dest = user?.role_slug === 'patient' ? '/patient/appointments' : '/admin';
 
       if (payNowAmount() > 0) {
         const orderRes = await payments.createOrder(appt.id);
         try {
           await openRazorpayCheckout(orderRes);
+          setCreatedAppt(appt);
+          if (isEmergency) {
+            sessionStorage.removeItem('emergency_booking_context');
+          }
+          const dest = user?.role_slug === 'patient' ? '/patient/appointments' : '/admin';
           toast.success(
             appt.booking_id
               ? `Payment received — booking ${appt.booking_id} confirmed!`
@@ -929,9 +929,16 @@ export default function BookAppointmentWizard() {
           );
           navigate(dest);
         } catch (payErr) {
-          handlePaymentError(payErr, { onPendingNavigate: () => navigate(dest) });
+          await appointments.cancelAwaitingPayment(appt.id).catch(() => {});
+          setCreatedAppt(null);
+          handlePaymentError(payErr, { appointmentId: appt.id });
         }
       } else {
+        setCreatedAppt(appt);
+        if (isEmergency) {
+          sessionStorage.removeItem('emergency_booking_context');
+        }
+        const dest = user?.role_slug === 'patient' ? '/patient/appointments' : '/admin';
         toast.success(
           appt.booking_id
             ? `Booking submitted! ID: ${appt.booking_id} — pay at clinic; doctor will confirm payment.`

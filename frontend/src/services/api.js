@@ -148,6 +148,7 @@ export const appointments = {
   list: (params) => api.get('/appointments', { params }),
   updateStatus: (id, status) => api.put(`/appointments/${id}/status`, { status }),
   markOfflinePayment: (id) => api.post(`/appointments/${id}/mark-offline-payment`),
+  cancelAwaitingPayment: (id) => api.post(`/appointments/${id}/cancel-awaiting-payment`),
 };
 
 export const booking = {
