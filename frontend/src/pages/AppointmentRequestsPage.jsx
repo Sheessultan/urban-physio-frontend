@@ -18,9 +18,10 @@ const TYPE_LABEL = {
   doctor_change: 'Doctor change',
 };
 
-export default function AppointmentRequestsPage({ navItems, title = 'Appointment Requests', basePath }) {
+export default function AppointmentRequestsPage({ navItems, title = 'Appointment Requests', scope }) {
   const { hasRole } = useAuth();
-  const isAdmin = hasRole('admin', 'super_admin');
+  const isAdmin = scope === 'admin' || (!scope && hasRole('admin', 'super_admin'));
+  const isDoctor = scope === 'doctor' || (!scope && hasRole('doctor') && !isAdmin);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('pending');
@@ -63,7 +64,19 @@ export default function AppointmentRequestsPage({ navItems, title = 'Appointment
   return (
     <Layout {...layoutProps}>
       <div className="max-w-4xl space-y-6">
-        <h1 className="text-2xl font-bold text-slate-800">{title}</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">{title}</h1>
+          {isAdmin && (
+            <p className="text-sm text-slate-600 mt-1">
+              Reschedule and cancellation requests are reviewed by the assigned doctor.
+            </p>
+          )}
+          {isDoctor && (
+            <p className="text-sm text-slate-600 mt-1">
+              Approve or reject patient reschedule and cancellation requests for your appointments.
+            </p>
+          )}
+        </div>
         <div className="flex flex-wrap gap-2">
           {['pending', 'approved', 'rejected', ''].map((s) => (
             <button
@@ -82,7 +95,9 @@ export default function AppointmentRequestsPage({ navItems, title = 'Appointment
         {loading ? (
           <p className="text-slate-500">Loading…</p>
         ) : requests.length === 0 ? (
-          <div className="glass-card p-8 text-center text-slate-500">No requests found.</div>
+          <div className="glass-card p-8 text-center text-slate-500">
+            {isAdmin ? 'No doctor change requests found.' : 'No reschedule or cancellation requests found.'}
+          </div>
         ) : (
           <div className="space-y-4">
             {requests.map((r) => (
@@ -112,7 +127,9 @@ export default function AppointmentRequestsPage({ navItems, title = 'Appointment
                     Requested doctor: Dr. {r.requested_doctor_first_name} {r.requested_doctor_last_name}
                   </p>
                 )}
-                {r.status === 'pending' && (isAdmin || r.request_type !== 'doctor_change') && (
+                {r.status === 'pending' &&
+                  ((isAdmin && r.request_type === 'doctor_change') ||
+                    (isDoctor && r.request_type !== 'doctor_change')) && (
                   <div className="flex flex-wrap gap-2 pt-2">
                     <button
                       type="button"
@@ -138,8 +155,8 @@ export default function AppointmentRequestsPage({ navItems, title = 'Appointment
                     </button>
                   </div>
                 )}
-                {r.status === 'pending' && r.request_type === 'doctor_change' && !isAdmin && (
-                  <p className="text-xs text-amber-700">Doctor change requires admin approval.</p>
+                {r.status === 'pending' && r.request_type === 'doctor_change' && isDoctor && (
+                  <p className="text-xs text-amber-700">Doctor change requests are reviewed by admin.</p>
                 )}
               </article>
             ))}

@@ -16,7 +16,7 @@ export const ADMIN_NAV = [
   { to: '/admin/analytics', label: 'Analytics', icon: 'fa-chart-pie' },
   { to: '/admin/pain-selection', label: 'Pain map', icon: 'fa-bullseye' },
   { to: '/admin/appointments', label: 'Appointments', icon: 'fa-calendar-check' },
-  { to: '/admin/appointment-requests', label: 'Appt. Requests', icon: 'fa-inbox' },
+  { to: '/admin/appointment-requests', label: 'Doctor changes', icon: 'fa-user-doctor' },
   { to: '/admin/emergency', label: 'Emergency', icon: 'fa-truck-medical' },
   { to: '/admin/booking-settings', label: 'Booking', icon: 'fa-puzzle-piece' },
   { to: '/admin/notifications', label: 'Notifications', icon: 'fa-bell', notifyKey: true },

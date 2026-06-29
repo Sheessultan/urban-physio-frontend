@@ -12,7 +12,7 @@ export const DOCTOR_NAV = [
   { to: '/doctor/clinic-availability', label: 'Availability', icon: 'fa-calendar-days' },
   { to: '/doctor/booking-filters', label: 'Booking filters', icon: 'fa-filter' },
   { to: '/doctor/custom-slots', label: 'Custom Slots', icon: 'fa-calendar-plus' },
-  { to: '/doctor/requests', label: 'Requests', icon: 'fa-inbox' },
+  { to: '/doctor/requests', label: 'Reschedule / cancel', icon: 'fa-inbox' },
   { to: '/doctor/emergency', label: 'Emergency', icon: 'fa-truck-medical' },
   { to: '/doctor/notifications', label: 'Notifications', icon: 'fa-bell', notifyKey: true },
   { to: '/doctor/earnings', label: 'Earnings', icon: 'fa-indian-rupee-sign' },
