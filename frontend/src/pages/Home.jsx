@@ -13,6 +13,7 @@ import ExercisesSection from '../components/home/ExercisesSection';
 import PackagesSection from '../components/home/PackagesSection';
 import PhysioFeedSection from '../components/home/PhysioFeedSection';
 import HomePromoBanner from '../components/home/HomePromoBanner';
+import HomeMobileBottomNav from '../components/home/HomeMobileBottomNav';
 import GlobalSearch from '../components/GlobalSearch';
 import { useLocation } from '../contexts/LocationContext';
 import { treatments, conditions, home } from '../services/api';
@@ -170,7 +171,7 @@ export default function Home() {
   );
 
   return (
-    <div className="relative overflow-x-hidden page-enter">
+    <div className="relative overflow-x-hidden page-enter pb-[calc(var(--home-mobile-nav-height)+env(safe-area-inset-bottom,0px))] md:pb-0">
       <Navbar />
 
       <div className="mesh-blob w-96 h-96 bg-orange-400 -top-48 -right-48 animate-pulse-soft hidden md:block opacity-20" />
@@ -234,27 +235,27 @@ export default function Home() {
                 </div>
               )}
 
-              <div className="mt-6 md:mt-9 flex flex-row flex-nowrap gap-2 max-w-xl mx-auto md:mx-0 w-full">
+              <div className="mt-6 md:mt-9 grid grid-cols-3 gap-2.5 sm:gap-3 max-w-xl mx-auto md:mx-0 w-full">
                 <Link
                   to="/doctors"
-                  className="flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2.5 sm:py-3.5 text-[11px] sm:text-sm md:text-base rounded-xl font-semibold text-white glass-dark hover:bg-white/15 transition"
+                  className="min-w-0 inline-flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-3.5 sm:py-4 md:py-3.5 min-h-[3.25rem] sm:min-h-0 rounded-2xl text-xs sm:text-sm md:text-base font-bold text-primary-800 bg-white shadow-[0_6px_20px_-4px_rgba(0,0,0,0.35)] border border-white/90 ring-2 ring-white/30 hover:bg-orange-50 hover:shadow-[0_10px_28px_-4px_rgba(0,0,0,0.4)] active:scale-[0.98] transition-all duration-200"
                 >
-                  <span className="truncate">Find Doctor</span>
-                  <FaIcon icon="fa-user-doctor" className="text-xs sm:text-sm shrink-0" />
+                  <FaIcon icon="fa-user-doctor" className="text-base sm:text-lg text-primary-600 shrink-0" />
+                  <span className="truncate leading-tight text-center">Find Doctor</span>
                 </Link>
                 <Link
                   to="/clinics"
-                  className="flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2.5 sm:py-3.5 text-[11px] sm:text-sm md:text-base rounded-xl font-semibold text-white glass-dark hover:bg-white/15 transition"
+                  className="min-w-0 inline-flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-3.5 sm:py-4 md:py-3.5 min-h-[3.25rem] sm:min-h-0 rounded-2xl text-xs sm:text-sm md:text-base font-bold text-primary-800 bg-white shadow-[0_6px_20px_-4px_rgba(0,0,0,0.35)] border border-white/90 ring-2 ring-white/30 hover:bg-orange-50 hover:shadow-[0_10px_28px_-4px_rgba(0,0,0,0.4)] active:scale-[0.98] transition-all duration-200"
                 >
-                  <span className="truncate">Find Clinic</span>
-                  <FaIcon icon="fa-hospital" className="text-xs sm:text-sm shrink-0" />
+                  <FaIcon icon="fa-hospital" className="text-base sm:text-lg text-primary-600 shrink-0" />
+                  <span className="truncate leading-tight text-center">Find Clinic</span>
                 </Link>
                 <Link
                   to="/book"
-                  className="flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 bg-white text-primary-700 font-bold px-2 sm:px-4 py-2.5 sm:py-3.5 rounded-xl text-[11px] sm:text-sm md:text-base shadow-lg hover:bg-orange-50 transition"
+                  className="min-w-0 inline-flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-3.5 sm:py-4 md:py-3.5 min-h-[3.25rem] sm:min-h-0 rounded-2xl text-xs sm:text-sm md:text-base font-bold text-white bg-gradient-to-br from-orange-400 via-orange-500 to-primary-600 shadow-[0_8px_24px_-4px_rgba(234,88,12,0.55)] ring-2 ring-orange-200/50 hover:from-orange-300 hover:via-orange-400 hover:to-primary-500 hover:shadow-[0_12px_32px_-4px_rgba(234,88,12,0.6)] active:scale-[0.98] transition-all duration-200"
                 >
-                  <span className="truncate">Book Appointment</span>
-                  <FaIcon icon="fa-calendar-check" className="text-xs sm:text-sm shrink-0 hidden sm:inline" />
+                  <FaIcon icon="fa-calendar-check" className="text-base sm:text-lg shrink-0" />
+                  <span className="truncate leading-tight text-center">Book Appointment</span>
                 </Link>
               </div>
             </div>
@@ -649,6 +650,8 @@ export default function Home() {
       </section>
 
       <Footer />
+
+      <HomeMobileBottomNav />
     </div>
   );
 }

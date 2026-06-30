@@ -247,6 +247,20 @@
     @apply border-b-2 border-slate-300 shadow-md shadow-slate-900/5;
   }
 
+  .site-header-spacer {
+    height: calc(3.5rem + var(--podcast-player-height, 0px));
+  }
+
+  @media (min-width: 640px) {
+    .site-header-spacer {
+      height: calc(4rem + var(--podcast-player-height, 0px));
+    }
+  }
+
+  .podcast-mini-player__seek {
+    @apply cursor-pointer;
+  }
+
   .glass-input {
     @apply w-full px-4 py-2.5 bg-white/50 backdrop-blur-md border border-white/60 rounded-xl outline-none;
     transition:
@@ -959,6 +973,17 @@
   }
 
   /* Fixed floating actions — WhatsApp (left), scroll to top (right) */
+  :root {
+    --home-mobile-nav-height: 4.75rem;
+    --home-mobile-fab-size: 3.25rem;
+  }
+
+  @media (min-width: 640px) and (max-width: 767px) {
+    :root {
+      --home-mobile-fab-size: 3.5rem;
+    }
+  }
+
   .floating-actions {
     @apply fixed z-[9975] pointer-events-none;
     bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
@@ -1048,6 +1073,42 @@
 
   .fab-scroll-top--visible:active {
     transform: translateY(0) scale(0.96);
+  }
+
+  /* Homepage mobile bottom nav + FAB stacking (mobile only, < 768px) */
+  .home-mobile-bottom-nav {
+    @apply fixed inset-x-0 bottom-0 z-[9980];
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .home-mobile-bottom-nav__inner {
+    @apply flex items-stretch gap-1 mx-auto w-full max-w-lg px-3 pt-2;
+    min-height: var(--home-mobile-nav-height);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgb(226 232 240 / 0.9);
+    border-radius: 1.375rem 1.375rem 0 0;
+    box-shadow:
+      0 -4px 24px -6px rgb(15 23 42 / 0.1),
+      0 -1px 0 rgb(255 255 255 / 0.8) inset;
+  }
+
+  @media (max-width: 767px) {
+    .floating-actions--home-nav {
+      @apply z-[9990];
+    }
+
+    .floating-actions--home-nav .fab-whatsapp {
+      bottom: calc(var(--home-mobile-nav-height) + 1.125rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .floating-actions--home-nav .fab-scroll-top {
+      bottom: calc(
+        var(--home-mobile-nav-height) + 1.125rem + var(--home-mobile-fab-size) + 0.75rem +
+          env(safe-area-inset-bottom, 0px)
+      );
+    }
   }
 }
 

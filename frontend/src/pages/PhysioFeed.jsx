@@ -39,7 +39,7 @@ export default function PhysioFeed() {
   return (
     <div className="page-enter min-h-screen bg-gradient-to-b from-indigo-50/50 via-white to-slate-50">
       <Navbar />
-      <section className="pt-24 pb-10 bg-gradient-to-br from-indigo-700 via-violet-700 to-slate-900 text-white">
+      <section className="pt-8 sm:pt-10 pb-10 bg-gradient-to-br from-indigo-700 via-violet-700 to-slate-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-1.5 rounded-full text-xs font-bold uppercase">
             <FaIcon icon="fa-rss" /> PhysioFeed

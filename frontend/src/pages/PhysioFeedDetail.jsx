@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import FaIcon from '../components/FaIcon';
 import { physioFeed } from '../services/api';
 import { resolveMediaUrl } from '../utils/mediaUrl';
+import PodcastEpisodePlayer from '../components/podcast/PodcastEpisodePlayer';
 import { cmsContentToHtml } from '../utils/htmlContent';
 
 function mediaSrc(url) {
@@ -60,17 +61,15 @@ export default function PhysioFeedDetail() {
     <>
       <Navbar />
       {post.featured_image && (
-        <div className="pt-16 sm:pt-20">
-          <div className="h-48 sm:h-64 md:h-72 w-full overflow-hidden bg-slate-200">
-            <img
-              src={mediaSrc(post.featured_image)}
-              alt=""
-              className="w-full h-full object-cover"
-            />
-          </div>
+        <div className="h-48 sm:h-64 md:h-72 w-full overflow-hidden bg-slate-200 -mt-px">
+          <img
+            src={mediaSrc(post.featured_image)}
+            alt=""
+            className="w-full h-full object-cover"
+          />
         </div>
       )}
-      <article className={`max-w-3xl mx-auto px-4 pb-16 ${post.featured_image ? 'pt-8' : 'pt-24'}`}>
+      <article className="max-w-3xl mx-auto px-4 pb-16 pt-6 sm:pt-8">
         <Link to="/physiofeed" className="text-sm text-indigo-600 font-semibold inline-flex items-center gap-1 mb-6">
           <FaIcon icon="fa-arrow-left" /> Back to PhysioFeed
         </Link>
@@ -82,22 +81,7 @@ export default function PhysioFeedDetail() {
         </p>
 
         {isPodcast && (videoSrc || audioSrc) && (
-          <div className="glass-card p-4 sm:p-5 mt-6 space-y-4 border border-rose-100">
-            <p className="font-semibold text-slate-900 flex items-center gap-2 text-sm">
-              <FaIcon icon="fa-podcast" className="text-rose-600" />
-              Listen or watch
-            </p>
-            {videoSrc && (
-              <video controls className="w-full max-h-[420px] rounded-xl bg-black shadow-lg" src={videoSrc}>
-                <track kind="captions" />
-              </video>
-            )}
-            {audioSrc && (
-              <audio controls className="w-full" src={audioSrc}>
-                <track kind="captions" />
-              </audio>
-            )}
-          </div>
+          <PodcastEpisodePlayer post={post} audioSrc={audioSrc} videoSrc={videoSrc} />
         )}
 
         <div

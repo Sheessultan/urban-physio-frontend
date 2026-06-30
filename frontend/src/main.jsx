@@ -9,6 +9,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { CookieConsentProvider } from './contexts/CookieConsentContext';
 import { LocationProvider } from './contexts/LocationContext';
 import { ContactProvider } from './contexts/ContactContext';
+import { PodcastPlayerProvider } from './contexts/PodcastPlayerContext';
 import FloatingActions from './components/FloatingActions';
 import LocationSelector from './components/LocationSelector';
 import HapticsRoot from './components/HapticsRoot';
@@ -35,6 +36,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <CookieConsentProvider>
           <ContactProvider>
           <LocationProvider>
+            <PodcastPlayerProvider>
             <LicenseGate>
               <App />
             </LicenseGate>
@@ -48,6 +50,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               style: { padding: '12px 16px' },
             }}
           />
+            </PodcastPlayerProvider>
           </LocationProvider>
           </ContactProvider>
         </CookieConsentProvider>

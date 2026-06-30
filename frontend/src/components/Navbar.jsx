@@ -260,7 +260,7 @@ export default function Navbar({ beforeLogo = null, headerSpacerClass = '' }) {
       />
 
       <div
-        className={`site-header-spacer h-14 sm:h-16 shrink-0 ${headerSpacerClass}`}
+        className={`site-header-spacer shrink-0 ${headerSpacerClass}`}
         aria-hidden="true"
       />
     </>
