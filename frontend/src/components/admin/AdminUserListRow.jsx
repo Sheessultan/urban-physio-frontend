@@ -1,4 +1,5 @@
 import FaIcon from '../FaIcon';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 import AdminUserDetailPanel from './AdminUserDetailPanel';
 import { ROLE_STYLES, ROLE_ICONS, formatDate, userLabel } from '../../utils/adminUserUtils';
 
@@ -23,6 +24,8 @@ export default function AdminUserListRow({
   const isUnverifiedDoctor = isDoctor && user.doctor_id && !Number(user.is_verified);
   const apptCount = user.appointment_count ?? 0;
 
+  const avatarSrc = resolveMediaUrl(user.avatar);
+
   return (
     <div
       className={`rounded-2xl border overflow-hidden transition-shadow ${
@@ -43,8 +46,8 @@ export default function AdminUserListRow({
                 isDoctor ? 'bg-violet-100 text-violet-700' : 'bg-primary-100 text-primary-700'
               }`}
             >
-              {user.avatar ? (
-                <img src={user.avatar} alt="" className="w-full h-full rounded-xl object-cover" />
+              {avatarSrc ? (
+                <img src={avatarSrc} alt="" className="w-full h-full rounded-xl object-cover" />
               ) : (
                 <FaIcon icon={roleIcon} />
               )}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import FaIcon from '../FaIcon';
+import PatientAvatar from '../PatientAvatar';
 import PatientReportsPanel from '../PatientReportsPanel';
 import { admin } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -314,6 +315,28 @@ export default function AdminUserDetailPanel({
 
       {user.role_slug === 'patient' && patient && (
         <>
+          <div className="flex flex-wrap items-center gap-4 rounded-xl bg-white border border-slate-200 p-4">
+            <PatientAvatar
+              patient={{
+                avatar: user.avatar,
+                first_name: user.first_name,
+                last_name: user.last_name,
+              }}
+              size="lg"
+            />
+            <div className="min-w-0">
+              <p className="font-bold text-slate-900 text-lg">
+                {[user.first_name, user.last_name].filter(Boolean).join(' ') || 'Patient'}
+              </p>
+              <p className="text-sm text-slate-500">{user.email}</p>
+              {user.phone && (
+                <p className="text-sm text-slate-600 mt-1 inline-flex items-center gap-1">
+                  <FaIcon icon="fa-phone" className="text-xs text-primary-600" />
+                  {user.phone}
+                </p>
+              )}
+            </div>
+          </div>
           <div>
             <h4 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
               <FaIcon icon="fa-user-injured" className="text-sky-600" />

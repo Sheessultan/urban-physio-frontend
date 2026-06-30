@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import PasswordSetupAlert from '../../components/PasswordSetupAlert';
+import PatientAvatar from '../../components/PatientAvatar';
 import FaIcon from '../../components/FaIcon';
 import { appointments, patientReports, patients } from '../../services/api';
 import { PATIENT_NAV } from '../../constants/patientNav';
@@ -99,12 +100,27 @@ export default function PatientDashboard() {
     <DashboardLayout links={PATIENT_NAV} variant="patient">
       <PasswordSetupAlert profilePath="/patient/profile" />
 
-      <div className="mb-6 md:mb-8">
-        <p className="text-xs md:text-sm text-primary-600 font-semibold uppercase tracking-wide">Patient portal</p>
-        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mt-1">Hello, {name}</h1>
-        <p className="text-slate-600 text-sm mt-1 max-w-xl">
-          Manage appointments, upload medical reports, and book your next session in one place.
-        </p>
+      <div className="mb-6 md:mb-8 flex flex-col sm:flex-row sm:items-center gap-4">
+        <PatientAvatar
+          patient={{
+            avatar: user?.avatar,
+            first_name: user?.first_name,
+            last_name: user?.last_name,
+          }}
+          size="xl"
+          className="!rounded-2xl mx-auto sm:mx-0"
+        />
+        <div className="text-center sm:text-left min-w-0">
+          <p className="text-xs md:text-sm text-primary-600 font-semibold uppercase tracking-wide">Patient portal</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mt-1">Hello, {name}</h1>
+          <p className="text-slate-600 text-sm mt-1 max-w-xl">
+            Manage appointments, upload medical reports, and book your next session in one place.
+          </p>
+          <Link to="/patient/profile" className="inline-flex items-center gap-1 text-sm font-semibold text-primary-600 mt-2 hover:text-primary-800">
+            Edit profile & photo
+            <FaIcon icon="fa-chevron-right" className="text-[10px]" />
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import FaIcon from '../FaIcon';
 import DoctorAvatar from '../DoctorAvatar';
-import { resolveMediaUrl } from '../../utils/mediaUrl';
+import PatientAvatar from '../PatientAvatar';
 
 function MiniStat({ label, value, badge }) {
   return (
@@ -15,27 +15,6 @@ function MiniStat({ label, value, badge }) {
           </span>
         )}
       </p>
-    </div>
-  );
-}
-
-function PatientAvatar({ user, className = '' }) {
-  const src = resolveMediaUrl(user?.avatar);
-  const initials = `${user?.first_name?.[0] || ''}${user?.last_name?.[0] || ''}`.toUpperCase() || '?';
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt=""
-        className={`w-14 h-14 rounded-2xl object-cover ring-2 ring-white shadow-md shrink-0 ${className}`}
-      />
-    );
-  }
-  return (
-    <div
-      className={`w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-400 to-orange-500 text-white font-bold text-lg flex items-center justify-center ring-2 ring-white shadow-md shrink-0 ${className}`}
-    >
-      {initials}
     </div>
   );
 }
@@ -81,7 +60,7 @@ function PatientProfileCard({ user, summary, loading, onNavigate }) {
     <div className="nav-drawer-profile-card relative overflow-hidden rounded-2xl border border-white/60 bg-gradient-to-br from-primary-500/10 via-white to-orange-500/10 p-4 shadow-[0_8px_32px_-12px_rgba(249,115,22,0.35)]">
       <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-primary-200/25 blur-2xl" />
       <div className="relative flex items-start gap-3">
-        <PatientAvatar user={user} />
+        <PatientAvatar patient={user} size="lg" className="!w-14 !h-14 ring-2 ring-white shadow-md" />
         <div className="flex-1 min-w-0">
           <p className="font-bold text-slate-900 text-lg leading-tight truncate">{name}</p>
           <Link

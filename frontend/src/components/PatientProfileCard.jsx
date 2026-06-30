@@ -1,4 +1,5 @@
 import FaIcon from './FaIcon';
+import PatientAvatar from './PatientAvatar';
 
 function Stat({ label, value, icon }) {
   if (value == null || value === '') return null;
@@ -22,13 +23,7 @@ export default function PatientProfileCard({ patient }) {
   return (
     <div className="glass-card space-y-4">
       <div className="flex flex-wrap items-start gap-4 border-b border-white/60 pb-4">
-        <div className="w-14 h-14 rounded-2xl bg-primary-100 text-primary-700 flex items-center justify-center shrink-0 font-bold text-xl">
-          {patient.avatar ? (
-            <img src={patient.avatar} alt="" className="w-full h-full rounded-2xl object-cover" />
-          ) : (
-            (patient.first_name?.[0] || 'P') + (patient.last_name?.[0] || '')
-          )}
-        </div>
+        <PatientAvatar patient={patient} size="lg" />
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-bold text-slate-800">{name}</h2>
           <p className="text-sm text-slate-600 mt-0.5 flex flex-wrap gap-x-3 gap-y-1">

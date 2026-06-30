@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import FaIcon from '../../components/FaIcon';
+import PatientAvatar from '../../components/PatientAvatar';
 import PatientProfileCard from '../../components/PatientProfileCard';
 import AppointmentDetailCard from '../../components/AppointmentDetailCard';
 import { doctors } from '../../services/api';
@@ -106,9 +107,7 @@ export default function DoctorPatients() {
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-11 h-11 rounded-xl bg-primary-100 text-primary-700 flex items-center justify-center font-bold shrink-0">
-                        {(p.first_name?.[0] || '') + (p.last_name?.[0] || '')}
-                      </div>
+                      <PatientAvatar patient={p} size="md" />
                       <div className="min-w-0">
                         <p className="font-bold text-slate-800">
                           {p.first_name} {p.last_name}

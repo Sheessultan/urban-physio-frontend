@@ -170,6 +170,8 @@ export default function Home() {
     [sectionImages],
   );
 
+  const showPromoBanner = promoBanner.enabled && promoBanner.slides.length >= 2;
+
   return (
     <div className="relative overflow-x-hidden page-enter pb-[calc(var(--home-mobile-nav-height)+env(safe-area-inset-bottom,0px))] md:pb-0">
       <Navbar />
@@ -308,11 +310,11 @@ export default function Home() {
         </div>
       </section>
 
-      {promoBanner.enabled && promoBanner.slides.length >= 2 && (
+      {showPromoBanner ? (
         <HomePromoBanner slides={promoBanner.slides} className="pt-4 pb-2 sm:pt-6 sm:pb-4 bg-slate-50" />
+      ) : (
+        <EmergencyCareSection />
       )}
-
-      <EmergencyCareSection />
 
       <PainSelectionSection />
 

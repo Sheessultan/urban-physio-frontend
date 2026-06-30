@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import PasswordSecuritySection from '../../components/PasswordSecuritySection';
 import PatientAddressSection from '../../components/patient/PatientAddressSection';
+import PatientAvatar from '../../components/PatientAvatar';
 import FaIcon from '../../components/FaIcon';
-import { patients } from '../../services/api';
+import { patients, uploadAvatar } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { PATIENT_NAV } from '../../constants/patientNav';
 import toast from 'react-hot-toast';
@@ -21,6 +22,7 @@ const emptyForm = () => ({
   last_name: '',
   email: '',
   phone: '',
+  avatar: '',
   date_of_birth: '',
   gender: '',
   emergency_contact: '',
@@ -35,6 +37,7 @@ function profileToForm(p) {
     last_name: p.last_name || '',
     email: p.email || '',
     phone: p.phone || '',
+    avatar: p.avatar || '',
     date_of_birth: p.date_of_birth ? String(p.date_of_birth).slice(0, 10) : '',
     gender: p.gender || '',
     emergency_contact: p.emergency_contact || '',
@@ -44,7 +47,7 @@ function profileToForm(p) {
 }
 
 export default function PatientProfile() {
-  const { user, setUser } = useAuth();
+  const { user, setUser, refreshUser } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [tab, setTab] = useState(() => searchParams.get('tab') || 'personal');
@@ -52,6 +55,8 @@ export default function PatientProfile() {
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -61,7 +66,7 @@ export default function PatientProfile() {
         const p = res?.data ?? res;
         setForm(profileToForm(p));
         setAddresses(p.addresses || []);
-        setUser((u) => (u ? { ...u, first_name: p.first_name, last_name: p.last_name } : u));
+        setUser((u) => (u ? { ...u, first_name: p.first_name, last_name: p.last_name, avatar: p.avatar || u.avatar } : u));
       })
       .catch((err) => {
         toast.error(err.message || 'Could not load profile');
@@ -94,6 +99,32 @@ export default function PatientProfile() {
   };
 
   const set = (key, value) => setForm((f) => ({ ...f, [key]: value }));
+
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please choose a JPG, PNG or WebP image');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image must be 2MB or smaller');
+      return;
+    }
+    setUploadingPhoto(true);
+    try {
+      const res = await uploadAvatar(file);
+      const url = res.data?.avatar ?? res.data?.avatar_url ?? '';
+      set('avatar', url);
+      await refreshUser();
+      toast.success('Profile photo updated');
+    } catch (err) {
+      toast.error(err.message || 'Photo upload failed');
+    } finally {
+      setUploadingPhoto(false);
+      e.target.value = '';
+    }
+  };
 
   const save = async (e) => {
     e.preventDefault();
@@ -171,6 +202,36 @@ export default function PatientProfile() {
           <form onSubmit={save} className="glass-card !p-6 space-y-4">
             {tab === 'personal' && (
               <>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 flex flex-col sm:flex-row items-center gap-4">
+                  <PatientAvatar
+                    patient={{ avatar: form.avatar, first_name: form.first_name, last_name: form.last_name }}
+                    size="xl"
+                    className="!rounded-full"
+                  />
+                  <div className="flex-1 text-center sm:text-left space-y-2">
+                    <p className="font-medium text-slate-800">Profile photo</p>
+                    <p className="text-xs text-slate-500">
+                      Shown on your dashboard and shared with your doctor when you book. JPG, PNG or WebP · max 2MB.
+                    </p>
+                    <input
+                      ref={photoInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="sr-only"
+                      disabled={uploadingPhoto}
+                      onChange={handlePhotoChange}
+                    />
+                    <button
+                      type="button"
+                      disabled={uploadingPhoto}
+                      onClick={() => photoInputRef.current?.click()}
+                      className={`btn-primary text-sm inline-flex items-center gap-2 ${uploadingPhoto ? 'opacity-60' : ''}`}
+                    >
+                      <FaIcon icon={uploadingPhoto ? 'fa-spinner' : 'fa-camera'} className={uploadingPhoto ? 'fa-spin' : ''} />
+                      {uploadingPhoto ? 'Uploading…' : form.avatar ? 'Change photo' : 'Upload photo'}
+                    </button>
+                  </div>
+                </div>
                 <div className="grid sm:grid-cols-2 gap-3">
                   <input
                     className="input-field"
