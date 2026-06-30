@@ -30,7 +30,7 @@ export function useDoctorPreview(doctor, open) {
     const today = todayIso();
 
     Promise.all([
-      doctors.get(doctor.id).then((r) => r?.data ?? r).catch(() => null),
+      doctors.get(doctor.slug || doctor.id).then((r) => r?.data ?? r).catch(() => null),
       booking
         .availableDates({ doctor_id: doctor.id })
         .then((r) => {

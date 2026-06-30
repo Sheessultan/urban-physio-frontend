@@ -100,7 +100,7 @@ export const location = {
 
 export const doctors = {
   list: (params) => api.get('/doctors', { params }),
-  get: (id) => api.get(`/doctors/${id}`),
+  get: (idOrSlug) => api.get(`/doctors/${encodeURIComponent(String(idOrSlug))}`),
   getProfile: () => api.get('/doctors/profile'),
   updateProfile: (data) => api.put('/doctors/profile', data),
   getAvailability: () => api.get('/doctors/availability'),
