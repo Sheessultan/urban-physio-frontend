@@ -17,14 +17,14 @@ function NavItem({ item, isActive }) {
     'flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[44px] px-1 py-1.5 rounded-2xl',
     'transition-all duration-200 ease-out touch-manipulation',
     isActive
-      ? 'bg-primary-600 text-white shadow-md shadow-primary-600/30 scale-[1.02]'
+      ? 'bg-white text-primary-600 shadow-md shadow-slate-900/10 border border-slate-200/90 scale-[1.02]'
       : 'text-slate-500 hover:text-slate-700 active:bg-slate-100/90',
   ].join(' ');
 
   const inner = (
     <>
-      <FaIcon icon={item.icon} className={`text-base ${isActive ? 'text-white' : ''}`} />
-      <span className={`text-[10px] font-semibold leading-tight text-center truncate max-w-full ${isActive ? 'text-white' : ''}`}>
+      <FaIcon icon={item.icon} className={`text-base ${isActive ? 'text-primary-600' : ''}`} />
+      <span className={`text-[10px] font-semibold leading-tight text-center truncate max-w-full ${isActive ? 'text-primary-600' : ''}`}>
         {item.label}
       </span>
     </>

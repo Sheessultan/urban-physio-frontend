@@ -1096,18 +1096,40 @@
 
   @media (max-width: 767px) {
     .floating-actions--home-nav {
-      @apply z-[9990];
+      @apply z-[9990] flex items-center justify-between pointer-events-none;
+      bottom: calc(var(--home-mobile-nav-height) + 1.125rem + env(safe-area-inset-bottom, 0px));
+      left: 1rem;
+      right: 1rem;
+      width: auto;
     }
 
-    .floating-actions--home-nav .fab-whatsapp {
-      bottom: calc(var(--home-mobile-nav-height) + 1.125rem + env(safe-area-inset-bottom, 0px));
+    .floating-actions--home-nav .fab {
+      position: relative;
+      bottom: auto;
+      left: auto;
+      right: auto;
+      flex-shrink: 0;
+    }
+
+    .floating-actions--home-nav .fab-whatsapp,
+    .floating-actions--home-nav .fab-scroll-top {
+      bottom: auto;
     }
 
     .floating-actions--home-nav .fab-scroll-top {
-      bottom: calc(
-        var(--home-mobile-nav-height) + 1.125rem + var(--home-mobile-fab-size) + 0.75rem +
-          env(safe-area-inset-bottom, 0px)
-      );
+      margin-left: auto;
+    }
+
+    .floating-actions--home-nav .fab-scroll-top:not(.fab-scroll-top--visible) {
+      width: 0;
+      height: 0;
+      min-width: 0;
+      min-height: 0;
+      padding: 0;
+      border-width: 0;
+      margin: 0;
+      overflow: hidden;
+      box-shadow: none;
     }
   }
 }
