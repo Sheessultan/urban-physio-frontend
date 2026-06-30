@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import FaIcon from '../FaIcon';
 import DoctorAvatar from '../DoctorAvatar';
 import PreviewModalShell, { PreviewChip, PreviewSection } from './PreviewModalShell';
+import SaveDoctorButton from '../SaveDoctorButton';
 import { useDoctorPreview } from '../../hooks/useDoctorPreview';
 import { bookDoctorUrl } from '../../utils/bookUrl';
 import { doctorProfileUrl } from '../../utils/profileUrls';
@@ -103,29 +104,32 @@ export default function DoctorPreviewModal({ doctor: initialDoctor, open, onClos
   );
 
   const footer = (
-    <div className="flex flex-col-reverse sm:flex-row gap-3 w-full">
-      <Link
-        to={doctorProfileUrl(d)}
-        onClick={(e) => {
-          stopNav(e);
-          onClose();
-        }}
-        className="btn-outline w-full sm:flex-1 text-center !py-3 inline-flex items-center justify-center gap-2"
-      >
-        <FaIcon icon="fa-user" />
-        View full profile
-      </Link>
-      <Link
-        to={bookDoctorUrl(d.id)}
-        onClick={(e) => {
-          stopNav(e);
-          onClose();
-        }}
-        className="btn-primary w-full sm:flex-1 text-center !py-3 inline-flex items-center justify-center gap-2"
-      >
-        <FaIcon icon="fa-calendar-check" />
-        Book appointment
-      </Link>
+    <div className="flex flex-col gap-3 w-full">
+      <SaveDoctorButton doctor={d} className="w-full" />
+      <div className="flex flex-col-reverse sm:flex-row gap-3 w-full">
+        <Link
+          to={doctorProfileUrl(d)}
+          onClick={(e) => {
+            stopNav(e);
+            onClose();
+          }}
+          className="btn-outline w-full sm:flex-1 text-center !py-3 inline-flex items-center justify-center gap-2"
+        >
+          <FaIcon icon="fa-user" />
+          View full profile
+        </Link>
+        <Link
+          to={bookDoctorUrl(d.id)}
+          onClick={(e) => {
+            stopNav(e);
+            onClose();
+          }}
+          className="btn-primary w-full sm:flex-1 text-center !py-3 inline-flex items-center justify-center gap-2"
+        >
+          <FaIcon icon="fa-calendar-check" />
+          Book appointment
+        </Link>
+      </div>
     </div>
   );
 

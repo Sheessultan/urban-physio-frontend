@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import FaIcon from '../FaIcon';
 import LocationDoctorsBanner from './LocationDoctorsBanner';
-import { getLocalFavourites, toggleLocalFavourite } from '../../utils/bookingFavourites';
+import { getLocalFavourites } from '../../utils/bookingFavourites';
+import { toggleSavedDoctor } from '../../utils/savedDoctors';
 import { patients } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -78,7 +79,7 @@ function ProviderCard({
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onToggleFav(doctor.id);
+                  onToggleFav(doctor.id, doctor);
                 }}
                 className={`w-8 h-8 rounded-full border flex items-center justify-center transition ${
                   favourite ? 'border-rose-300 bg-rose-50 text-rose-500' : 'border-slate-200 text-slate-400 hover:text-rose-500'
@@ -160,8 +161,9 @@ export default function BookingProviderSelectStep({
   const [favourites, setFavourites] = useState(() => getLocalFavourites());
   const [compareList, setCompareList] = useState([]);
 
-  const toggleFav = async (doctorId) => {
-    const nowFav = toggleLocalFavourite(doctorId);
+  const toggleFav = async (doctorId, doctor) => {
+    const payload = doctor?.id ? doctor : { id: doctorId };
+    const nowFav = toggleSavedDoctor(payload).saved;
     setFavourites(getLocalFavourites());
     if (user?.role_slug === 'patient') {
       try {

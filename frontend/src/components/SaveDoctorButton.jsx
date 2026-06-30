@@ -3,16 +3,16 @@ import FaIcon from './FaIcon';
 import { useAuth } from '../contexts/AuthContext';
 import { useRequireAuth } from '../utils/requireAuth';
 import { patients } from '../services/api';
-import { isLocalFavourite, toggleLocalFavourite } from '../utils/bookingFavourites';
+import { isDoctorSaved, toggleSavedDoctor } from '../utils/savedDoctors';
 import toast from 'react-hot-toast';
 
 export default function SaveDoctorButton({ doctor, className = '', compact = false }) {
   const { user, hasRole } = useAuth();
   const { requireAuth } = useRequireAuth();  const doctorId = doctor?.id;
-  const [saved, setSaved] = useState(() => isLocalFavourite(doctorId));
+  const [saved, setSaved] = useState(() => isDoctorSaved(doctorId));
 
   useEffect(() => {
-    const sync = () => setSaved(isLocalFavourite(doctorId));
+    const sync = () => setSaved(isDoctorSaved(doctorId));
     sync();
     window.addEventListener('saved-doctors-changed', sync);
     return () => window.removeEventListener('saved-doctors-changed', sync);
@@ -21,7 +21,7 @@ export default function SaveDoctorButton({ doctor, className = '', compact = fal
   const toggle = async () => {
     if (!doctorId) return;
     if (!requireAuth('Log in to save doctors')) return;
-    const nowFav = toggleLocalFavourite(doctorId);
+    const { saved: nowFav } = toggleSavedDoctor(doctor);
     setSaved(nowFav);
     window.dispatchEvent(new CustomEvent('saved-doctors-changed'));
 

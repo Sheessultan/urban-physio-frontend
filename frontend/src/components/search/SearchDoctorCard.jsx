@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import FaIcon from '../FaIcon';
 import DoctorAvatar from '../DoctorAvatar';
 import ReviewStars from '../platform/ReviewStars';
+import SaveDoctorButton from '../SaveDoctorButton';
 import { doctorProfileUrl } from '../../utils/profileUrls';
 import { bookDoctorUrl } from '../../utils/bookUrl';
 
@@ -50,6 +51,9 @@ export default function SearchDoctorCard({ doctor, query, onTrack }) {
         </div>
       </div>
       <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100">
+        <div className="shrink-0">
+          <SaveDoctorButton doctor={doctor} compact />
+        </div>
         <Link
           to={bookDoctorUrl(doctor.id)}
           onClick={track}

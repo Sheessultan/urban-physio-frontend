@@ -1,28 +1,27 @@
-const STORAGE_KEY = 'urbanphysio_fav_doctors';
+import { getSavedDoctorIds, getSavedDoctors, isDoctorSaved, toggleSavedDoctor } from './savedDoctors';
 
 export function getLocalFavourites() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed.map(String) : [];
-  } catch {
-    return [];
-  }
+  return getSavedDoctorIds();
 }
 
 export function setLocalFavourites(ids) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(ids.map(String)));
+  const list = getSavedDoctors();
+  const keep = new Set(ids.map(String));
+  const next = list.filter((d) => keep.has(String(d.id)));
+  ids.forEach((id) => {
+    if (!next.some((d) => String(d.id) === String(id))) {
+      next.push({ id: Number(id), first_name: 'Doctor', last_name: `#${id}` });
+    }
+  });
+  localStorage.setItem('tup_saved_doctors', JSON.stringify(next.slice(0, 50)));
+  window.dispatchEvent(new CustomEvent('saved-doctors-changed'));
 }
 
-export function toggleLocalFavourite(doctorId) {
-  const id = String(doctorId);
-  const list = getLocalFavourites();
-  const next = list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
-  setLocalFavourites(next);
-  window.dispatchEvent(new CustomEvent('saved-doctors-changed'));
-  return next.includes(id);
+export function toggleLocalFavourite(doctorId, doctor) {
+  const payload = doctor?.id ? doctor : { id: doctorId };
+  return toggleSavedDoctor(payload).saved;
 }
 
 export function isLocalFavourite(doctorId) {
-  return getLocalFavourites().includes(String(doctorId));
+  return isDoctorSaved(doctorId);
 }

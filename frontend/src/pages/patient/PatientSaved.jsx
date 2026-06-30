@@ -7,13 +7,14 @@ import DoctorAvatar from '../../components/DoctorAvatar';
 import ClinicLogo from '../../components/ClinicLogo';
 import ExerciseDetailModal from '../../components/exercise/ExerciseDetailModal';
 import SavedPodcastModal from '../../components/podcast/SavedPodcastModal';
+import SavedActionsMenu from '../../components/saved/SavedActionsMenu';
 import { PATIENT_NAV } from '../../constants/patientNav';
 import { patients, exercises } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
-import { getSavedClinics } from '../../utils/savedClinics';
+import { getSavedClinics, toggleSavedClinic } from '../../utils/savedClinics';
 import { getSavedExercises } from '../../utils/savedExercises';
 import { getFavoritePodcasts, removeFavoritePodcast } from '../../utils/favoritePodcasts';
-import { getLocalFavourites } from '../../utils/bookingFavourites';
+import { getSavedDoctors, removeSavedDoctor } from '../../utils/savedDoctors';
 import { doctorProfileUrl, clinicProfileUrl } from '../../utils/profileUrls';
 import { bookDoctorUrl, bookClinicUrl } from '../../utils/bookUrl';
 import { clinicMapsUrl } from '../../utils/locationHelpers';
@@ -56,9 +57,9 @@ export default function PatientSaved() {
       return;
     }
 
-    const favIds = getLocalFavourites();
+    const favIds = getSavedDoctors();
     setData({
-      doctors: favIds.map((id) => ({ id: Number(id), first_name: 'Doctor', last_name: `#${id}` })),
+      doctors: favIds,
       clinics: getSavedClinics(),
       exercises: getSavedExercises(),
       podcasts,
@@ -101,6 +102,7 @@ export default function PatientSaved() {
   const removeDoctor = async (id) => {
     try {
       if (hasRole('patient')) await patients.removeFavouriteDoctor(id);
+      else removeSavedDoctor(id);
       toast.success('Removed');
       load();
     } catch (e) {
@@ -111,6 +113,7 @@ export default function PatientSaved() {
   const removeClinic = async (id) => {
     try {
       if (hasRole('patient')) await patients.removeFavouriteClinic(id);
+      else toggleSavedClinic({ id });
       toast.success('Removed');
       load();
     } catch (e) {
@@ -132,6 +135,36 @@ export default function PatientSaved() {
     removeFavoritePodcast(slug);
     toast.success('Removed');
     load();
+  };
+
+  const doctorActions = (d) => {
+    const items = [
+      { key: 'profile', label: 'View profile', icon: 'fa-user', to: doctorProfileUrl(d) },
+      { key: 'book', label: 'Book appointment', icon: 'fa-calendar-check', to: bookDoctorUrl(d.id), primary: true },
+    ];
+    if (d.phone) {
+      items.push({ key: 'call', label: 'Call', icon: 'fa-phone', href: `tel:${d.phone}` });
+    }
+    items.push({ divider: true, key: 'div' });
+    items.push({ key: 'remove', label: 'Remove from saved', icon: 'fa-heart-crack', danger: true, onClick: () => removeDoctor(d.id) });
+    return items;
+  };
+
+  const clinicActions = (c) => {
+    const mapUrl = clinicMapsUrl(c);
+    const items = [
+      { key: 'profile', label: 'View profile', icon: 'fa-hospital', to: clinicProfileUrl(c) },
+      { key: 'book', label: 'Book appointment', icon: 'fa-calendar-check', to: bookClinicUrl(c.id), primary: true },
+    ];
+    if (c.phone) {
+      items.push({ key: 'call', label: 'Call', icon: 'fa-phone', href: `tel:${c.phone}` });
+    }
+    if (mapUrl) {
+      items.push({ key: 'directions', label: 'Directions', icon: 'fa-diamond-turn-right', href: mapUrl, external: true });
+    }
+    items.push({ divider: true, key: 'div' });
+    items.push({ key: 'remove', label: 'Remove from saved', icon: 'fa-heart-crack', danger: true, onClick: () => removeClinic(c.id) });
+    return items;
   };
 
   const list = data[tab] || [];
@@ -194,48 +227,21 @@ export default function PatientSaved() {
                   <p className="text-sm text-primary-700">{d.specialization || 'Physiotherapist'}</p>
                   <p className="text-xs text-slate-500 mt-1">{d.city_name || 'India'}</p>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <Link to={doctorProfileUrl(d)} className="btn-outline text-sm">Profile</Link>
-                  <Link to={bookDoctorUrl(d.id)} className="btn-primary text-sm">Book</Link>
-                  <button type="button" className="btn-outline text-sm text-red-700 border-red-200" onClick={() => removeDoctor(d.id)}>
-                    Remove
-                  </button>
-                </div>
+                <SavedActionsMenu items={doctorActions(d)} />
               </article>
             ))}
 
           {tab === 'clinics' &&
-            list.map((c) => {
-              const mapUrl = clinicMapsUrl(c);
-              return (
-                <article key={c.id} className="card flex flex-col sm:flex-row sm:items-center gap-4">
-                  <ClinicLogo clinic={c} size="lg" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-slate-900">{c.name}</p>
-                    <p className="text-sm text-slate-600 line-clamp-2">{c.address || c.city_name}</p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Link to={clinicProfileUrl(c)} className="btn-outline text-sm">Profile</Link>
-                    <Link to={bookClinicUrl(c.id)} className="btn-primary text-sm inline-flex items-center gap-1.5">
-                      <FaIcon icon="fa-calendar-check" /> Book appointment
-                    </Link>
-                    {c.phone && (
-                      <a href={`tel:${c.phone}`} className="btn-outline text-sm inline-flex items-center gap-1">
-                        <FaIcon icon="fa-phone" /> Call
-                      </a>
-                    )}
-                    {mapUrl && (
-                      <a href={mapUrl} target="_blank" rel="noopener noreferrer" className="btn-outline text-sm inline-flex items-center gap-1">
-                        <FaIcon icon="fa-diamond-turn-right" /> Directions
-                      </a>
-                    )}
-                    <button type="button" className="btn-outline text-sm text-red-700 border-red-200" onClick={() => removeClinic(c.id)}>
-                      Remove
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
+            list.map((c) => (
+              <article key={c.id} className="card flex flex-col sm:flex-row sm:items-center gap-4">
+                <ClinicLogo clinic={c} size="lg" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-slate-900">{c.name}</p>
+                  <p className="text-sm text-slate-600 line-clamp-2">{c.address || c.city_name}</p>
+                </div>
+                <SavedActionsMenu items={clinicActions(c)} />
+              </article>
+            ))}
 
           {tab === 'exercises' &&
             list.map((ex) => (
