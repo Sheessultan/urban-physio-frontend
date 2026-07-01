@@ -7,7 +7,7 @@ import DoctorAvatar from '../../components/DoctorAvatar';
 import ClinicLogo from '../../components/ClinicLogo';
 import ExerciseDetailModal from '../../components/exercise/ExerciseDetailModal';
 import SavedPodcastModal from '../../components/podcast/SavedPodcastModal';
-import SavedActionsMenu from '../../components/saved/SavedActionsMenu';
+import SavedActionRow from '../../components/saved/SavedActionRow';
 import { PATIENT_NAV } from '../../constants/patientNav';
 import { patients, exercises } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -139,22 +139,21 @@ export default function PatientSaved() {
 
   const doctorActions = (d) => {
     const items = [
-      { key: 'profile', label: 'View profile', icon: 'fa-user', to: doctorProfileUrl(d) },
-      { key: 'book', label: 'Book appointment', icon: 'fa-calendar-check', to: bookDoctorUrl(d.id), primary: true },
+      { key: 'profile', label: 'Profile', icon: 'fa-user', to: doctorProfileUrl(d) },
+      { key: 'book', label: 'Book', icon: 'fa-calendar-check', to: bookDoctorUrl(d.id), primary: true },
     ];
     if (d.phone) {
       items.push({ key: 'call', label: 'Call', icon: 'fa-phone', href: `tel:${d.phone}` });
     }
-    items.push({ divider: true, key: 'div' });
-    items.push({ key: 'remove', label: 'Remove from saved', icon: 'fa-heart-crack', danger: true, onClick: () => removeDoctor(d.id) });
+    items.push({ key: 'remove', label: 'Remove', icon: 'fa-heart-crack', danger: true, onClick: () => removeDoctor(d.id) });
     return items;
   };
 
   const clinicActions = (c) => {
     const mapUrl = clinicMapsUrl(c);
     const items = [
-      { key: 'profile', label: 'View profile', icon: 'fa-hospital', to: clinicProfileUrl(c) },
-      { key: 'book', label: 'Book appointment', icon: 'fa-calendar-check', to: bookClinicUrl(c.id), primary: true },
+      { key: 'profile', label: 'Profile', icon: 'fa-hospital', to: clinicProfileUrl(c) },
+      { key: 'book', label: 'Book', icon: 'fa-calendar-check', to: bookClinicUrl(c.id), primary: true },
     ];
     if (c.phone) {
       items.push({ key: 'call', label: 'Call', icon: 'fa-phone', href: `tel:${c.phone}` });
@@ -162,8 +161,7 @@ export default function PatientSaved() {
     if (mapUrl) {
       items.push({ key: 'directions', label: 'Directions', icon: 'fa-diamond-turn-right', href: mapUrl, external: true });
     }
-    items.push({ divider: true, key: 'div' });
-    items.push({ key: 'remove', label: 'Remove from saved', icon: 'fa-heart-crack', danger: true, onClick: () => removeClinic(c.id) });
+    items.push({ key: 'remove', label: 'Remove', icon: 'fa-heart-crack', danger: true, onClick: () => removeClinic(c.id) });
     return items;
   };
 
@@ -220,29 +218,30 @@ export default function PatientSaved() {
         <div className="space-y-3">
           {tab === 'doctors' &&
             list.map((d) => (
-              <article key={d.id} className="card flex flex-col sm:flex-row sm:items-center gap-4 overflow-visible">
-                <DoctorAvatar doctor={d} size="lg" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-slate-900">Dr. {d.first_name} {d.last_name}</p>
-                  <p className="text-sm text-primary-700">{d.specialization || 'Physiotherapist'}</p>
-                  <p className="text-xs text-slate-500 mt-1">{d.city_name || 'India'}</p>
+              <article key={d.id} className="card flex flex-col gap-3 overflow-visible">
+                <div className="flex gap-4 items-center min-w-0">
+                  <DoctorAvatar doctor={d} size="lg" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-slate-900">Dr. {d.first_name} {d.last_name}</p>
+                    <p className="text-sm text-primary-700">{d.specialization || 'Physiotherapist'}</p>
+                    <p className="text-xs text-slate-500 mt-1">{d.city_name || 'India'}</p>
+                  </div>
                 </div>
-                <SavedActionsMenu
-                  items={doctorActions(d)}
-                  title={`Dr. ${d.first_name} ${d.last_name}`.trim()}
-                />
+                <SavedActionRow actions={doctorActions(d)} />
               </article>
             ))}
 
           {tab === 'clinics' &&
             list.map((c) => (
-              <article key={c.id} className="card flex flex-col sm:flex-row sm:items-center gap-4 overflow-visible">
-                <ClinicLogo clinic={c} size="lg" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-slate-900">{c.name}</p>
-                  <p className="text-sm text-slate-600 line-clamp-2">{c.address || c.city_name}</p>
+              <article key={c.id} className="card flex flex-col gap-3 overflow-visible">
+                <div className="flex gap-4 items-center min-w-0">
+                  <ClinicLogo clinic={c} size="lg" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-slate-900">{c.name}</p>
+                    <p className="text-sm text-slate-600 line-clamp-2">{c.address || c.city_name}</p>
+                  </div>
                 </div>
-                <SavedActionsMenu items={clinicActions(c)} title={c.name} />
+                <SavedActionRow actions={clinicActions(c)} />
               </article>
             ))}
 
