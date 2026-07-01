@@ -13,7 +13,6 @@ import ExercisesSection from '../components/home/ExercisesSection';
 import PackagesSection from '../components/home/PackagesSection';
 import PhysioFeedSection from '../components/home/PhysioFeedSection';
 import HomePromoBanner from '../components/home/HomePromoBanner';
-import HomeMobileBottomNav from '../components/home/HomeMobileBottomNav';
 import GlobalSearch from '../components/GlobalSearch';
 import { useLocation } from '../contexts/LocationContext';
 import { treatments, conditions, home } from '../services/api';
@@ -167,7 +166,7 @@ export default function Home() {
   const showPromoBanner = promoBanner.enabled && promoBanner.slides.length >= 1;
 
   return (
-    <div className="relative overflow-x-hidden page-enter pb-[calc(var(--home-mobile-nav-height)+env(safe-area-inset-bottom,0px))] md:pb-0">
+    <div className="relative overflow-x-hidden page-enter">
       <Navbar />
 
       <div className="mesh-blob w-96 h-96 bg-orange-400 -top-48 -right-48 animate-pulse-soft hidden md:block opacity-20" />
@@ -631,8 +630,6 @@ export default function Home() {
       </section>
 
       <Footer />
-
-      <HomeMobileBottomNav />
     </div>
   );
 }

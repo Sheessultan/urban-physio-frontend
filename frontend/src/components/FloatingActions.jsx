@@ -66,7 +66,7 @@ export default function FloatingActions() {
   if (!showFloating) return null;
 
   return (
-    <div className="floating-actions floating-actions--home-nav" aria-label="Quick actions">
+    <div className="floating-actions" aria-label="Quick actions">
       {waUrl && (
         <a
           href={waUrl}
