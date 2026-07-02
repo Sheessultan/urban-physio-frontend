@@ -9,7 +9,7 @@ export const EXPLORE_LINKS = [
 ];
 
 export const PROVIDER_LINKS = [
-  { to: '/contact', label: 'Careers', icon: 'fa-briefcase' },
+  { to: '/careers', label: 'Careers', icon: 'fa-briefcase' },
   { to: '/doctor/login', label: 'Clinic Portal', icon: 'fa-hospital-user' },
   { to: '/doctor/register', label: 'Physiotherapist Portal', icon: 'fa-user-doctor' },
 ];

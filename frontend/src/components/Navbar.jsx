@@ -21,7 +21,7 @@ const MORE_NAV_LINKS = [
   { to: '/conditions', label: 'Conditions', icon: 'fa-notes-medical' },
   { to: '/packages', label: 'Packages', icon: 'fa-box-open' },
   { to: '/book?type=home_visit', label: 'Home Physiotherapy', icon: 'fa-house-medical' },
-  { to: '/contact', label: 'Careers', icon: 'fa-briefcase' },
+  { to: '/careers', label: 'Careers', icon: 'fa-briefcase' },
   { to: '/faq', label: 'FAQ', icon: 'fa-circle-question' },
   { to: '/contact', label: 'Contact Us', icon: 'fa-envelope' },
 ];

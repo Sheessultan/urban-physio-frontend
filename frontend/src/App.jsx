@@ -19,6 +19,8 @@ import ConditionDetail from './pages/ConditionDetail';
 import PatientDashboard from './pages/patient/PatientDashboard';
 import PatientAppointments from './pages/patient/PatientAppointments';
 import PatientReports from './pages/patient/PatientReports';
+import DocumentsPage from './pages/DocumentsPage';
+import ClinicDashboardPage from './pages/clinic/ClinicDashboardPage';
 import PatientProfile from './pages/patient/PatientProfile';
 import AdminInvoiceSettings from './pages/admin/AdminInvoiceSettings';
 import AdminPainSelection from './pages/admin/AdminPainSelection';
@@ -45,6 +47,7 @@ import AdminClinics from './pages/admin/AdminClinics';
 import AdminLocations from './pages/admin/AdminLocations';
 import PolicyPage from './pages/legal/PolicyPage';
 import FaqPage from './pages/FaqPage';
+import CareersPage from './pages/CareersPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import CancellationHelpPage from './pages/CancellationHelpPage';
@@ -168,6 +171,7 @@ export default function App() {
       <Route path="/cookie-policy" element={<PolicyPage />} />
 
       <Route path="/faq" element={<FaqPage />} />
+      <Route path="/careers" element={<CareersPage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/cancellation-help" element={<CancellationHelpPage />} />
@@ -178,6 +182,7 @@ export default function App() {
       <Route path="/patient/packages" element={<ProtectedRoute roles={['patient']}><PatientPackages /></ProtectedRoute>} />
       <Route path="/patient/saved" element={<ProtectedRoute roles={['patient']}><PatientSaved /></ProtectedRoute>} />
       <Route path="/patient/reports" element={<ProtectedRoute roles={['patient']}><PatientReports /></ProtectedRoute>} />
+      <Route path="/patient/documents" element={<ProtectedRoute roles={['patient']}><DocumentsPage /></ProtectedRoute>} />
       <Route path="/patient/profile" element={<ProtectedRoute roles={['patient']}><PatientProfile /></ProtectedRoute>} />
       <Route path="/patient/notifications" element={<ProtectedRoute roles={['patient']}><NotificationsPage /></ProtectedRoute>} />
 
@@ -187,6 +192,9 @@ export default function App() {
       <Route path="/doctor/availability" element={<ProtectedRoute roles={['doctor']}><Navigate to="/doctor/clinic-availability" replace /></ProtectedRoute>} />
       <Route path="/doctor/earnings" element={<ProtectedRoute roles={['doctor']}><DoctorEarnings /></ProtectedRoute>} />
       <Route path="/doctor/patients" element={<ProtectedRoute roles={['doctor']}><DoctorPatients /></ProtectedRoute>} />
+      <Route path="/doctor/documents" element={<ProtectedRoute roles={['doctor']}><DocumentsPage /></ProtectedRoute>} />
+      <Route path="/clinic" element={<ProtectedRoute roles={['doctor', 'admin', 'super_admin']}><ClinicDashboardPage /></ProtectedRoute>} />
+      <Route path="/clinic/:clinicId" element={<ProtectedRoute roles={['doctor', 'admin', 'super_admin']}><ClinicDashboardPage /></ProtectedRoute>} />
       <Route path="/doctor/clinics" element={<ProtectedRoute roles={['doctor']}><DoctorClinics /></ProtectedRoute>} />
       <Route path="/doctor/clinics/new" element={<ProtectedRoute roles={['doctor']}><DoctorAddClinic /></ProtectedRoute>} />
       <Route path="/doctor/clinic-availability" element={<ProtectedRoute roles={['doctor']}><DoctorClinicAvailability /></ProtectedRoute>} />
@@ -227,6 +235,7 @@ export default function App() {
       <Route path="/admin/contact" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminContact /></ProtectedRoute>} />
       <Route path="/admin/invoice-settings" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminInvoiceSettings /></ProtectedRoute>} />
       <Route path="/admin/booking-settings" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminBookingSettings /></ProtectedRoute>} />
+      <Route path="/admin/documents" element={<ProtectedRoute roles={['admin', 'super_admin']}><DocumentsPage /></ProtectedRoute>} />
       <Route path="/admin/logs" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminLogs /></ProtectedRoute>} />
       <Route path="/admin/profile" element={<ProtectedRoute roles={['admin', 'super_admin']}><AdminProfile /></ProtectedRoute>} />
       <Route path="/admin/notifications" element={<ProtectedRoute roles={['admin', 'super_admin']}><NotificationsPage /></ProtectedRoute>} />

@@ -198,6 +198,55 @@ export const patientReports = {
   remove: (id) => api.delete(`/patient-reports/${id}`),
 };
 
+/** Document Management System */
+function authHeaders(extra = {}) {
+  const token = localStorage.getItem('token');
+  return { ...extra, ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+}
+
+function normalizeAxiosError(err) {
+  const message = err?.response?.data?.message || err?.message || 'Something went wrong';
+  return Promise.reject({ message, status: err?.response?.status });
+}
+
+export const documents = {
+  categories: () => api.get('/documents/categories'),
+  list: (params = {}) => api.get('/documents', { params }),
+  get: (id) => api.get(`/documents/${id}`),
+  create: (formData, onUploadProgress) =>
+    axios
+      .post(`${API_BASE}/documents`, formData, {
+        headers: authHeaders({ 'Content-Type': 'multipart/form-data' }),
+        onUploadProgress,
+      })
+      .then((res) => res.data)
+      .catch(normalizeAxiosError),
+  update: (id, payload) => api.put(`/documents/${id}`, payload),
+  replace: (id, formData, onUploadProgress) =>
+    axios
+      .post(`${API_BASE}/documents/${id}/replace`, formData, {
+        headers: authHeaders({ 'Content-Type': 'multipart/form-data' }),
+        onUploadProgress,
+      })
+      .then((res) => res.data)
+      .catch(normalizeAxiosError),
+  versions: (id) => api.get(`/documents/${id}/versions`),
+  activity: (id) => api.get(`/documents/${id}/activity`),
+  archive: (id) => api.post(`/documents/${id}/archive`),
+  restore: (id) => api.post(`/documents/${id}/restore`),
+  remove: (id) => api.delete(`/documents/${id}`),
+  downloadBlob: (id) =>
+    axios
+      .get(`${API_BASE}/documents/${id}/download`, { headers: authHeaders(), responseType: 'blob' })
+      .then((res) => res.data)
+      .catch(normalizeAxiosError),
+  bulkDownloadBlob: (ids) =>
+    axios
+      .post(`${API_BASE}/documents/bulk-download`, { ids }, { headers: authHeaders(), responseType: 'blob' })
+      .then((res) => res.data)
+      .catch(normalizeAxiosError),
+};
+
 export const uploadAvatar = (file) => {
   const form = new FormData();
   form.append('avatar', file);
@@ -479,6 +528,16 @@ export const admin = {
 export const contact = {
   settings: () => api.get('/contact/settings'),
   sendMessage: (data) => api.post('/contact/message', data),
+};
+
+export const careers = {
+  apply: (data) => api.post('/careers/apply', data),
+  applications: (params = {}) => api.get('/careers/applications', { params }),
+};
+
+export const clinicPortal = {
+  myClinics: () => api.get('/clinic-portal/clinics'),
+  overview: (clinicId) => api.get(`/clinic-portal/${clinicId}/overview`),
 };
 
 export const about = {

@@ -86,6 +86,12 @@ export function getNotificationPath(notification, roleSlug) {
     return '/admin/users';
   }
 
+  if (type === 'document_uploaded' || type === 'document_shared') {
+    if (role === 'patient') return '/patient/documents';
+    if (role === 'doctor') return '/doctor/documents';
+    return '/admin/documents';
+  }
+
   if (type === 'user_registered') return '/admin/users';
 
   if (type === 'review_submitted') {

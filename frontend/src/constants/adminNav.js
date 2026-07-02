@@ -26,6 +26,7 @@ export const ADMIN_NAV = [
   { to: '/admin/home-banners', label: 'Homepage banner', icon: 'fa-images' },
   { to: '/admin/testimonials', label: 'Homepage reviews', icon: 'fa-comment-dots' },
   { to: '/admin/invoice-settings', label: 'Invoice', icon: 'fa-file-invoice' },
+  { to: '/admin/documents', label: 'Documents', icon: 'fa-folder-tree' },
   { to: '/admin/logs', label: 'Audit Logs', icon: 'fa-clipboard-list' },
   { to: '/admin/profile', label: 'Profile', icon: 'fa-user-gear' },
 ];

@@ -1166,3 +1166,64 @@ html {
     transform: none !important;
   }
 }
+
+/* ---------- Document Management System ---------- */
+@layer components {
+  .doc-card {
+    @apply bg-white/70 backdrop-blur-sm border border-slate-200/80 rounded-2xl p-4 shadow-sm
+           transition-[transform,box-shadow,border-color] duration-300 hover:shadow-lg hover:border-primary-200;
+  }
+
+  @media (hover: hover) {
+    .doc-card:hover {
+      transform: translateY(-3px);
+    }
+  }
+
+  .doc-card--selected {
+    @apply border-primary-400 ring-2 ring-primary-200;
+  }
+
+  .doc-row {
+    @apply flex items-center gap-3 bg-white/70 border border-slate-200/80 rounded-xl px-3 py-2.5
+           transition-colors hover:border-primary-200 hover:bg-white;
+  }
+
+  .doc-row--selected {
+    @apply border-primary-400 ring-1 ring-primary-200;
+  }
+
+  .doc-action {
+    @apply w-8 h-8 inline-flex items-center justify-center rounded-lg text-slate-500 bg-slate-100/70
+           hover:bg-primary-100 hover:text-primary-700 transition-colors text-sm;
+  }
+
+  .doc-action--danger {
+    @apply hover:bg-red-100 hover:text-red-600;
+  }
+
+  .doc-checkbox {
+    @apply w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-400 cursor-pointer shrink-0;
+  }
+
+  .doc-input {
+    @apply w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm text-slate-700
+           outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition;
+  }
+
+  .doc-label {
+    @apply block text-[11px] font-semibold uppercase tracking-wide text-slate-500 mb-1;
+  }
+
+  .doc-chip {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition whitespace-nowrap;
+  }
+
+  .doc-chip--active {
+    @apply border-primary-400 bg-primary-50 text-primary-700;
+  }
+
+  .doc-chip--idle {
+    @apply border-slate-200 bg-white/70 text-slate-600 hover:border-primary-200;
+  }
+}
